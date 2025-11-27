@@ -54,7 +54,16 @@ namespace YimMenu::Submenus
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("superrun"_J));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("superrun"_J, std::make_shared<FloatCommandItem>("moverateoverride"_J, std::nullopt, false)));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("superrun"_J, std::make_shared<FloatCommandItem>("runsprintswimmultiplier"_J, std::nullopt, false)));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("sliderun"_J));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("superjump"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("beastjump"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("ninjajump"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("swiminair"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("freezeplayer"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("vegetable"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("slowmotion"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("superman"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("nofalldamage"_J));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("noclip"_J));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("noclip"_J, std::make_shared<FloatCommandItem>("noclipspeed"_J)));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("freecam"_J));
