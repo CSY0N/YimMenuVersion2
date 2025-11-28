@@ -1,4 +1,4 @@
-# YimMenuV2
+# YimMenuVersion2
 
 Experimental menu for GTA 5: Enhanced
 
