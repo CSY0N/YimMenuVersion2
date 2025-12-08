@@ -55,6 +55,7 @@ namespace YimMenu::Submenus
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("superrun"_J, std::make_shared<FloatCommandItem>("moverateoverride"_J, std::nullopt, false)));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("superrun"_J, std::make_shared<FloatCommandItem>("runsprintswimmultiplier"_J, std::nullopt, false)));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("superjump"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("swiminair"_J));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("noclip"_J));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("noclip"_J, std::make_shared<FloatCommandItem>("noclipspeed"_J)));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("freecam"_J));
