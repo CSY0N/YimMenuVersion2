@@ -11,11 +11,11 @@ namespace YimMenu::Features
 		//Basic needs improved
 		virtual void OnTick() override
 		{
-			PED::SET_PED_CONFIG_FLAG(Self::GetPlayer().GetId(), 65, true);
+			PED::SET_PED_CONFIG_FLAG(PLAYER::PLAYER_PED_ID(), 65, true);
 		}
 		virtual void OnDisable() override
 		{
-			PED::SET_PED_CONFIG_FLAG(Self::GetPlayer().GetId(), 65, false);
+			PED::SET_PED_CONFIG_FLAG(PLAYER::PLAYER_PED_ID(), 65, true);
 		}
 	};
 	static SwimInAir _SwimInAir{
