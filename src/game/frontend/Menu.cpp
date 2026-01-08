@@ -21,17 +21,25 @@
 #include "core/memory/ModuleMgr.hpp"
 #include "Onboarding.hpp"
 #include "game/gta/Natives.hpp"
+#include <shellapi.h>
+
 namespace YimMenu
 {
+	static void OpenURL(const char* url)
+	{
+		::ShellExecuteA(nullptr, "open", url, nullptr, nullptr, SW_SHOWNORMAL);
+	}
+
 	static bool g_ShowThemePicker = true;
-	static int g_SelectedTheme = -1;
+	static int g_SelectedTheme = 2; // Dark Style default
+
 	void ApplyTheme(int theme)
 	{
-		auto& style = ImGui::GetStyle();
-		if (theme == 0) // Gold Style
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImVec4* colors = style.Colors;
+
+		if (theme == 0) // GOLD STYLE
 		{
-			ImGuiStyle& style = ImGui::GetStyle();
-			ImVec4* colors = style.Colors;
 			style.Alpha = 1.0f;
 			style.WindowRounding = 8.0f;
 			style.FrameRounding = 8.0f;
@@ -97,10 +105,9 @@ namespace YimMenu
 			colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.85f, 0.35f, 1.00f);
 			colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.95f, 0.88f, 0.65f, 1.00f);
 		}
-		else if (theme == 1) // Red, White, Blue
+
+		else if (theme == 1) // USA STYLE
 		{
-			ImGuiStyle& style = ImGui::GetStyle();
-			ImVec4* colors = style.Colors;
 			style.Alpha = 1.0f;
 			style.WindowRounding = 8.0f;
 			style.FrameRounding = 8.0f;
@@ -166,47 +173,199 @@ namespace YimMenu
 			colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
 			colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		}
+
+		else if (theme == 2) // DARK STYLE (DEFAULT)
+		{
+			style.Alpha = 1.f;
+			style.WindowRounding = 8.f;
+			style.FrameRounding = 8.f;
+			style.PopupRounding = 0.f;
+			style.ScrollbarRounding = 9.f;
+			style.GrabRounding = 8.f;
+			style.ScrollbarSize = 14.f;
+			style.WindowPadding = {8, 8};
+			style.FramePadding = {4, 3};
+			style.ItemSpacing = {8, 4};
+			style.ItemInnerSpacing = {4, 4};
+
+			ImVec4 c[] = {
+				{1,1,1,1},{0.5,0.5,0.5,1},{0.0588f,0.0588f,0.0588f,1},{0,0,0,0},
+				{0.08f,0.08f,0.08f,0.94f},{0.43f,0.43f,0.5f,0.5f},{0,0,0,0},
+				{0.16f,0.29f,0.48f,0.54f},{0.26f,0.59f,0.98f,0.4f},
+				{0.26f,0.59f,0.98f,0.67f},{0.04f,0.04f,0.04f,1},
+				{0.16f,0.29f,0.48f,1},{0,0,0,0.51f},{0.14f,0.14f,0.14f,1},
+				{0.02f,0.02f,0.02f,0.53f},{0.31f,0.31f,0.31f,1},
+				{0.41f,0.41f,0.41f,1},{0.51f,0.51f,0.51f,1},
+				{0.26f,0.59f,0.98f,1},{0.24f,0.52f,0.88f,1},
+				{0.26f,0.59f,0.98f,1},{0.26f,0.59f,0.98f,0.4f},
+				{0.26f,0.59f,0.98f,1},{0.06f,0.53f,0.98f,1},
+				{0.26f,0.59f,0.98f,0.31f},{0.26f,0.59f,0.98f,0.8f},
+				{0.26f,0.59f,0.98f,1},{0.43f,0.43f,0.5f,0.5f},
+				{0.1f,0.4f,0.75f,0.78f},{0.1f,0.4f,0.75f,1},
+				{0.26f,0.59f,0.98f,0.2f},{0.26f,0.59f,0.98f,0.67f},
+				{0.26f,0.59f,0.98f,0.95f},{1,1,1,1},
+				{0.26f,0.59f,0.98f,0.8f},{0.18f,0.35f,0.58f,0.862f},
+				{0.2f,0.41f,0.68f,1},{0.26f,0.59f,0.98f,1}
+			};
+			for (int i = 0; i < 40; i++) colors[i] = c[i];
+		}
+
+		else if (theme == 3) // CANADIAN STYLE
+		{
+			style.Alpha = 1.f;
+			style.WindowRounding = 8.f;
+			style.FrameRounding = 8.f;
+			style.PopupRounding = 0.f;
+			style.ScrollbarRounding = 9.f;
+			style.GrabRounding = 8.f;
+			style.ScrollbarSize = 14.f;
+			style.WindowPadding = {8, 8};
+			style.FramePadding = {4, 3};
+			style.ItemSpacing = {8, 4};
+			style.ItemInnerSpacing = {4, 4};
+
+			colors[ImGuiCol_Text] = {1,1,1,1};
+			colors[ImGuiCol_WindowBg] = {0.0588f,0.0588f,0.0588f,1};
+			colors[ImGuiCol_Button] = {0.8f,0,0,0.4f};
+			colors[ImGuiCol_ButtonHovered] = {0.9f,0,0,1};
+			colors[ImGuiCol_ButtonActive] = {1,0,0,1};
+			colors[ImGuiCol_Header] = {0.8f,0,0,0.5f};
+			colors[ImGuiCol_HeaderHovered] = {0.9f,0,0,0.78f};
+			colors[ImGuiCol_HeaderActive] = {1,0,0,1};
+			colors[ImGuiCol_CheckMark] = {1,0,0,1};
+		}
 	}
 
-    void DrawStartupThemePicker()
+	static void DrawRainbowTextCentered(const char* text, float font_scale)
+	{
+		ImDrawList* draw = ImGui::GetWindowDrawList();
+		ImVec2 pos = ImGui::GetCursorScreenPos();
+		float time = ImGui::GetTime() * 0.15f;
+
+		ImGui::SetWindowFontScale(font_scale);
+		ImVec2 size = ImGui::CalcTextSize(text);
+		ImGui::SetCursorPosX((ImGui::GetWindowSize().x - size.x) * 0.5f);
+
+		static const ImVec4 colors[] = {
+			ImVec4(3 / 255.f, 252 / 255.f, 102 / 255.f, 1.0f),
+			ImVec4(3 / 255.f, 252 / 255.f, 157 / 255.f, 1.0f),
+			ImVec4(3 / 255.f, 252 / 255.f, 215 / 255.f, 1.0f),
+			ImVec4(3 / 255.f, 252 / 255.f, 248 / 255.f, 1.0f),
+			ImVec4(3 / 255.f, 206 / 255.f, 252 / 255.f, 1.0f),
+			ImVec4(3 / 255.f, 157 / 255.f, 252 / 255.f, 1.0f),
+			ImVec4(3 / 255.f, 111 / 255.f, 252 / 255.f, 1.0f),
+			ImVec4(119 / 255.f, 3 / 255.f, 252 / 255.f, 1.0f),
+			ImVec4(198 / 255.f, 3 / 255.f, 252 / 255.f, 1.0f),
+			ImVec4(252 / 255.f, 3 / 255.f, 223 / 255.f, 1.0f),
+			ImVec4(252 / 255.f, 3 / 255.f, 132 / 255.f, 1.0f),
+		};
+		const int colorCount = sizeof(colors) / sizeof(colors[0]);
+		float x = ImGui::GetCursorScreenPos().x;
+
+		for (int i = 0; text[i]; i++)
+		{
+			float fIndex = fmodf(i * 0.5f + time * 5.0f, colorCount);
+			int index1 = static_cast<int>(fIndex) % colorCount;
+			int index2 = (index1 + 1) % colorCount;
+			float frac = fIndex - static_cast<int>(fIndex);
+
+			ImVec4 col = ImVec4(
+				colors[index1].x * (1 - frac) + colors[index2].x * frac,
+				colors[index1].y * (1 - frac) + colors[index2].y * frac,
+				colors[index1].z * (1 - frac) + colors[index2].z * frac,
+				1.0f
+			);
+
+			ImU32 u32col = IM_COL32(
+				static_cast<int>(col.x * 255),
+				static_cast<int>(col.y * 255),
+				static_cast<int>(col.z * 255),
+				255
+			);
+
+			draw->AddText(ImVec2(x + 2, pos.y + 2), IM_COL32(0, 0, 0, 150), &text[i], &text[i + 1]);
+
+			for (int dx = 0; dx < 2; dx++)
+				for (int dy = 0; dy < 2; dy++)
+					draw->AddText(ImVec2(x + dx, pos.y + dy), u32col, &text[i], &text[i + 1]);
+
+			x += ImGui::CalcTextSize(&text[i], &text[i + 1]).x;
+		}
+
+		ImGui::Dummy(ImVec2(0, size.y * font_scale * 0.6f));
+		ImGui::SetWindowFontScale(1.f);
+	}
+
+	void DrawStartupThemePicker()
 	{
 		if (!g_ShowThemePicker)
 			return;
+
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseDrawCursor = true;
 		io.WantCaptureMouse = true;
 		io.WantCaptureKeyboard = true;
-		const ImVec2 window_size(420.f, 220.f);
-		ImVec2 center = ImVec2(
-		    io.DisplaySize.x * 0.5f,
-		    io.DisplaySize.y * 0.5f);
-		ImGui::SetNextWindowSize(window_size, ImGuiCond_Always);
-		ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+
+		ImGui::SetNextWindowSize({420, 220});
+		ImGui::SetNextWindowPos({io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f}, ImGuiCond_Always, {0.5f, 0.5f});
 
 		ImGui::Begin(
 		    "##ThemePicker",
 		    nullptr,
 		    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
-		ImGui::Text("Choose Your New Year Theme");
-		ImGui::Spacing();
+		DrawRainbowTextCentered("YimMenuV2", 1.8f);
+
+	const char* rulesText = "Must Read This Safe Rules";
+	ImVec2 rulesSize = ImGui::CalcTextSize(rulesText);
+		ImGui::SetCursorPosX((ImGui::GetWindowSize().x - rulesSize.x) * 0.5f);
+
+		ImGui::PushFont(Menu::Font::g_DefaultFont);
+		ImVec2 rulesPos = ImGui::GetCursorScreenPos();
+
+		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "%s", rulesText);
+
+		ImGui::SetCursorScreenPos(rulesPos);
+		if (ImGui::InvisibleButton("##RulesLink", rulesSize))
+			OpenURL("https://yimnonfsl.edgeone.dev/");
+
+		if (ImGui::IsItemHovered())
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
+		ImGui::PopFont();
+
 		ImGui::Separator();
-		ImGui::Spacing();
+		ImGui::Separator();
+
+		ImGui::Dummy(ImVec2(0, 10));
+
+	const char* themeText = "Choose Your New Year Theme";
+	ImVec2 themeTextSize = ImGui::CalcTextSize(themeText);
+	ImGui::SetCursorPosX((ImGui::GetWindowSize().x - themeTextSize.x) * 0.5f);
+	ImGui::Text("%s", themeText);
+	ImGui::Separator();
+
 		static const char* themes[] = {
-		    "Gold Style",
-		    "USA Style"};
-		ImGui::SetNextItemWidth(-1);
-		ImGui::Combo("Theme", &g_SelectedTheme, themes, IM_ARRAYSIZE(themes));
-		ImGui::Spacing();
-		ImGui::Spacing();
-		if (g_SelectedTheme >= 0)
+			"Gold Style",
+			"USA Style",
+			"Dark Style",
+			"Canadian Style"};
+
+		ImVec2 comboSize = ImGui::CalcTextSize(themes[g_SelectedTheme]);
+		ImGui::SetCursorPosX((ImGui::GetWindowSize().x - comboSize.x - 275) * 0.5f);
+		ImGui::Combo("Set Theme", &g_SelectedTheme, themes, IM_ARRAYSIZE(themes));
+
+		ImVec2 btnSize = ImVec2(150, 40);
+		ImGui::SetCursorPosX((ImGui::GetWindowSize().x - btnSize.x) * 0.5f);
+		if (ImGui::Button("Apply Theme", btnSize))
 		{
-			if (ImGui::Button("Apply Theme", ImVec2(-1.f, 40.f)))
-			{
-				ApplyTheme(g_SelectedTheme);
-				g_ShowThemePicker = false;
-			}
+			ApplyTheme(g_SelectedTheme);
+			g_ShowThemePicker = false;
 		}
+
+		if (ImGui::IsItemHovered())
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
 		ImGui::End();
 		PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 		PAD::DISABLE_ALL_CONTROL_ACTIONS(1);
