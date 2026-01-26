@@ -46,7 +46,7 @@ namespace YimMenu::Hooks
 
 		if (f1 == Pointers.SigScanMemory)
 		{
-			LOGF(WARNING, "QueueDependency: Blocked the sig scanner dependency from being queued");
+			g_log.send("WARNING", "QueueDependency: Blocked the sig scanner dependency from being queued");
 			return;
 		}
 
