@@ -12,7 +12,7 @@ namespace YimMenu
 		if (!STREAMING::IS_MODEL_IN_CDIMAGE(model))
 		{
 #ifdef ENTITY_DEBUG
-			LOGF(WARNING, "Invalid model passed to Ped::Create: 0x{:X}", model);
+			g_log.send("WARNING", std::format("Invalid model passed to Ped::Create: 0x{:X}", model));
 #endif
 			return nullptr;
 		}
@@ -25,7 +25,7 @@ namespace YimMenu
 			if (i > 30)
 			{
 #ifdef ENTITY_DEBUG
-				LOGF(WARNING, "Model 0x{:X} failed to load after 30 ticks, bailing out", model);
+				g_log.send("WARNING", std::format("Model 0x{:X} failed to load after 30 ticks, bailing out", model));
 #endif
 				return nullptr;
 			}
@@ -38,7 +38,7 @@ namespace YimMenu
 		if (!ped)
 		{
 #ifdef ENTITY_DEBUG
-			LOGF(WARNING, "CREATE_PED failed when creating a ped with model {:X}", model);
+			g_log.send("WARNING", std::format("CREATE_PED failed when creating a ped with model {:X}", model));
 #endif
 			return nullptr;
 		}
@@ -160,7 +160,7 @@ namespace YimMenu
 #ifdef ENTITY_DEBUG
 		if (!IsPlayer())
 		{
-			LOG(WARNING) << __FUNCTION__ << ": ped is not a player!";
+			g_log.send("WARNING", std::format("{}: ped is not a player!", __FUNCTION__));
 		}
 #endif
 		return NETWORK::NETWORK_GET_PLAYER_INDEX_FROM_PED(GetHandle());
