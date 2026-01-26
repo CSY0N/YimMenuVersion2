@@ -13,7 +13,7 @@ namespace YimMenu::Features
         {
             if (!running && enabled)
             {
-                LOGF(INFO, "Nightclub Loop Tick");
+                g_log.send("INFO", "Nightclub Loop Tick");
                 running = true;
                 Stats::SetInt("MPX_CLUB_POPULARITY", 1000);
                 Stats::SetInt("MPX_CLUB_PAY_TIME_LEFT", 1);
