@@ -426,14 +426,14 @@ namespace YimMenu::Submenus
 
 						if (components.size() != 2)
 						{
-							LOGF(WARNING, "Load From Clipboard: line \"{}\" is malformed", std::string_view{line.begin(), line.end()});
+							g_log.send("WARNING", "Load From Clipboard: line \"{}\" is malformed", std::string_view{line.begin(), line.end()});
 							continue;
 						}
 
 						auto info = GetStatInfo(TrimString(components[0]));
 						if (!info.IsValid())
 						{
-							LOGF(WARNING, "Load From Clipboard: cannot find stat {}", components[0]);
+							g_log.send("WARNING", "Load From Clipboard: cannot find stat {}", components[0]);
 							continue;
 						}
 
