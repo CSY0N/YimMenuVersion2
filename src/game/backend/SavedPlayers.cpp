@@ -145,7 +145,7 @@ namespace YimMenu
 
 		if (!Pointers.GetPresenceAttributes)
 		{
-			LOG(WARNING) << "Socialclub.dll not loaded, cannot fetch player info";
+			g_log.send("WARNING", "Socialclub.dll not loaded, cannot fetch player info");
 			return;
 		}
 
@@ -241,7 +241,7 @@ namespace YimMenu
 			else
 			{
 				// failed, do something here?
-				LOG(WARNING) << "Failed to start get presence attributes task";
+				g_log.send("WARNING", "Failed to start get presence attributes task");
 			}
 
 			m_FetchingPlayerInfo = false;
@@ -325,7 +325,7 @@ namespace YimMenu
 			}
 			catch (const std::exception& e)
 			{
-				LOGF(WARNING, "Failed to load saved players: {}", e.what());
+				g_log.send("WARNING", std::format("Failed to load saved players: {}", e.what()));
 			}
 		}
 	}
@@ -345,7 +345,7 @@ namespace YimMenu
 		}
 		catch (const std::exception& e)
 		{
-			LOGF(WARNING, "Failed to save saved players: {}", e.what());
+			g_log.send("WARNING", std::format("Failed to save saved players: {}", e.what()));
 		}
 	}
 
