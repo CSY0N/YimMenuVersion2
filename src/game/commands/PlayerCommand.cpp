@@ -38,7 +38,7 @@ namespace YimMenu
 
 	void PlayerCommand::OnCall()
 	{
-		LOG(WARNING) << GetName() << " requires a player argument";
+		g_log.send("WARNING", std::format("{} requires a player argument", GetName()));
 	}
 
 	void PlayerCommand::Call(Player target)
