@@ -168,7 +168,7 @@ namespace YimMenu
 	{
 		if (m_CurrentlyReplacedBytecode)
 		{
-			LOG(FATAL) << "We've already shadowed the bytecode of another program!";
+			g_log.send("FATAL", "We've already shadowed the bytecode of another program!");
 			return;
 		}
 
