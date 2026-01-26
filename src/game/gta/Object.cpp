@@ -37,7 +37,7 @@ namespace YimMenu
 		if (!STREAMING::IS_MODEL_IN_CDIMAGE(model))
 		{
 #ifdef ENTITY_DEBUG
-			LOGF(WARNING, "Invalid model passed to Object::Create: 0x{:X}", model);
+			g_log.send("WARNING", "Invalid model passed to Object::Create: 0x{:X}", model);
 #endif
 			return nullptr;
 		}
@@ -50,7 +50,7 @@ namespace YimMenu
 			if (i > 30)
 			{
 #ifdef ENTITY_DEBUG
-				LOGF(WARNING, "Model 0x{:X} failed to load after 30 ticks, bailing out", model);
+				g_log.send("WARNING", "Model 0x{:X} failed to load after 30 ticks, bailing out", model);
 #endif
 				return nullptr;
 			}
@@ -65,7 +65,7 @@ namespace YimMenu
 		if (!obj)
 		{
 #ifdef ENTITY_DEBUG
-			LOGF(WARNING, "CREATE_OBJECT failed when creating an object with model {:X}", model);
+			g_log.send("WARNING", "CREATE_OBJECT failed when creating an object with model {:X}", model);
 #endif
 			return nullptr;
 		}
