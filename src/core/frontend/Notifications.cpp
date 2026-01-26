@@ -1,9 +1,6 @@
 #include "Notifications.hpp"
-
-#include "core/logger/LogHelper.hpp"
 #include "core/backend/FiberPool.hpp"
 #include "core/util/Joaat.hpp"
-
 #include <mutex>
 
 namespace YimMenu
