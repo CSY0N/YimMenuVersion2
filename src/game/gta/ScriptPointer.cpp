@@ -40,12 +40,13 @@ namespace YimMenu
 			m_Address = location.value() + m_Offset;
 			if (m_Rip)
 				m_Address = ReadThreeByte(program->GetCodeAddress(m_Address));
+			
 
-			LOG(INFO) << "Found pattern for " << m_Name << " at " << HEX(m_Address) << " in script " << program->m_Name;
+			g_log.send("INFO", std::format("Found pattern for {} at 0x{:X} in script {}", m_Name, DWORD64(m_Address), program->m_Name));
 			return ScriptPointer(m_Name, m_Pattern, m_Offset, m_Rip, m_Address);
 		}
 
-		LOG(FATAL) << "Failed to find pattern for " << m_Name;
+		g_log.send("FATAL", std::format("Failed to find pattern for {}", m_Name));
 		return ScriptPointer(m_Name, m_Pattern, m_Offset, m_Rip, 0);
 	}
 
@@ -57,11 +58,11 @@ namespace YimMenu
 			if (m_Rip)
 				m_Address = ReadThreeByte(ScriptData::GetCodeLocation(data, m_Address));
 
-			LOG(INFO) << "Found pattern for " << m_Name << " at " << HEX(m_Address) << " in script " << data->GetName();
+			g_log.send("INFO", std::format("Found pattern for {} at 0x{:X} in script {}", m_Name, DWORD64(m_Address), data->GetName()));
 			return ScriptPointer(m_Name, m_Pattern, m_Offset, m_Rip, m_Address);
 		}
 
-		LOG(FATAL) << "Failed to find pattern for " << m_Name;
+		g_log.send("FATAL", std::format("Failed to find pattern for {}", m_Name));
 		return ScriptPointer(m_Name, m_Pattern, m_Offset, m_Rip, 0);
 	}
 }
