@@ -42,7 +42,7 @@ namespace YimMenu
 
 		if (const auto result = MH_CreateHook(m_TargetFunc, m_DetourFunc, &m_OriginalFunc); result != MH_OK)
 		{
-			LOGF(FATAL, "Failed to create hook {}", name);
+			g_log.send("FATAL", "Failed to create hook {}", name);
 			throw std::runtime_error("Failed to create hook!");
 		}
 	}
