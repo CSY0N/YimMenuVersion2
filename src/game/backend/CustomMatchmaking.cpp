@@ -133,7 +133,7 @@ namespace YimMenu
 			rage::rlTaskStatus first_advert_status;
 			if (!BaseHook::Get<Hooks::Matchmaking::MatchmakingAdvertise, DetourHook<decltype(&Hooks::Matchmaking::MatchmakingAdvertise)>>()->Original()(0, num_slots_copy, available_slots_copy, attrs, -1, info, id, &first_advert_status))
 			{
-				LOGF(WARNING, "OnAdvertiseImpl(): MatchmakingAdvertise returned false for the initial advertisement");
+				g_log.send("WARNING", "OnAdvertiseImpl(): MatchmakingAdvertise returned false for the initial advertisement");
 				status->m_Status = 2;
 				return;
 			}
@@ -143,7 +143,7 @@ namespace YimMenu
 
 			if (first_advert_status.m_Status == 2)
 			{
-				LOGF(WARNING, "OnAdvertiseImpl(): MatchmakingAdvertise failed for the initial advertisement with code {}", status->m_ErrorCode);
+				g_log.send("WARNING", "OnAdvertiseImpl(): MatchmakingAdvertise failed for the initial advertisement with code {}", status->m_ErrorCode);
 				status->m_Status = 2;
 				return;
 			}
@@ -161,7 +161,7 @@ namespace YimMenu
 
 					if (!BaseHook::Get<Hooks::Matchmaking::MatchmakingAdvertise, DetourHook<decltype(&Hooks::Matchmaking::MatchmakingAdvertise)>>()->Original()(0, num_slots_copy, available_slots_copy, attrs, -1, info, &additional_id, &additional_advert_status))
 					{
-						LOGF(WARNING, "OnAdvertiseImpl(): MatchmakingAdvertise returned false for additional advertisement {}", i);
+						g_log.send("WARNING", "OnAdvertiseImpl(): MatchmakingAdvertise returned false for additional advertisement {}", i);
 						return;
 					}
 
@@ -170,7 +170,7 @@ namespace YimMenu
 
 					if (additional_advert_status.m_Status == 2)
 					{
-						LOGF(WARNING, "OnAdvertiseImpl(): MatchmakingAdvertise failed for the additional advertisement {} with code {}", i, status->m_ErrorCode);
+						g_log.send("WARNING", "OnAdvertiseImpl(): MatchmakingAdvertise failed for the additional advertisement {} with code {}", i, status->m_ErrorCode);
 						return;
 					}
 
