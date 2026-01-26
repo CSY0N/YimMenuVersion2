@@ -74,7 +74,7 @@ namespace YimMenu
 			}
 			catch (std::exception& e)
 			{
-				LOGF(WARNING, "Failed to read variables.json: {}", e.what());
+				g_log.send("WARNING", "Failed to read variables.json: {}", e.what());
 			}
 		}
 		else
