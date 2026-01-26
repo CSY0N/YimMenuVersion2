@@ -70,7 +70,7 @@ namespace YimMenu
 			std::vector<Hook> hooks = {Hook(index, hook)};
 			if (!m_RegisteredHooks.emplace(script, hooks).second)
 			{
-				LOGF(WARNING, "NativeHooks::AddHookImpl: {:X} already registered for script {:X}", static_cast<std::uint64_t>(index), script);
+				g_log.send("WARNING", std::format("NativeHooks::AddHookImpl: {:X} already registered for script {:X}", static_cast<std::uint64_t>(index), script));
 			}
 		}
 
@@ -122,7 +122,7 @@ namespace YimMenu
 		}
 		else
 		{
-			LOG(FATAL) << "Cannot find program " << program->m_Name << " in registry. This is bad!";
+			g_log.send("FATAL", std::format("Cannot find program {} in registry. This is bad!", program->m_Name));
 		}
 	}
 
