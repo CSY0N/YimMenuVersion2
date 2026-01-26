@@ -45,7 +45,7 @@ namespace YimMenu
 	{
 		if (!IsValid())
 		{
-			LOG(WARNING) << "IsValid() assertion failed for " << function_name;
+			g_log.send("WARNING", std::format("IsValid() assertion failed for {}", function_name));
 		}
 	}
 
@@ -56,7 +56,7 @@ namespace YimMenu
 
 		if (!HasControl())
 		{
-			LOG(WARNING) << "HasControl() assertion failed for " << function_name;
+			g_log.send("WARNING", std::format("HasControl() assertion failed for {}", function_name));
 		}
 	}
 
@@ -64,7 +64,7 @@ namespace YimMenu
 	{
 		if (!rage::tlsContext::Get()->m_ScriptThreadActive)
 		{
-			LOG(WARNING) << "Script thread not active for " << function_name;
+			g_log.send("WARNING", std::format("Script thread not active for {}", function_name));
 		}
 	}
 
@@ -326,7 +326,7 @@ namespace YimMenu
 		if (!IsNetworked() || !NETWORK::NETWORK_HAS_ENTITY_BEEN_REGISTERED_WITH_THIS_THREAD(GetHandle()))
 		{
 #ifdef ENTITY_DEBUG
-			LOGF(WARNING, "PreventMigration(): entity is not networked!");
+			g_log.send("WARNING", "PreventMigration(): entity is not networked!");
 #endif
 			return;
 		}
