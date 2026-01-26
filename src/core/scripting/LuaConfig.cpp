@@ -29,7 +29,7 @@ namespace YimMenu
 			}
 			catch (const std::exception& e)
 			{
-				LOGF(FATAL, "Error loading config file {}: {}", m_ConfigFile.Path().filename().string(), e.what());
+				g_log.send("FATAL", "Error loading config file {}: {}", m_ConfigFile.Path().filename().string(), e.what());
 				std::filesystem::remove(m_ConfigFile.Path()); // TODO: this is probably a bad idea
 			}
 		}
@@ -59,7 +59,7 @@ namespace YimMenu
 		}
 		catch (const std::exception& e)
 		{
-			LOGF(FATAL, "Error saving config file {}: {}", m_ConfigFile.Path().filename().string(), e.what());
+			g_log.send("FATAL", "Error saving config file {}: {}", m_ConfigFile.Path().filename().string(), e.what());
 		}
 	}
 
