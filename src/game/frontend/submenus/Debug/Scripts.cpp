@@ -201,7 +201,7 @@ namespace YimMenu::Submenus
 							{
 								if (HUD::DOES_TEXT_LABEL_EXIST(str))
 								{
-									LOGF(INFO, "{} - {} (0x{:X}): {}", i, str, Joaat(str), HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(str));
+									g_log.send("INFO", "{} - {} (0x{:X}): {}", i, str, Joaat(str), HUD::GET_FILENAME_FOR_AUDIO_CONVERSATION(str));
 								}
 							}
 						}
