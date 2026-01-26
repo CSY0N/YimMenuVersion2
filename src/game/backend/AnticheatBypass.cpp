@@ -61,8 +61,7 @@ namespace YimMenu
 			mode = "Legit BattlEye";
 		else if (m_IsFSLLoaded)
 			mode = "FSL";
-
-		LOGF(VERBOSE, "Anticheat bypass mode: {}", mode);
+		g_log.send("INFO", "Anticheat bypass mode: {}", mode);
 
 		if (m_IsFSLLoaded)
 		{
@@ -83,19 +82,19 @@ namespace YimMenu
 					m_FSLProvidesLocalSaves = LawnchairIsProvidingLocalSaves();
 					m_FSLProvidesBEBypass = LawnchairIsProvidingBattlEyeBypass();
 
-					LOGF(VERBOSE, "FSL Version: {}", m_FSLVersion);
-					LOGF(VERBOSE, "FSL Local Saves: {}", m_FSLProvidesLocalSaves ? "Enabled" : "Disabled");
-					LOGF(VERBOSE, "FSL BE Bypass: {}", m_FSLProvidesBEBypass ? "Enabled" : "Disabled");
+					g_log.send("INFO", "FSL Version: {}", m_FSLVersion);
+					g_log.send("INFO", "FSL Local Saves: {}", m_FSLProvidesLocalSaves ? "Enabled" : "Disabled");
+					g_log.send("INFO", "FSL BE Bypass: {}", m_FSLProvidesBEBypass ? "Enabled" : "Disabled");
 				}
 				else
 				{
-					LOGF(WARNING, "FSL detected but required exports were missing.");
+					g_log.send("WARNING", "FSL detected but required exports were missing.");
 				}
 			}
 		}
 
 		if (m_BattlEyeRunning)
-			LOGF(WARNING, "If you are not running an actual BattlEye bypass, exit the game immediately and ensure that BE is properly disabled");
+			g_log.send("WARNING", "If you are not running an actual BattlEye bypass, exit the game immediately and ensure that BE is properly disabled");
 
 		if (!m_FSLProvidesBEBypass && !m_BattlEyeRunning)
 			Pointers.BattlEyeStatusUpdatePatch->Apply();
