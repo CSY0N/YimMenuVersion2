@@ -10,7 +10,7 @@ namespace YimMenu
 {
 	void NativeInvoker::DefaultHandler(rage::scrNativeCallContext* ctx)
 	{
-		LOG(FATAL) << "Native handler not registered";
+		g_log.send("FATAL", "Native handler not registered");
 		ctx->SetReturnValue(0);
 	}
 
