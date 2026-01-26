@@ -25,7 +25,7 @@ namespace YimMenu::Hooks
 		if (index != 255)
 		{
 			if (player->m_PlayerIndex != 255)
-				LOGF(WARNING, "Player {} changed their player index from {} to {}", player->GetName(), player->m_PlayerIndex, index);
+				g_log.send("WARNING", "Player {} changed their player index from {} to {}", player->GetName(), player->m_PlayerIndex, index);
 			BaseHook::Get<Info::AssignPhysicalIndex, DetourHook<decltype(&Info::AssignPhysicalIndex)>>()->Original()(mgr, player, index);
 			Players::OnPlayerJoin(player);
 			if (Features::_NotifyOnPlayerJoin.GetState() && !player->IsLocal())
