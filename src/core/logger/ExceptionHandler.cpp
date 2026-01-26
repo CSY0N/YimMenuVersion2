@@ -18,7 +18,7 @@ namespace YimMenu
 
 	ExceptionHandler::ExceptionHandler()
 	{
-		LOG(INFO) << "ExceptionHandler initialized";
+		g_log.send("INFO", "ExceptionHandler initialized");
 		m_OldErrorMode = SetErrorMode(0);
 		m_Handler = reinterpret_cast<void*>(SetUnhandledExceptionFilter(&VectoredExceptionHandler));
 	}
@@ -42,9 +42,7 @@ namespace YimMenu
 		const auto trace_hash = HashStackTrace(trace.GetFramePointers());
 		if (const auto it = logged_exceptions.find(trace_hash); it == logged_exceptions.end())
 		{
-			LOG(FATAL) << trace;
-			Logger::FlushQueue();
-
+			
 			logged_exceptions.insert(trace_hash);
 		}
 
@@ -53,12 +51,12 @@ namespace YimMenu
 			auto return_address_ptr = (uint64_t*)exception_info->ContextRecord->Rsp;
 			if (IsBadReadPtr(reinterpret_cast<void*>(return_address_ptr), 8))
 			{
-				LOG(FATAL) << "Cannot resume execution, crashing (failed to find valid return address)";
+				g_log.send("FATAL", "Cannot resume execution, crashing (failed to find valid return address)");
 				return EXCEPTION_CONTINUE_SEARCH;
 			}
 			else
 			{
-				LOG(FATAL) << "Force returning from function";
+				g_log.send("FATAL", "Force returning from function");
 				exception_info->ContextRecord->Rip = *return_address_ptr;
 				exception_info->ContextRecord->Rsp += 8;
 			}
@@ -69,7 +67,7 @@ namespace YimMenu
 			hde64_disasm(reinterpret_cast<void*>(exception_info->ContextRecord->Rip), &opcode);
 			if (opcode.flags & F_ERROR)
 			{
-				LOG(FATAL) << "Cannot resume execution, crashing (failed to decode insn)";
+				g_log.send("FATAL", "Cannot resume execution, crashing (failed to decode insn)");
 				return EXCEPTION_CONTINUE_SEARCH;
 			}
 
@@ -78,7 +76,7 @@ namespace YimMenu
 				auto return_address_ptr = (uint64_t*)exception_info->ContextRecord->Rsp;
 				if (IsBadReadPtr(reinterpret_cast<void*>(return_address_ptr), 8))
 				{
-					LOG(FATAL) << "Cannot resume execution, crashing";
+					g_log.send("FATAL", "Cannot resume execution, crashing");
 					return EXCEPTION_CONTINUE_SEARCH;
 				}
 				else
