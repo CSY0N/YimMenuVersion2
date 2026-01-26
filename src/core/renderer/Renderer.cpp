@@ -58,14 +58,14 @@ namespace YimMenu
 	{
 		if (!Pointers.SwapChain)
 		{
-			LOG(WARNING) << "SwapChain pointer is invalid!";
+			g_log.send("WARNING", "SwapChain pointer is invalid!");
 
 			return false;
 		}
 
 		if (!Pointers.CommandQueue)
 		{
-			LOG(WARNING) << "CommandQueue pointer is invalid!";
+			g_log.send("WARNING", "CommandQueue pointer is invalid!");
 
 			return false;
 		}
@@ -73,14 +73,15 @@ namespace YimMenu
 		//This is required. In order to stop ComPtr from releasing the original pointer, we create a new ComPtr with the ptr as the intializer. (The '=' operator uses swap which releases the object passed into it)
 		if (m_GameSwapChain = ComPtr<IDXGISwapChain1>(*Pointers.SwapChain); !m_GameSwapChain.Get())
 		{
-			LOG(WARNING) << "Dereferenced SwapChain pointer is invalid!";
+			g_log.send("WARNING", "Dereferenced SwapChain pointer is invalid!");
 
 			return false;
 		}
 
 		if (m_CommandQueue = ComPtr<ID3D12CommandQueue>(*Pointers.CommandQueue); !m_CommandQueue.Get())
 		{
-			LOG(WARNING) << "Dereferenced CommandQueue pointer is invalid!";
+			g_log.send("WARNING", "Dereferenced CommandQueue pointer is invalid!");
+
 
 			return false;
 		}
@@ -89,28 +90,28 @@ namespace YimMenu
 
 		if (const auto result = m_SwapChain->GetDevice(__uuidof(ID3D12Device), reinterpret_cast<void**>(m_Device.GetAddressOf())); result < 0)
 		{
-			LOG(WARNING) << "Failed to get D3D Device with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to get D3D Device with result: [{}]", result));
 
 			return false;
 		}
 
 		if (const auto result = m_SwapChain->GetDesc(&m_SwapChainDesc); result < 0)
 		{
-			LOG(WARNING) << "Failed to get SwapChain Description with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to get SwapChain Description with result: [{}]", result));
 
 			return false;
 		}
 
 		if (const auto result = m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)m_Fence.GetAddressOf()); result < 0)
 		{
-			LOG(WARNING) << "Failed to create Fence with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to create Fence with result: [{}]", result));
 
 			return false;
 		}
 
 		if (const auto result = m_FenceEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr); !result)
 		{
-			LOG(WARNING) << "Failed to create Fence Event!";
+			g_log.send("WARNING", "Failed to create Fence Event!");
 
 			return false;
 		}
@@ -122,7 +123,7 @@ namespace YimMenu
 		        m_Device->CreateDescriptorHeap(&DescriptorDesc, __uuidof(ID3D12DescriptorHeap), (void**)m_DescriptorHeap.GetAddressOf());
 		    result < 0)
 		{
-			LOG(WARNING) << "Failed to create Descriptor Heap with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to create Descriptor Heap with result: [{}]", result));
 
 			return false;
 		}
@@ -132,7 +133,7 @@ namespace YimMenu
 		        (void**)m_CommandAllocator.GetAddressOf());
 		    result < 0)
 		{
-			LOG(WARNING) << "Failed to create primary Command Allocator with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to create primary Command Allocator with result: [{}]", result));
 
 			return false;
 		}
@@ -144,7 +145,7 @@ namespace YimMenu
 		{
 			if (const auto result = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)&m_FrameContext[i].CommandAllocator); result < 0)
 			{
-				LOG(WARNING) << "Failed to create secondary Command Allocator with result: [" << result << "]";
+				g_log.send("WARNING", std::format("Failed to create secondary Command Allocator with result: [{}]", result));
 
 				return false;
 			}
@@ -152,14 +153,14 @@ namespace YimMenu
 
 		if (const auto result = m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAllocator.Get(), NULL, __uuidof(ID3D12GraphicsCommandList), (void**)m_CommandList.GetAddressOf()); result < 0)
 		{
-			LOG(WARNING) << "Failed to create Command List with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to create Command List with result: [{}]", result));
 
 			return false;
 		}
 
 		if (const auto result = m_CommandList->Close(); result < 0)
 		{
-			LOG(WARNING) << "Failed to finalize the creation of Command List with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to finalize the creation of Command List with result: [{}]", result));
 
 			return false;
 		}
@@ -170,7 +171,7 @@ namespace YimMenu
 		        (void**)m_BackbufferDescriptorHeap.GetAddressOf());
 		    result < 0)
 		{
-			LOG(WARNING) << "Failed to create Backbuffer Descriptor Heap with result: [" << result << "]";
+			g_log.send("WARNING", std::format("Failed to create Backbuffer Descriptor Heap with result: [{}]", result));
 
 			return false;
 		}
@@ -212,7 +213,7 @@ namespace YimMenu
 
 		ImGui::StyleColorsDark();
 
-		LOG(INFO) << "DirectX 12 renderer has finished initializing.";
+		g_log.send("INFO", "DirectX 12 renderer has finished initializing.");
 		m_Initialized = true;
 		return true;
 	}
@@ -224,7 +225,7 @@ namespace YimMenu
 			std::this_thread::sleep_for(1s);
 		}
 
-		LOG(INFO) << "Using DX12, clear shader cache if you're having issues.";
+		g_log.send("INFO", "Using DX12, clear shader cache if you're having issues.");
 		return InitDX12();
 	}
 
