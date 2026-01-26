@@ -1,7 +1,5 @@
 #include "ChatDisplay.hpp"
-
 #include "Menu.hpp"
-#include "core/logger/LogHelper.hpp"
 #include "core/backend/FiberPool.hpp"
 #include "game/pointers/Pointers.hpp"
 #include "core/frontend/widgets/imgui_colors.h"
