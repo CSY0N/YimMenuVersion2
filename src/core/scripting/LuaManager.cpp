@@ -157,7 +157,7 @@ namespace YimMenu
 		}
 		else
 		{
-			LOGF(FATAL, "LuaManager::SetRunningCoroutineImpl: {} attempted to enter a coroutine when a coroutine from {} is already running", LuaScript::GetScript(script).GetName(), LuaScript::GetScript(m_RunningCoroutine).GetName());
+			g_log.send("FATAL", "LuaManager::SetRunningCoroutineImpl: {} attempted to enter a coroutine when a coroutine from {} is already running", LuaScript::GetScript(script).GetName(), LuaScript::GetScript(m_RunningCoroutine).GetName());
 			LuaScript::GetScript(script).SetMalfunctioning();
 		}
 	}
