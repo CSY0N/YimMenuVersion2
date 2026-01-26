@@ -46,7 +46,7 @@ namespace YimMenu
 		}
 		catch (const std::exception& e)
 		{
-			LOG(WARNING) << "Failed fetching saved locations: " << e.what() << '\n';
+			g_log.send("WARNING", std::format("Failed fetching saved locations: {}\n", e.what()));
 			return false;
 		}
 
