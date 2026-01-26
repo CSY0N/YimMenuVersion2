@@ -24,6 +24,7 @@ namespace YimMenu::Submenus
 		auto achievements = std::make_shared<Group>("Unlock Achievements");
 		auto cooldown = std::make_shared<Group>("Cooldown");
 		auto Safehouseinhills = std::make_shared<Group>(" Safehouse in the Hills");
+		auto Money = std::make_shared<Group>("Money");
 
 		auto generalGroup = std::make_shared<Group>("General");
 		auto gunvanGroup = std::make_shared<Group>("Gun Van");
@@ -148,12 +149,15 @@ namespace YimMenu::Submenus
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_vehicle_sell_cd"_J));
 		cooldown->AddItem(std::make_shared<CommandItem>("Reset_vehicle_Delivery_cd"_J));
 
+		Money->AddItem(std::make_shared<BoolCommandItem>("nightclubloop"_J));
+
 		main->AddItem(generalGroup);
 		main->AddItem(gunvanGroup);
 		main->AddItem(requestServices);
 		main->AddItem(missions);
 		main->AddItem(achievements);
 		main->AddItem(cooldown);
+		main->AddItem(Money);
 
 		businesses->AddItem(businessGroup);
 		businesses->AddItem(Bailloffice);
