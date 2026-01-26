@@ -11,28 +11,28 @@ namespace YimMenu::Lua
 		static int Verbose(lua_State* state)
 		{
 			const char* message = luaL_checkstring(state, 1);
-			LOGF(VERBOSE, "{}: {}", LuaScript::GetScript(state).GetName(), message);
+			g_log.send("INFO", "{}: {}", LuaScript::GetScript(state).GetName(), message);
 			return 0;
 		}
 
 		static int Info(lua_State* state)
 		{
 			const char* message = luaL_checkstring(state, 1);
-			LOGF(INFO, "{}: {}", LuaScript::GetScript(state).GetName(), message);
+			g_log.send("INFO", "{}: {}", LuaScript::GetScript(state).GetName(), message);
 			return 0;
 		}
 
 		static int Warn(lua_State* state)
 		{
 			const char* message = luaL_checkstring(state, 1);
-			LOGF(WARNING, "{}: {}", LuaScript::GetScript(state).GetName(), message);
+			g_log.send("WARNING", "{}: {}", LuaScript::GetScript(state).GetName(), message);
 			return 0;
 		}
 
 		static int Error(lua_State* state)
 		{
 			const char* message = luaL_checkstring(state, 1);
-			LOGF(FATAL, "{}: {}", LuaScript::GetScript(state).GetName(), message);
+			g_log.send("FATAL", "{}: {}", LuaScript::GetScript(state).GetName(), message);
 			return 0;
 		}
 
@@ -40,7 +40,7 @@ namespace YimMenu::Lua
 		{
 			const char* message = luaL_checkstring(state, 1);
 			luaL_traceback(state, state, message, 1);
-			LOGF(VERBOSE, "{}: {}", LuaScript::GetScript(state).GetName(), lua_tostring(state, -1));
+			g_log.send("INFO", "{}: {}",LuaScript::GetScript(state).GetName(), lua_tostring(state, -1));
 			lua_pop(state, 1); // pop the traceback
 			return 0;
 		}
