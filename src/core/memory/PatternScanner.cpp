@@ -54,7 +54,7 @@ namespace YimMenu
 		auto offset = PatternCache::GetCachedOffset(pattern->Hash().Update(m_Module->Size()));
 		if (offset.has_value())
 		{
-			LOG(INFO) << "Using cached pattern: [" << pattern->Name() << "]";
+			g_log.send("INFO", std::format("Using cached pattern: [{}]", pattern->Name()));
 			std::invoke(func, m_Module->Base() + offset.value());
 			g_found_sig_count++;
 			return true;
@@ -79,7 +79,7 @@ namespace YimMenu
 
 		if (found)
 		{
-			LOG(INFO) << "Pattern found: [" << pattern->Name() << "]";
+			g_log.send("INFO", std::format("Pattern found: [{}]", pattern->Name()));
 			std::invoke(func, i);
 			g_found_sig_count++;
 			if (PatternCache::IsInitialized())
@@ -90,7 +90,7 @@ namespace YimMenu
 		}
 	}
 	g_failed_sig_count++;
-	LOG(WARNING) << "Failed to find pattern: [" << pattern->Name() << "]";
+	g_log.send("WARNING", std::format("Failed to find pattern: [{}]", pattern->Name()));
 	return false;
 	}
 }
