@@ -103,7 +103,7 @@ namespace YimMenu
 		if (result)
 			return result;
 
-		LOG(FATAL) << "Cannot find export: " << name;
+		g_log.send("FATAL", std::format("Cannot find export: {}", ordinal));
 		return nullptr;
 	}
 
