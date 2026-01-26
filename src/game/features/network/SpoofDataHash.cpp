@@ -5,6 +5,8 @@
 #include "game/hooks/Hooks.hpp"
 #include "game/pointers/Pointers.hpp"
 #include "types/game_files/CGameDataHash.hpp"
+#include <sstream>
+
 
 namespace YimMenu::Features
 {
@@ -12,22 +14,24 @@ namespace YimMenu::Features
 	{
 		using Command::Command;
 
-		virtual void OnCall() override
+		virtual void OnCall() override 
 		{
-			auto log = LOG(VERBOSE);
-			log << "DLC Hash: "
-			    << BaseHook::Get<Hooks::Network::GetDLCHash, DetourHook<decltype(&Hooks::Network::GetDLCHash)>>()->Original()(
-			           *Pointers.DLCManager,
-			           0)
-			    << "\n";
-			if (auto hashes = Pointers.GameDataHash)
-			{
-				log << "validHashes = {" << "\n";
-				for (int i = 0; i < hashes->m_Data.size(); i++)
-					log << hashes->m_Data[i].getData() << ", // " << i << "\n";
-				log << "};";
+			 std::ostringstream logStream;
+			 logStream << "DLC Hash: "
+				  << BaseHook::Get<Hooks::Network::GetDLCHash, DetourHook<decltype(&Hooks::Network::GetDLCHash)>>()->Original()(
+					   *Pointers.DLCManager, 0)
+				     << "\n";
+			  if (auto hashes = Pointers.GameDataHash)
+			  {
+				   logStream << "validHashes = {\n";
+				    for (int i = 0; i < hashes->m_Data.size(); i++)  {
+						logStream << hashes->m_Data[i].getData() << ", // " << i << "\n";
+						}
+					 logStream << "};";
+					 }
+			  g_log.send("VERBOSE", logStream.str());
 			}
-		}
+   
 	};
 	static DumpDataHash _DumpDataHash{"dumpdatahash", "Dump Data Hash", "Dumps the current data hash into the console"};
 
