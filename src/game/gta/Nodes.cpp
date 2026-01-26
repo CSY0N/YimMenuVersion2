@@ -18,7 +18,7 @@ namespace YimMenu
 
 			if (tree->m_ChildNodeCount != m_Finder.m_SyncTreeNodeIdsMap[i].size())
 			{
-				LOG(FATAL) << "Cache nodes failed " << i << " " << tree->m_ChildNodeCount << " != " << m_Finder.m_SyncTreeNodeIdsMap[i].size();
+				g_log.send("FATAL", std::format("Cache nodes failed {} {} != {}", i, tree->m_ChildNodeCount, m_Finder.m_SyncTreeNodeIdsMap[i].size()));
 
 				throw std::runtime_error("Failed to cache nodes");
 			}
