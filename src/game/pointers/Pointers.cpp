@@ -29,7 +29,7 @@ namespace YimMenu
 		const auto gta5 = ModuleMgr.Get("GTA5_Enhanced.exe"_J);
 		if (!gta5)
 		{
-			LOG(FATAL) << "Could not find GTA5_Enhanced.exe, is this GTA 5 Enhanced?";
+			g_log.send("FATAL", "Could not find GTA5_Enhanced.exe, is this GTA 5 Enhanced?");
 			return false;
 		}
 
@@ -503,16 +503,16 @@ namespace YimMenu
 
 		if (!scanner.Scan())
 		{
-			LOG(FATAL) << "Some patterns could not be found, unloading.";
+			g_log.send("WARNING", "Some patterns could not be found, unloading.");
 			return false;
 		}
 		if (m_frame_count)
 		{
-			LOG(INFO) << "Frame: " << *m_frame_count;
+			g_log.send("INFO", "Frame: " + std::to_string(*m_frame_count));
 		}
 		else
 		{
-			LOG(WARNING) << "m_frame_count is NULL!";
+			g_log.send("WARNING", "m_frame_count is NULL!");
 		}
 		if (m_game_state)
 		{
@@ -528,11 +528,11 @@ namespace YimMenu
 			case 4: name = "LoadingMP"; break;
 			case 5: name = "PlayingMP"; break;
 			}
-			LOG(INFO) << "GameState = " << gs << " (" << name << ")";
+			g_log.send("INFO", "GameState = " + std::to_string(gs) + " (" + name + ")");
 		}
 		else
 		{
-			LOG(WARNING) << "GameState pointer is NULL!";
+			g_log.send("WARNING", "GameState pointer is NULL!");
 		}
 		PatternCache::Update();
 		return true;
@@ -543,12 +543,12 @@ namespace YimMenu
 		auto sc = ModuleMgr.Get("socialclub.dll"_J);
 		while (!sc)
 		{
-			LOG(WARNING) << "Waiting for socialclub.dll";
+			g_log.send("WARNING", "Waiting for socialclub.dll");
 			std::this_thread::sleep_for(1s);
 
 			if (IsSocialClubNeverGoingToLoad())
 			{
-				LOG(WARNING) << "Timed out checking for socialclub.dll";
+				g_log.send("WARNING", "Timed out checking for socialclub.dll");
 				return false;
 			}
 
@@ -585,18 +585,18 @@ namespace YimMenu
 
 		if (!scanner.Scan())
 		{
-			LOG(WARNING) << "Some socialclub patterns could not be found";
+			g_log.send("WARNING", "Some socialclub patterns could not be found");
 			return false;
 		}
 		auto end_time{ std::chrono::high_resolution_clock::now() }; 
 		auto elapsed_time{ std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() };
 		if (g_failed_sig_count > 0)
 		{
-			LOG(WARNING) << "Scanning finished with issues | Time: " << elapsed_time << "ms (" << get_milisecond_results(elapsed_time) << "), Found " << g_found_sig_count << "/" << g_total_sig_count << ", Failed " << g_failed_sig_count;
+			g_log.send("WARNING", "Scanning finished with issues | Time: " + std::to_string(elapsed_time) + "ms (" + get_milisecond_results(elapsed_time) + "), Found " + std::to_string(g_found_sig_count) + "/" + std::to_string(g_total_sig_count) + ", Failed " + std::to_string(g_failed_sig_count));
 	    }
 		else
 	    {
-			LOG(INFO) << "Scanning done! | Time taken: " << elapsed_time << "ms (" << get_milisecond_results(elapsed_time) << "), Found " << g_found_sig_count << "/" << g_total_sig_count;
+		   g_log.send("INFO", "Scanning done! | Time taken: " + std::to_string(elapsed_time) + "ms (" + get_milisecond_results(elapsed_time) + "), Found " + std::to_string(g_found_sig_count) + "/" + std::to_string(g_total_sig_count));
 		}
 		PatternCache::Update();
 		return true;
