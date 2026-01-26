@@ -336,7 +336,7 @@ namespace YimMenu
 				ScriptMgr::Yield(100ms);
 				if (i > 30)
 				{
-					LOG(WARNING) << "Despawn() Timed out despawning Personal Vehicle.";
+					g_log.send("WARNING", "Despawn() Timed out despawning Personal Vehicle.");
 					return false;
 				}
 			}
