@@ -32,7 +32,7 @@ namespace YimMenu
 
 		if (!LuaManager::IsRunningInMainThread())
 		{
-			LOGF(FATAL, "LuaScript::CallFunction: {} attempted to call a Lua function outside the main thread. This is not allowed", m_ModuleName);
+			g_log.send("FATAL", "LuaScript::CallFunction: {} attempted to call a Lua function outside the main thread. This is not allowed", m_ModuleName);
 			lua_pop(state, 1); // pop the function from the stack since we aren't going to call it
 			SetMalfunctioning();
 			return false;
@@ -53,7 +53,7 @@ namespace YimMenu
 		else
 		{
 			auto trace = lua_tostring(state, -1);
-			LOGF(FATAL, "{}: {}", m_ModuleName, trace);
+			g_log.send("FATAL", "{}: {}",m_ModuleName, trace);
 			lua_pop(state, 1); // pop the stack trace
 			SetMalfunctioning();
 			return false;
@@ -64,7 +64,7 @@ namespace YimMenu
 	{
 		if (!LuaManager::IsRunningInMainThread())
 		{
-			LOGF(FATAL, "LuaScript::ResumeCoroutine: {} attempted to resume a Lua coroutine outside the main thread. This is not allowed", m_ModuleName);
+			g_log.send("FATAL", "LuaScript::ResumeCoroutine: {} attempted to resume a Lua coroutine outside the main thread. This is not allowed", m_ModuleName);
 			SetMalfunctioning();
 			return LUA_ERRRUN;
 		}
@@ -77,7 +77,8 @@ namespace YimMenu
 			auto num_rets = lua_gettop(coro_state);
 			if (num_rets != n_results && result == LUA_YIELD)
 			{
-				LOGF(FATAL, "LuaScript::ResumeCoroutine: {} yielded {} values when code expected {} values to be yielded", m_ModuleName, num_rets, n_results);
+				g_log.send("FATAL", "LuaScript::ResumeCoroutine: {} yielded {} values when code expected {} values to be yielded", m_ModuleName, num_rets, n_results);
+
 				SetMalfunctioning();
 				return LUA_ERRRUN;
 			}
@@ -93,7 +94,7 @@ namespace YimMenu
 
 			// traceback
 			luaL_traceback(coro_state, coro_state, error_msg.c_str(), 1);
-			LOGF(FATAL, "{}: {}", m_ModuleName, lua_tostring(coro_state, -1));
+				g_log.send("FATAL", "{}: {}", m_ModuleName, lua_tostring(coro_state, -1));;
 			lua_pop(coro_state, 1);
 	
 			SetMalfunctioning();
@@ -160,7 +161,7 @@ namespace YimMenu
 		if (result != LUA_OK) // don't load binary chunks
 		{
 			auto error = lua_tostring(m_State, -1);
-			LOGF(FATAL, "{}: {}", m_ModuleName, error);
+			g_log.send("FATAL", "{}: {}", m_ModuleName, error);
 			SetMalfunctioning();
 			return;
 		}
