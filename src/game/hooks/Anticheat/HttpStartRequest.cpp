@@ -16,7 +16,7 @@ namespace YimMenu::Hooks
 		if (path && strstr(path, "GameTransactions.asmx/Bonus"))
 		{
 			*const_cast<const char**>(host_ptr) = "0.0.0.0";
-			LOG(WARNING) << "Blocked Bonus Report";
+			g_log.send("WARNING", "Blocked Bonus Report");
 		}
 
 		return BaseHook::Get<Anticheat::HttpStartRequest, DetourHook<decltype(&Anticheat::HttpStartRequest)>>()->Original()(request);
