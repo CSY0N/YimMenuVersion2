@@ -273,7 +273,7 @@ namespace YimMenu
 			    auto proximity_migration = reinterpret_cast<CVehicleProximityMigrationDataNode*>(node);
 			    if (auto it = s_RemoteTeleports.find(object->m_ObjectId); it != s_RemoteTeleports.end() && it->second.m_Player == target)
 			    {
-				    LOG(INFO) << "Modified this node";
+				    g_log.send("INFO", "Modified this node");
 				    proximity_migration->m_HasOccupants[0] = true;
 				    proximity_migration->m_Occupants[0] = it->second.m_Player.GetPed().GetNetworkObjectId();
 				    proximity_migration->m_OverridePosition = true;
@@ -309,7 +309,7 @@ namespace YimMenu
 
 			if (!car.IsNetworked())
 			{
-				LOG(WARNING) << "Player::TeleportTo: spawned vehicle is not networked. Please stop spectating to fix this issue";
+				g_log.send("WARNING", "Player::TeleportTo: spawned vehicle is not networked. Please stop spectating to fix this issue");
 				car.Delete();
 				return;
 			}
