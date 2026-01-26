@@ -1,7 +1,6 @@
-﻿#include "Updater.hpp"
+#include "Updater.hpp"
 #include "core/backend/ScriptMgr.hpp"
 #include "core/frontend/Notifications.hpp"
-#include "core/logger/LogHelper.hpp"
 #include "core/backend/FiberPool.hpp"
 #include <winhttp.h>
 #include <thread>
@@ -139,7 +138,7 @@ namespace YimMenu::Updater
 			}
 			else
 			{
-				LOG(INFO) << "YimMenuV2 is up to date";
+				g_log.send("INFO", "YimMenuV2 is up to date");
 			}
 		}).detach();
 	}
