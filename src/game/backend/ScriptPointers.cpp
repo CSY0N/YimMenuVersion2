@@ -90,6 +90,6 @@ namespace YimMenu
 			data += sizeof(scrPointerSaveStruct);
 		}
 
-		LOG(INFO) << "Loaded " << m_ScriptPointers.size() << " script pointers from cache.";
+		g_log.send("INFO", std::format("Loaded {} script pointers from cache.", m_ScriptPointers.size()));
 	}
 }
