@@ -125,14 +125,14 @@ namespace YimMenu::Hooks
 						if (Self::GetPed().GetPointer<void*>() && Self::GetPed().GetNetworkObjectId() == id)
 						{
 							if (player)
-								LOGF(WARNING, "Blocked player deletion crash from {}", player.GetName());
+								g_log.send("WARNING", "Blocked player deletion crash from {}", player.GetName());
 							reject = true;
 						}
 
 						if (Self::GetVehicle() && Self::GetVehicle().HasControl() && Self::GetVehicle().GetNetworkObjectId() == id)
 						{
 							if (player)
-								LOGF(WARNING, "Blocked vehicle deletion from {}", player.GetName());
+								g_log.send("WARNING", "Blocked vehicle deletion from {}", player.GetName());
 							reject = true;
 						}
 
