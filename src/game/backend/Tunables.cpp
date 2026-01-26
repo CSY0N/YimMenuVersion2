@@ -109,7 +109,8 @@ namespace YimMenu
 					args.ContentModifier = 27; // MP_FM_RANDOM
 					if (!BUILTIN::START_NEW_SCRIPT_WITH_NAME_HASH_AND_ARGS("tuneables_processing"_J, &args, SCR_SIZEOF(args), static_cast<int>(eStackSizes::DEFAULT)))
 					{
-						LOG(FATAL) << "Failed to start tuneables_processing. Cannot cache tunables.";
+					    g_log.send("FATAL", "Failed to start tuneables_processing. Cannot cache tunables.");
+
 						return;
 					}
 
@@ -138,11 +139,11 @@ namespace YimMenu
 
 					if (m_Tunables.size() == 0)
 					{
-						LOG(FATAL) << "Failed to cache tunables.";
+						g_log.send("FATAL", "Failed to cache tunables.");
 						return;
 					}
 
-					LOG(INFO) << "Saving " << m_Tunables.size() << " tunables to cache.";
+					g_log.send("INFO", std::format("Saving {} tunables to cache.", m_Tunables.size()));
 					Save();
 
 					m_ScriptStarted = false;
@@ -193,7 +194,7 @@ namespace YimMenu
 		m_Initialized = true;
 		m_Loading = false;
 
-		LOG(INFO) << "Loaded " << m_Tunables.size() << " tunables from cache.";
+		g_log.send("INFO", std::format("Loaded {} tunables from cache.", m_Tunables.size()));
 	}
 
 	bool Tunable::IsReady()
