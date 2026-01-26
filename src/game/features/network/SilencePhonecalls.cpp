@@ -20,7 +20,7 @@ namespace YimMenu::Features
 				if (*phone_call_state.As<int*>() != 0 && *phone_call_state.As<int*>() != 5 && *phone_call_state.As<int*>() != 6
 				    && *is_phone_call_in_progress.As<bool*>() && *is_incoming_call.As<bool*>())
 				{
-					LOGF(VERBOSE, "SilencePhoneCalls::OnTick(): Skipped phone call from character {}", *calling_character.As<int*>());
+					g_log.send("INFO", "SilencePhoneCalls::OnTick(): Skipped phone call from character {}", *calling_character.As<int*>());
 					*phone_call_state.As<int*>() = 6;
 				}
 			}
