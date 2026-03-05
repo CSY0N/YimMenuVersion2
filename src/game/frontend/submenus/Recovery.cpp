@@ -21,6 +21,8 @@ namespace YimMenu::Submenus
 		auto Unreleased = std::make_shared<Group>("Unreleased");
 		auto requestServices = std::make_shared<Group>("Request Services");
 		auto missions = std::make_shared<Group>("Missions");
+		auto salvage_Yard = std::make_shared<Group>("Salvage Yard");
+
 		auto achievements = std::make_shared<Group>("Unlock Achievements");
 		auto cooldown = std::make_shared<Group>("Cooldown");
 		auto Safehouseinhills = std::make_shared<Group>(" Safehouse in the Hills");
@@ -38,7 +40,7 @@ namespace YimMenu::Submenus
 		//auto casinoWheel = std::make_shared<Group>("Lucky Wheel");
 		//auto casinoBlackJack = std::make_shared<Group>("Blackjack");
 		//auto casinoRoulette = std::make_shared<Group>("Roulette");
-
+		
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("playallmissionssolo"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("businessoverlay"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("unlockgtaplus"_J));
@@ -150,6 +152,17 @@ namespace YimMenu::Submenus
 		Safehouseinhills->AddItem(std::make_shared<CommandItem>("VinewoodM_Unlock"_J));
 
 		missions->AddItem(std::make_shared<CommandItem>("alien_egg_mission"_J));
+		missions->AddItem(std::make_shared<CommandItem>("First_hardmode"_J));
+		missions->AddItem(std::make_shared<CommandItem>("Last_hardmode"_J));
+		missions->AddItem(std::make_shared<CommandItem>("Bunker_Instant-Sell"_J));
+
+
+		salvage_Yard->AddItem(std::make_shared<CommandItem>("tow_InstantFinish"_J));
+		salvage_Yard->AddItem(std::make_shared<CommandItem>("vehrob_InstantFinish"_J));
+		salvage_Yard->AddItem(std::make_shared<CommandItem>("Sy_SkipPreps"_J));
+		
+
+
 
 		achievements->AddItem(std::make_shared<CommandItem>("unlock_achievements"_J));
 
@@ -176,6 +189,10 @@ namespace YimMenu::Submenus
 		unlocks->AddItem(skip);
 		unlocks->AddItem(Unreleased);
 		unlocks->AddItem(Safehouseinhills);
+
+		missions->AddItem(salvage_Yard);
+
+
 
 		AddCategory(std::move(main));
 		AddCategory(std::move(businesses));
