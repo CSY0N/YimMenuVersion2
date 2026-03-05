@@ -1,8 +1,6 @@
 #include "core/commands/LoopedCommand.hpp"
 #include "game/gta/ScriptGlobal.hpp"
 #include "game/gta/ScriptLocal.hpp"
-#include  "game/gta/Stats.hpp"
-
 
 namespace YimMenu::Features
 {
