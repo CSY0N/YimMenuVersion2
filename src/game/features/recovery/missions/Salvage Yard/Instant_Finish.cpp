@@ -41,5 +41,5 @@ namespace YimMenu::Features
 
 		}
 	};
-	static Vehicle_robberies _Vehicle_robberies{"vehrob_InstantFinish","Vehicle Robberies Instant-Finish","Instant-Finish"};
+	static Vehicle_robberies _Vehicle_robberies{"vehrob_InstantFinish","Instant-Finish Vehicle Robberies","Instant-Finish"};
 }
