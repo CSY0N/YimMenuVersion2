@@ -7,7 +7,6 @@
 ![Language](https://img.shields.io/badge/language-C%2B%2B-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-
 ## 📌 Overview
 
 **YimMenuV2** is an experimental mod menu for **Grand Theft Auto V: Enhanced Edition**, built as a modern successor to the original YimMenu.  
