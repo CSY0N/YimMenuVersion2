@@ -7,6 +7,10 @@
 ![Language](https://img.shields.io/badge/language-C%2B%2B-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+## 🤖 AI-Generated Code
+
+⚠️ To maintain quality and consistency in the YimMenu project, **pull requests containing AI-generated code will not be accepted**. All contributions must be written and reviewed by human contributors.  
+Maintainers reserve the right to reject or remove any AI-generated submissions, even if they meet functional requirements, to ensure code quality, security, and maintainability.
 
 ## 📌 Overview
 
