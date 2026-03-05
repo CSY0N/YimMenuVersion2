@@ -17,5 +17,5 @@ namespace YimMenu::Features
 		}
 	};
 	static SkipPreps _SkipPreps{"Sy_SkipPreps", "Skip Preps", "Skip Preps"};
-//TODO: Add More Salvage Yard Stuff
+    //TODO: Add More Salvage Yard Stuff
 }
