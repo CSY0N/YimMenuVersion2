@@ -1,4 +1,4 @@
-#include "core/commands/LoopedCommand.hpp"
+#include "core/commands/Command.hpp"
 #include "game/gta/ScriptGlobal.hpp"
 #include "game/gta/ScriptLocal.hpp"
 #include  "game/gta/Stats.hpp"
@@ -6,22 +6,22 @@
 
 namespace YimMenu::Features
 {
-	class Towtruck_Mission : public LoopedCommand
+	class Towtruck_Mission : public Command
 	{
-		using LoopedCommand::LoopedCommand;
+		using Command::Command;
 
-		virtual void OnTick() override
+		virtual void OnCall() override
 		{
 			*ScriptLocal("fm_content_tow_truck_work"_J, 1795).At(1).As<int*>() = -1071628608;
 			*ScriptLocal("fm_content_tow_truck_work"_J, 1852).At(93).As<int*>() = 3;
 		}
 	};
 	static Towtruck_Mission _Towtruck_Mission{"tow_InstantFinish","Instant-Finish Tow Truck Service Mission","Instant-Finish"};
-	class Vehicle_robberies : public LoopedCommand
+	class Vehicle_robberies : public Command
 	{
-		using LoopedCommand::LoopedCommand;
+		using Command::Command;
 
-		virtual void OnTick() override
+		virtual void OnCall() override
 		{
 			// The Duggan
 			*ScriptLocal("fm_content_vehrob_arena"_J, 7914).At(1).As<int*>() = -2145370424;
