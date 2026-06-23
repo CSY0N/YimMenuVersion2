@@ -47,6 +47,7 @@ namespace YimMenu::Submenus
 		otherOpts->AddItem(std::make_shared<BoolCommandItem>("enablecreatordevmode"_J));
 		otherOpts->AddItem(std::make_shared<BoolCommandItem>("infiniteboundary"_J));
 		otherOpts->AddItem(std::make_shared<BoolCommandItem>("spwp"_J));
+		otherOpts->AddItem(std::make_shared<CommandItem>("clearworld"_J));
 
 		main->AddItem(std::move(killPeds));
 		main->AddItem(std::move(deleteOpts));
