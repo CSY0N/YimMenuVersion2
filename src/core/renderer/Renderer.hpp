@@ -1,12 +1,15 @@
 #pragma once
-#include "core/util/Joaat.hpp"
 
+#include "core/util/Joaat.hpp"
+#include <imgui.h>
 #include <backends/imgui_impl_dx12.h>
 #include <comdef.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <filesystem>
 #include <functional>
 #include <map>
+#include <vector>
 #include <windows.h>
 #include <wrl/client.h>
 
@@ -23,6 +26,27 @@ namespace YimMenu
 	using namespace Microsoft::WRL;
 	using RendererCallBack = std::function<void()>;
 	using WindowProcedureCallback = std::function<void(HWND, UINT, WPARAM, LPARAM)>;
+
+	struct ImGuiTexture
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource> Resource{};
+
+		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle{};
+		D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle{};
+
+		int Width = 0;
+		int Height = 0;
+
+		[[nodiscard]] bool IsValid() const
+		{
+			return Resource != nullptr && GpuHandle.ptr != 0;
+		}
+
+		[[nodiscard]] ImTextureID GetTextureID() const
+		{
+			return static_cast<ImTextureID>(GpuHandle.ptr);
+		}
+	};
 
 	struct FrameContext
 	{
@@ -88,6 +112,19 @@ namespace YimMenu
 		Renderer(Renderer&&) noexcept = delete;
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
+
+	static bool LoadTextureFromFile(
+		const std::filesystem::path& path,
+		ImGuiTexture& texture
+	)
+	{
+		return GetInstance().LoadTextureFromFileImpl(path, texture);
+	}
+
+	static void DestroyTexture(ImGuiTexture& texture)
+	{
+		GetInstance().DestroyTextureImpl(texture);
+	}
 
 		static void Destroy()
 		{
@@ -166,6 +203,13 @@ namespace YimMenu
 		static void DX12EndFrame();
 
 	private:
+		bool LoadTextureFromFileImpl(
+		const std::filesystem::path& path,
+		ImGuiTexture& texture
+	);
+
+	void DestroyTextureImpl(ImGuiTexture& texture);
+
 		void DestroyImpl();
 		bool InitImpl();
 

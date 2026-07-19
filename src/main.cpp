@@ -40,6 +40,7 @@ namespace YimMenu
 		std::filesystem::create_directories(root / "Themes");
 		std::filesystem::create_directories(root / "Scripts");
 		std::filesystem::create_directories(root / "Outfits");
+		std::filesystem::create_directories(root / "Images");
 		std::filesystem::create_directories(root / "saved_ini_vehicles");
 		std::filesystem::create_directories(root / "saved_json_vehicles");
 		return root;

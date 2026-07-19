@@ -41,7 +41,7 @@ namespace YimMenu::Submenus
 		//auto casinoRoulette = std::make_shared<Group>("Roulette");
 
 		auto free = std::make_shared<Group>("Free");
-
+		auto exhibitGroup = std::make_shared<Group>("Exhibit Loot");
 
 
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("playallmissionssolo"_J));
@@ -209,6 +209,10 @@ namespace YimMenu::Submenus
 		instantfinish->AddItem(std::make_shared<CommandItem>("mcbusinesssellmissions"_J));
 
 
+		exhibitGroup->AddItem(std::make_shared<ListCommandItem>("soloexhibittarget"_J, "Target"));
+		exhibitGroup->AddItem(std::make_shared<BoolCommandItem>("soloexhibitloot"_J));
+
+
 
 		main->AddItem(generalGroup);
 		main->AddItem(gunvanGroup);
@@ -218,7 +222,7 @@ namespace YimMenu::Submenus
 		main->AddItem(LSCMGroupe);
 		main->AddItem(cooldown);
 		main->AddItem(free);
-
+		main->AddItem(exhibitGroup);
 
 
 		businesses->AddItem(businessGroup);

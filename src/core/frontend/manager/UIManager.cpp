@@ -2,6 +2,7 @@
 #include "game/pointers/Pointers.hpp"
 #include "game/frontend/Menu.hpp"
 #include "core/commands/ListCommand.hpp"
+#include <imgui_internal.h>
 
 namespace YimMenu::Features
 {
@@ -23,6 +24,37 @@ namespace YimMenu::Features
 
 namespace YimMenu
 {
+	static void DrawMenuBackground()
+{
+    if (!Menu::customMenuBackground.GetState())
+        return;
+
+    if (!Menu::g_BackgroundTexture.IsValid())
+        return;
+
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+
+    if (!window)
+        return;
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    const ImVec2 windowPos = ImGui::GetWindowPos();
+    const ImVec2 windowSize = ImGui::GetWindowSize();
+
+    drawList->AddImage(
+        Menu::g_BackgroundTexture.GetTextureID(),
+        windowPos,
+        ImVec2(
+            windowPos.x + windowSize.x,
+            windowPos.y + windowSize.y
+        ),
+        ImVec2(0.0f, 0.0f),
+        ImVec2(1.0f, 1.0f),
+        IM_COL32(255, 255, 255, 160)
+    );
+}
+
 	void UIManager::AddSubmenuImpl(const std::shared_ptr<Submenu>&& submenu)
 	{
 		if (!m_ActiveSubmenu)

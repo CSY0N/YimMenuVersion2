@@ -1,11 +1,17 @@
 #include "Renderer.hpp"
-
+#include "stb/stb_image.h"
+#include <algorithm>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <limits>
+#include <vector>
+#include <unordered_set>
 #include "core/memory/ModuleMgr.hpp"
 #include "core/memory/PatternScanner.hpp"
 #include "game/frontend/GUI.hpp"
 #include "game/frontend/Menu.hpp"
 #include "game/pointers/Pointers.hpp"
-
 #include <backends/imgui_impl_dx12.h>
 #include <backends/imgui_impl_win32.h>
 #include <imgui.h>
@@ -13,6 +19,312 @@
 
 namespace YimMenu
 {
+
+
+bool Renderer::LoadTextureFromFileImpl(const std::filesystem::path& path, ImGuiTexture& texture)
+	{
+    if (texture.Resource && texture.GpuHandle.ptr != 0)
+        return true;
+    if (!m_Device || !m_CommandQueue || !m_DescriptorHeap)
+        return false;
+    static std::unordered_set<std::string> loggedErrors;
+    static std::unordered_set<std::string> loggedSuccess;
+    const std::string pathString = path.string();
+    auto LogWarningOnce = [&](const std::string& message)
+    {
+        const std::string key = message + "|" + pathString;
+        if (loggedErrors.insert(key).second)
+        {
+            LOG(WARNING) << message << ": " << pathString;
+        }
+    };
+    DestroyTextureImpl(texture);
+    int width{};
+    int height{};
+    int channels{};
+
+    if (!std::filesystem::exists(path))
+    {
+        LogWarningOnce("Image does not exist");
+        return false;
+    }
+
+    if (!std::filesystem::is_regular_file(path))
+    {
+        LogWarningOnce("Image path is not a regular file");
+        return false;
+    }
+
+    std::ifstream imageFile(path, std::ios::binary | std::ios::ate);
+
+    if (!imageFile)
+    {
+        LogWarningOnce("Failed to open image file");
+        return false;
+    }
+
+    const std::streamsize fileSize = imageFile.tellg();
+
+    if (fileSize <= 0)
+    {
+        LogWarningOnce("Image file is empty");
+        return false;
+    }
+
+    if (fileSize > static_cast<std::streamsize>(std::numeric_limits<int>::max()))
+    {
+        LogWarningOnce("Image file is too large for stb_image");
+        return false;
+    }
+
+    imageFile.seekg(0, std::ios::beg);
+
+    std::vector<unsigned char> imageBytes(static_cast<std::size_t>(fileSize));
+
+    if (!imageFile.read(reinterpret_cast<char*>(imageBytes.data()), fileSize))
+    {
+        LogWarningOnce("Failed to read image file");
+        return false;
+    }
+
+    unsigned char* imageData = stbi_load_from_memory(imageBytes.data(), static_cast<int>(imageBytes.size()), &width, &height, &channels, STBI_rgb_alpha);
+
+    if (!imageData)
+    {
+        const char* reason = stbi_failure_reason();
+        LogWarningOnce(std::string("Failed to decode image | stb reason: ") + (reason ? reason : "Unknown"));
+        return false;
+    }
+
+    if (width <= 0 || height <= 0)
+    {
+        stbi_image_free(imageData);
+        LogWarningOnce("Image has invalid dimensions");
+        return false;
+    }
+
+    const UINT rowPitch = static_cast<UINT>(width * 4);
+    const UINT alignedRowPitch = (rowPitch + 255u) & ~255u;
+    const UINT64 uploadSize = static_cast<UINT64>(alignedRowPitch) * static_cast<UINT64>(height);
+    D3D12_HEAP_PROPERTIES defaultHeap{};
+    defaultHeap.Type = D3D12_HEAP_TYPE_DEFAULT;
+	defaultHeap.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	defaultHeap.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    defaultHeap.CreationNodeMask = 1;
+    defaultHeap.VisibleNodeMask = 1;
+    D3D12_RESOURCE_DESC textureDesc{};
+	textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    textureDesc.Alignment = 0;
+    textureDesc.Width = static_cast<UINT64>(width);
+    textureDesc.Height = static_cast<UINT>(height);
+    textureDesc.DepthOrArraySize = 1;
+    textureDesc.MipLevels = 1;
+    textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.SampleDesc.Quality = 0;
+    textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+    HRESULT result = m_Device->CreateCommittedResource(&defaultHeap, D3D12_HEAP_FLAG_NONE, &textureDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(texture.Resource.GetAddressOf()));
+    if (FAILED(result))
+    {
+        stbi_image_free(imageData);
+        LogWarningOnce("Failed to create texture resource");
+        return false;
+    }
+
+    D3D12_HEAP_PROPERTIES uploadHeap{};
+    uploadHeap.Type = D3D12_HEAP_TYPE_UPLOAD;
+	uploadHeap.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	uploadHeap.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    uploadHeap.CreationNodeMask = 1;
+    uploadHeap.VisibleNodeMask = 1;
+    D3D12_RESOURCE_DESC uploadDesc{};
+    uploadDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    uploadDesc.Alignment = 0;
+    uploadDesc.Width = uploadSize;
+    uploadDesc.Height = 1;
+    uploadDesc.DepthOrArraySize = 1;
+    uploadDesc.MipLevels = 1;
+    uploadDesc.Format = DXGI_FORMAT_UNKNOWN;
+    uploadDesc.SampleDesc.Count = 1;
+    uploadDesc.SampleDesc.Quality = 0;
+    uploadDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    uploadDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+    ComPtr<ID3D12Resource> uploadBuffer{};
+	result = m_Device->CreateCommittedResource(&uploadHeap, D3D12_HEAP_FLAG_NONE, &uploadDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(uploadBuffer.GetAddressOf()));
+
+    if (FAILED(result))
+    {
+        stbi_image_free(imageData);
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to create texture upload buffer");
+        return false;
+    }
+    void* mappedData{};
+    D3D12_RANGE readRange{};
+    readRange.Begin = 0;
+    readRange.End = 0;
+    result = uploadBuffer->Map(0, &readRange, &mappedData);
+
+    if (FAILED(result) || !mappedData)
+    {
+        stbi_image_free(imageData);
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to map texture upload buffer");
+        return false;
+    }
+    for (int y = 0; y < height; ++y)
+    {
+        std::memcpy(
+            static_cast<unsigned char*>(mappedData) +
+                static_cast<std::size_t>(y) * alignedRowPitch,
+
+            imageData +
+                static_cast<std::size_t>(y) * rowPitch,
+
+            rowPitch
+        );
+    }
+
+    uploadBuffer->Unmap(0, nullptr);
+    stbi_image_free(imageData);
+    ComPtr<ID3D12CommandAllocator> commandAllocator{};
+    ComPtr<ID3D12GraphicsCommandList> commandList{};
+	result = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(commandAllocator.GetAddressOf()));
+
+    if (FAILED(result))
+    {
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to create texture command allocator");
+        return false;
+    }
+    result = m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(commandList.GetAddressOf()));
+
+    if (FAILED(result))
+    {
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to create texture command list");
+        return false;
+    }
+
+    D3D12_TEXTURE_COPY_LOCATION destination{};
+    destination.pResource = texture.Resource.Get();
+	destination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+    destination.SubresourceIndex = 0;
+    D3D12_TEXTURE_COPY_LOCATION source{};
+    source.pResource = uploadBuffer.Get();
+	source.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+    source.PlacedFootprint.Offset = 0;
+	source.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	source.PlacedFootprint.Footprint.Width = static_cast<UINT>(width);
+	source.PlacedFootprint.Footprint.Height = static_cast<UINT>(height);
+	source.PlacedFootprint.Footprint.Depth = 1;
+	source.PlacedFootprint.Footprint.RowPitch = alignedRowPitch;
+	commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
+    D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = texture.Resource.Get();
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    commandList->ResourceBarrier(1, &barrier);
+    result = commandList->Close();
+    if (FAILED(result))
+    {
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to close texture command list");
+        return false;
+    }
+	ID3D12CommandList* commandLists[]{commandList.Get()};
+	m_CommandQueue->ExecuteCommandLists(1, commandLists);
+    ComPtr<ID3D12Fence> uploadFence{};
+	HANDLE uploadFenceEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr);
+    if (!uploadFenceEvent)
+    {
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to create texture fence event");
+        return false;
+    }
+    result = m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(uploadFence.GetAddressOf()));
+    if (FAILED(result))
+    {
+        CloseHandle(uploadFenceEvent);
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to create texture upload fence");
+        return false;
+    }
+    constexpr UINT64 fenceValue = 1;
+    result = m_CommandQueue->Signal(uploadFence.Get(), fenceValue);
+
+    if (FAILED(result))
+    {
+        CloseHandle(uploadFenceEvent);
+        texture.Resource.Reset();
+        LogWarningOnce("Failed to signal texture upload fence");
+        return false;
+    }
+
+    if (uploadFence->GetCompletedValue() < fenceValue)
+    {
+		result = uploadFence->SetEventOnCompletion(fenceValue, uploadFenceEvent);
+
+        if (FAILED(result))
+        {
+            CloseHandle(uploadFenceEvent);
+            texture.Resource.Reset();
+			LogWarningOnce("Failed to wait for texture upload fence");
+            return false;
+        }
+       WaitForSingleObject(uploadFenceEvent, INFINITE);
+    }
+
+    CloseHandle(uploadFenceEvent);
+
+  m_HeapAllocator.Alloc(&texture.CpuHandle, &texture.GpuHandle);
+
+if (texture.CpuHandle.ptr == 0 || texture.GpuHandle.ptr == 0)
+  {
+    texture.Resource.Reset();
+    texture.CpuHandle = {};
+    texture.GpuHandle = {};
+
+    LogWarningOnce("Failed to allocate texture descriptor");
+    return false;
+}
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension =D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+	m_Device->CreateShaderResourceView(texture.Resource.Get(), &srvDesc, texture.CpuHandle);
+    texture.Width = width;
+    texture.Height = height;
+
+    if (loggedSuccess.insert(pathString).second)
+    {
+		LOG(INFO) << "Loaded menu background: " << pathString;
+    }
+    return true;
+}
+
+void Renderer::DestroyTextureImpl(ImGuiTexture& texture)
+{
+	if (texture.GpuHandle.ptr != 0)
+	{
+		m_HeapAllocator.Free(
+			texture.CpuHandle,
+			texture.GpuHandle);
+	}
+
+	texture.Resource.Reset();
+	texture.CpuHandle = {};
+	texture.GpuHandle = {};
+	texture.Width = 0;
+	texture.Height = 0;
+}
+
 	Renderer::Renderer() :
 	    m_Initialized(false),
 	    m_Resizing(false),
@@ -117,7 +429,7 @@ namespace YimMenu
 
 		m_FrameContext.resize(m_SwapChainDesc.BufferCount);
 
-		D3D12_DESCRIPTOR_HEAP_DESC DescriptorDesc{D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_SwapChainDesc.BufferCount, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE};
+		D3D12_DESCRIPTOR_HEAP_DESC DescriptorDesc{D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 64, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE};
 		if (const auto result =
 		        m_Device->CreateDescriptorHeap(&DescriptorDesc, __uuidof(ID3D12DescriptorHeap), (void**)m_DescriptorHeap.GetAddressOf());
 		    result < 0)

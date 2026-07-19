@@ -420,11 +420,11 @@ namespace YimMenu::Features
 			std::make_shared<PackedBoolRangeStat>(54781, 54785),
 			std::make_shared<PackedBoolStat>(54786),
 
-			// THE KORTZ CENTER HEIST
+			// The Kortz Center Heist
 			std::make_shared<PackedBoolStat>(60011),
 			std::make_shared<PackedBoolStat>(60021),
 			std::make_shared<IntBitStat>("MPX_K26_GENERAL_BS", 2),
-			std::make_shared<IntStat>("MPX_AWARD_PREPPER", 20),
+			std::make_shared<IntStat>("MPX_AWD_PREPPER", 20),
 			std::make_shared<PackedBoolStat>(60022),
 			std::make_shared<PackedBoolStat>(60023),
 			std::make_shared<PackedIntStat>(60049, 5),
@@ -432,6 +432,7 @@ namespace YimMenu::Features
 			std::make_shared<PackedIntStat>(60050, 15),
 			std::make_shared<PackedBoolStat>(60028),
 			std::make_shared<IntStat>("MPX_PROG_HUB_KORTZ_STOLEN_VALUE", 50000000),
+			std::make_shared<IntBitsStat>("MPX_K26_TARGETS_OWNED_BS", 1, 26),
 
 			  //Misc
 			   Stats::SaveStats();

@@ -461,14 +461,15 @@ namespace YimMenu
 		Renderer::AddRendererCallBack(
 		    [&] {
 			    ProcessOnboarding();
+
 			    if (!GUI::IsOpen())
 				    return;
-
+				const auto backgroundPath = std::filesystem::path(std::getenv("APPDATA")) / "YimMenuV2" / "Images" / "Background.png";
+				Renderer::LoadTextureFromFile(backgroundPath, Menu::g_BackgroundTexture);
 			    ImGui::PushFont(Menu::Font::g_DefaultFont);
-			    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImU32(ImColor(15, 15, 15)));
+				ImGui::PushStyleColor(ImGuiCol_WindowBg, ImU32(ImColor(15, 15, 15)));
 
 			    UIManager::Draw();
-
 			    ImGui::PopStyleColor();
 			    ImGui::PopFont();
 		    },

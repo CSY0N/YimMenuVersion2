@@ -1,12 +1,17 @@
 #pragma once
 #include "game/frontend/GUI.hpp"
+#include "core/renderer/Renderer.hpp"
+#include "core/commands/BoolCommand.hpp"
+
 
 namespace YimMenu::Menu
 {
 	extern void Init();
 	extern void SetupStyle();
 	extern void SetupFonts();
-
+	inline ImGuiTexture g_BackgroundTexture{};
+	inline bool g_BackgroundLoadAttempted = false;
+	inline BoolCommand customMenuBackground{"custommenubg","Custom PNG Background","Use Background.png from the YimMenuV2 folder"};
 	namespace Font
 	{
 		inline ImFont* g_DefaultFont = nullptr;
