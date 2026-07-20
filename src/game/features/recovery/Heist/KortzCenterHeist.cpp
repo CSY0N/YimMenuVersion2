@@ -1,7 +1,12 @@
 #include "core/commands/Command.hpp"
 #include "core/commands/BoolCommand.hpp"
 #include "core/commands/ListCommand.hpp"
+#include "core/commands/LoopedCommand.hpp"
 #include "game/gta/Stats.hpp"
+#include "game/gta/ScriptGlobal.hpp"
+#include "game/gta/ScriptLocal.hpp"
+
+
 
 namespace YimMenu::Features
 {
@@ -116,4 +121,165 @@ namespace YimMenu::Features
 
 		static Setup _KortzCenterSetup{"kortzcenterheistsetup", "Setup", "Sets up Kortz Center heist"};
 	}
+	class SkipFingerprint : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))*ScriptLocal(thread, 26866).As<int*>() = 5;
+		}
+	};
+	static SkipFingerprint _SkipFingerprint{"kortz_skip_fingerprint_hack", "Skip Fingerprint Hacking", "(Computer Room)"};
+
+	class SkipSignalNode : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))*ScriptLocal(thread, 27914).As<int*>() = 5;
+		}
+	};
+	static SkipSignalNode _SkipSignalNode{"kortz_skip_Signal_Nodes_hack", "Skip Signal Nodes Hacking", "(Vault Keypad)"};
+
+	class Primarytarget : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
+			{
+				*ScriptLocal(thread, 29355).At(11).As<int*>() = 10;
+				*ScriptLocal(thread, 29355).At(11).As<int*>() = 17;
+			}
+
+		}
+	};
+	static Primarytarget _Primarytarget{"kortz_take_primary", "Take primary target", "Take primary target"};
+
+	class Secondarytarget : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
+			{
+				*ScriptLocal(thread, 29355).At(11).As<int*>() = 3;
+			}
+		}
+	};
+	static Secondarytarget _Secondarytarget{"kortz_take_secondary", "Take secondary target", "Take secondary target"};
+
+	class DisableLaserGrid : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
+			{
+				if (auto local = ScriptLocal(thread, 70416).As<int*>())
+					*local = 4294784;
+			}
+			if (auto global = ScriptGlobal(1935711).As<int*>())
+				*global |= (1 << 0);
+		}
+	};
+	static DisableLaserGrid _disableLaserGrid{"kortz_disablelasergrid", "Disable Laser Grid", "Disables the mission laser grid."};
+
+	class SkipDataCrack : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
+			{
+				for (int i = 0; i < 8; ++i)
+				{
+					*ScriptLocal(thread, 1388).At(i, 4).As<int*>() = 1;
+				}
+			}
+		}
+	};
+	static SkipDataCrack _skipDataCrack{"kortz_skipdatacrack", "Skip Data Crack", "Skips the data crack minigame."};
+
+	class CutGlass : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
+			{
+				*ScriptLocal(thread, 32855).At(4, 13).At(3).As<float*>() = 100.0f;
+			}
+		}
+	};
+	static CutGlass _cutGlass{"kortz_cutglass", "Cut Glass", "Completes the glass cutting stage."};
+
+	class KortzCenterCooldowns : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			*ScriptGlobal(262145).At(38102).As<int*>() = 600;
+			*ScriptGlobal(262145).At(38103).As<int*>() = 2880;
+		}
+	};
+	static KortzCenterCooldowns _kortzCenterCooldowns{"kortz_centercooldowns", "KC Cooldowns", "Sets the Kortz Center Heist cooldowns."};
+
+	class KortzCenterPayouts : public LoopedCommand
+	{
+		using LoopedCommand::LoopedCommand;
+
+		virtual void OnTick() override
+		{
+			static constexpr int payouts[] = {
+			    481250, // 1  - La Dernière Débauche
+			    304500, // 2  - Hare Oneself Think
+			    305000, // 3  - The Downfall of Rome
+			    305500, // 4  - Brother Brother
+			    306000, // 5  - A Cast of Characters
+			    306500, // 6  - Gone To Seed
+			    307000, // 7  - True Love
+			    307500, // 8  - Breathless
+			    308000, // 9  - Consumato
+			    308500, // 10 - I Hear Voices
+			    309000, // 11 - Winter, Nowhere in Particular
+			    309500, // 12 - The Girl With the Pearl Necklace
+			    310000, // 13 - Chat on Fruit
+			    310500, // 14 - Pumpkin
+			    311000, // 15 - Twindifference
+			    311500, // 16 - Stacks Study V
+			    312000, // 17 - I, Fruit
+			    312500, // 18 - To Beat About the Bush
+			    313000, // 19 - In Excess of Success
+			    313500, // 20 - Juiced
+			    314000, // 21 - A Winding Road Home
+			    314500, // 22 - Teckels
+			    315000, // 23 - Trust
+			    315500, // 24 - Until Death
+			    316000, // 25 - What Are Melons?
+			    365000, // 26 - The Outcome of Endeavour
+			    317000  // 27 - Mi O Melee
+			};
+
+			for (std::size_t i = 0; i < std::size(payouts); ++i)
+			{
+				if (auto payoutGlobal = ScriptGlobal(262145).At(38004).At(static_cast<std::ptrdiff_t>(i + 1)).As<int*>())
+				{
+					*payoutGlobal = payouts[i];
+				}
+			}
+			if (auto multiplier = ScriptGlobal(262145).At(38199).As<float*>())
+				*multiplier = 4.0f;
+		}
+	};
+	static KortzCenterPayouts _KortzCenterPayouts{"kortz_centerpayouts", "Kortz Center Payouts", "Changes all Kortz Center primary target payouts and sets the first sale multiplier to 4x."};
+
 }

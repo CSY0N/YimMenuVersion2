@@ -35,7 +35,6 @@ namespace YimMenu::Submenus
 		auto instantfinish = std::make_shared<Group>("Instant Finish Missions");
 
 		auto casinoSlots = std::make_shared<Group>("Slot Machines");
-		auto casinoWheel = std::make_shared<Group>("Lucky Wheel");
 		auto casinoMisc = std::make_shared<Group>("Misc");
 		//auto casinoBlackJack = std::make_shared<Group>("Blackjack");
 		//auto casinoRoulette = std::make_shared<Group>("Roulette");
@@ -115,17 +114,9 @@ namespace YimMenu::Submenus
 		Misc_business->AddItem(std::make_shared<CommandItem>("fillvehwarehouse"_J));
 
 		casinoSlots->AddItem(std::make_shared<BoolCommandItem>("casinomanipulaterigslotmachines"_J));
-		casinoSlots->AddItem(std::make_shared<CommandItem>("casinoslotswin"_J));
-		casinoSlots->AddItem(std::make_shared<CommandItem>("casinoslotslose"_J));
-
-		casinoWheel->AddItem(std::make_shared<ListCommandItem>("casinowheelprize"_J));
-		casinoWheel->AddItem(std::make_shared<CommandItem>("casinogivewheelprize"_J));
 
 
-		casinoMisc->AddItem(std::make_shared<BoolCommandItem>("casinobypass"_J));
-		casinoMisc->AddItem(std::make_shared<ListCommandItem>("casinochiplimit"_J));
-		casinoMisc->AddItem(std::make_shared<CommandItem>("casinoacquirechips"_J));
-		casinoMisc->AddItem(std::make_shared<CommandItem>("casinotradechips"_J));
+		casinoMisc->AddItem(std::make_shared<BoolCommandItem>("casino_membership_bonus"_J));
 
 
 
@@ -233,7 +224,6 @@ namespace YimMenu::Submenus
 	
 
 		casino->AddItem(casinoSlots);
-		casino->AddItem(casinoWheel);
 		casino->AddItem(casinoMisc);
 
 

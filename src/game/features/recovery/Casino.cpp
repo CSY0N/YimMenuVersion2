@@ -98,5 +98,16 @@ virtual void OnDisable() override
 		}
 	};
 
+	class CasinoMembershipBonus : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			*ScriptGlobal(1973325).As<int*>() = 1;
+		}
+	};
+
+	static CasinoMembershipBonus _CasinoMembershipBonus{"casino_membership_bonus", "Casino Membership Bonus", "Triggers the Casino Membership Bonus."};
 	static CasinoManipulateRigSlotMachines _CasinoManipulateRigSlotMachines{"casinomanipulaterigslotmachines", "Manipulate Rig Slot Machines", "Lets you win the Rig Slot Machines every time"};
 }
