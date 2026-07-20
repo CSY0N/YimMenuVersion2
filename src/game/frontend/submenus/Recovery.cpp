@@ -126,6 +126,7 @@ namespace YimMenu::Submenus
 		casinoMisc->AddItem(std::make_shared<ListCommandItem>("casinochiplimit"_J));
 		casinoMisc->AddItem(std::make_shared<CommandItem>("casinoacquirechips"_J));
 		casinoMisc->AddItem(std::make_shared<CommandItem>("casinotradechips"_J));
+		casinoMisc->AddItem(std::make_shared<CommandItem>("casino_membership_bonus"_J));
 
 
 
