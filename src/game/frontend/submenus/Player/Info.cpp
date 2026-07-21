@@ -1,4 +1,5 @@
 #include "Info.hpp"
+
 #include "core/frontend/Notifications.hpp"
 #include "core/backend/FiberPool.hpp"
 #include "game/backend/Players.hpp"
@@ -7,7 +8,6 @@
 #include "game/gta/Natives.hpp"
 #include "types/network/CNetGamePlayer.hpp"
 #include "types/network/rlGamerInfo.hpp"
-
 
 namespace YimMenu::Submenus
 {
@@ -98,7 +98,11 @@ namespace YimMenu::Submenus
 
 
 				auto ip = Players::GetSelected().GetExternalAddress();
-
+				auto& playerData = Players::GetSelected().GetData();
+				if (playerData.m_HasAddresses)
+				{
+					ip = playerData.m_ExternalAddress;
+				}
 				auto addr2 = BuildIPStr(ip.m_IpAddress.m_Field1, ip.m_IpAddress.m_Field2, ip.m_IpAddress.m_Field3, ip.m_IpAddress.m_Field4);
 
 				ImGui::Text("IP Address:");
@@ -151,7 +155,7 @@ namespace YimMenu::Submenus
 
 		menu->AddItem(playerOptionsGroup);
 
-
+		
 		auto customPlayerTp = std::make_shared<Group>("", 1);
 		customPlayerTp->AddItem(std::make_shared<Vector3CommandItem>("playertpcoord"_J, ""));
 		customPlayerTp->AddItem(std::make_shared<PlayerCommandItem>("tpplayertocoord"_J, "Teleport"));
