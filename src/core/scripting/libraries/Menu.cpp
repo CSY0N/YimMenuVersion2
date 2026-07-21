@@ -11,6 +11,8 @@
 #include "game/frontend/items/Items.hpp"
 #include "game/frontend/GUI.hpp"
 #include "LuaCommandHandle.hpp"
+#include "game/gta/Natives.hpp"
+#include "core/backend/ScriptMgr.hpp"
 #include <Windows.h>
 #include <shellapi.h>
 #include <cstdint>
@@ -399,6 +401,16 @@ namespace YimMenu::Lua
 			return 0;
 		}
 
+		static int MenuRequestIpl(lua_State* state)
+		{
+			const char* ipl = CheckStringSafe(state, 1);
+
+			STREAMING::REQUEST_IPL(ipl);
+
+			return 0;
+		}
+
+
 		virtual void Register(lua_State* state) override
 		{
 			RegisterMethodMetatable<SubmenuHandle>(state, [](lua_State* s) {
@@ -431,6 +443,7 @@ namespace YimMenu::Lua
 			SetFunction(state, MenuFindSubmenu, "find_submenu");
 			SetFunction(state, MenuCreateGroup, "create_group");
 			SetFunction(state, MenuOpenUrl, "open_url");
+			SetFunction(state, MenuRequestIpl, "request_ipl");
 			SetFunction(state, IsOpen, "is_open");
 			SetFunction(state, Toggle, "toggle");
 			lua_setglobal(state, "menu");
