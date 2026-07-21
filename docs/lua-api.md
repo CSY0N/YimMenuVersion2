@@ -122,6 +122,14 @@ Build menu UI: submenus, categories, and groups. Most builders return a handle y
 | `menu.is_open() -> boolean` | Returns true if the menu is open. |
 | `menu.toggle()` | Toggles the menu open/closed. |
 
+#### Utilities
+
+| Function | Description |
+| --- | --- |
+| `menu.open_url(url)` | Opens the specified URL in the user's default web browser. |
+| `menu.request_ipl(ipl)` | Requests and loads an IPL. |
+
+
 #### Submenu
 | Method | Description |
 | --- | --- |

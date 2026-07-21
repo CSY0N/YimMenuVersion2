@@ -454,6 +454,11 @@ namespace YimMenu
 			GetLabelTextInternal = addr.Add(36).Rip().As<PVOID>();
 		});
 
+		constexpr auto frameLimiterPatchPtrn = Pattern<"74 ? 48 29 FE">("FrameLimiterPatch");
+		scanner.Add(frameLimiterPatchPtrn, [this](PointerCalculator ptr) {
+			FrameLimiter_Patch = BytePatches::Add(ptr.As<std::uint8_t*>(), std::vector<std::uint8_t>{0x90, 0x90});
+		});
+
 
 		if (!scanner.Scan())
 		{

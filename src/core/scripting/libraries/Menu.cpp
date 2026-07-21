@@ -11,6 +11,13 @@
 #include "game/frontend/items/Items.hpp"
 #include "game/frontend/GUI.hpp"
 #include "LuaCommandHandle.hpp"
+#include "game/gta/Natives.hpp"
+#include "core/backend/ScriptMgr.hpp"
+#include <Windows.h>
+#include <shellapi.h>
+#include <cstdint>
+#include <string>
+
 
 namespace YimMenu::Lua
 {
@@ -375,6 +382,35 @@ namespace YimMenu::Lua
 			Metatable<Handle>::Register(state);
 		}
 
+		static int MenuOpenUrl(lua_State* state)
+		{
+			const std::string url{CheckStringSafe(state, 1)};
+
+			if (!url.starts_with("https://") && !url.starts_with("http://"))
+			{
+				return luaL_error(state, "only http:// and https:// URLs are allowed");
+			}
+
+			const auto result = reinterpret_cast<std::intptr_t>(ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL));
+
+			if (result <= 32)
+			{
+				return luaL_error(state, "failed to open URL");
+			}
+
+			return 0;
+		}
+
+		static int MenuRequestIpl(lua_State* state)
+		{
+			const char* ipl = CheckStringSafe(state, 1);
+
+			STREAMING::REQUEST_IPL(ipl);
+
+			return 0;
+		}
+
+
 		virtual void Register(lua_State* state) override
 		{
 			RegisterMethodMetatable<SubmenuHandle>(state, [](lua_State* s) {
@@ -406,6 +442,8 @@ namespace YimMenu::Lua
 			SetFunction(state, MenuGetSubmenu, "get_submenu");
 			SetFunction(state, MenuFindSubmenu, "find_submenu");
 			SetFunction(state, MenuCreateGroup, "create_group");
+			SetFunction(state, MenuOpenUrl, "open_url");
+			SetFunction(state, MenuRequestIpl, "request_ipl");
 			SetFunction(state, IsOpen, "is_open");
 			SetFunction(state, Toggle, "toggle");
 			lua_setglobal(state, "menu");
