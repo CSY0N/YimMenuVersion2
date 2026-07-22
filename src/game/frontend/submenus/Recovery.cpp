@@ -127,13 +127,14 @@ namespace YimMenu::Submenus
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlock_paints"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlock_packed_bools"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlock_misc"_J));
-		generalUnlocks->AddItem(std::make_shared<CommandItem>("all_Collectibles"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Unlock_Gunrunning"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlockalltradeprices"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Unlock_Festive_Gifts"_J));
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("New_Unlock"_J));
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlockfastrun"_J));
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("all_Collectibles"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Collectibles_Unlocks"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("CompleteWSameCrewheist"_J));
-		generalUnlocks->AddItem(std::make_shared<CommandItem>("New_Unlock"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("enable_jack_o_latern"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Lester_services"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("mk2_skins"_J));
