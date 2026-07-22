@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <unordered_set>
+#include "types/network/netSocketAddress.hpp"
 
 namespace YimMenu
 {
