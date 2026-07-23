@@ -7,11 +7,10 @@ namespace YimMenu::Submenus
 		auto tab = std::make_shared<TabItem>("Kortz Center Heist");
 
 		auto target    = std::make_shared<Group>("Primary Target", 1);
-		auto general   = std::make_shared<Group>("General", 2);
-		auto preps     = std::make_shared<Group>("Prep Work", 2);
-		auto scoping   = std::make_shared<Group>("Scoping", 2);
-		auto action    = std::make_shared<Group>("", 1);
-		auto misc = std::make_shared<Group>("Misc", 1);
+		auto general   = std::make_shared<Group>("General", 1);
+		auto preps     = std::make_shared<Group>("Prep Work", 4);
+		auto scoping   = std::make_shared<Group>("Scoping & Setup", 1);
+		auto misc = std::make_shared<Group>("Misc", 4);
 
 
 		target->AddItem(std::make_shared<ListCommandItem>("kortzcenterheistprimarytarget"_J));
@@ -41,17 +40,17 @@ namespace YimMenu::Submenus
 		scoping->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistscopesecondary"_J));
 		scoping->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistscopepoi"_J));
 
-		action->AddItem(std::make_shared<CommandItem>("kortzcenterheistsetup"_J, "Setup##kortz"));
+		scoping->AddItem(std::make_shared<CommandItem>("kortzcenterheistsetup"_J, "Setup##kortz"));
 
 
 		misc->AddItem(std::make_shared<CommandItem>("kortz_skip_fingerprint_hack"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_skip_Signal_Nodes_hack"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_take_primary"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortz_centercooldowns"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_take_secondary"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_disablelasergrid"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_skipdatacrack"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_cutglass"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_centercooldowns"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("kortz_centerpayouts"_J));
 
 
@@ -60,7 +59,6 @@ namespace YimMenu::Submenus
 		tab->AddItem(general);
 		tab->AddItem(preps);
 		tab->AddItem(scoping);
-		tab->AddItem(action);
 		tab->AddItem(misc);
 
 		return tab;
