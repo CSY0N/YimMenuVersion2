@@ -41,6 +41,7 @@ namespace YimMenu
 		std::filesystem::create_directories(root / "Scripts");
 		std::filesystem::create_directories(root / "Outfits");
 		std::filesystem::create_directories(root / "Images");
+		std::filesystem::create_directories(root / "Music");
 		std::filesystem::create_directories(root / "saved_ini_vehicles");
 		std::filesystem::create_directories(root / "saved_json_vehicles");
 		return root;
@@ -115,6 +116,8 @@ namespace YimMenu
 		}
 
 		LOG(INFO) << "Unloading";
+		ScriptMgr::Destroy();
+
 		NativeHooks::Destroy();
 		FiberPool::Destroy();
 		ScriptMgr::Destroy();
