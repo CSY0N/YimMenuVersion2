@@ -108,6 +108,7 @@ namespace YimMenu::Submenus
 
 
 		chat->AddItem(std::make_shared<BoolCommandItem>("clearchat"_J));
+		gui->AddItem(std::make_shared<CommandItem>("unloadmenu"_J));
 
 		//Editor
 		theme->AddItem(std::make_shared<ImGuiItem>(theme::theme_editor));
