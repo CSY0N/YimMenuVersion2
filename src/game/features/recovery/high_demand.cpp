@@ -13,6 +13,7 @@ namespace YimMenu::Features
 		ScriptPatch m_PrivatePatch3{};
 		ScriptPatch m_PrivatePatch4{};
 		ScriptPatch m_PrivatePatch5{};
+		ScriptPatch m_VehicleExportPrivatePatch{};
 
 		virtual void OnEnable() override
 		{
@@ -45,6 +46,10 @@ namespace YimMenu::Features
 			{
 				m_PrivatePatch5 = ScriptPatches::AddPatch("gb_contraband_sell"_J, ScriptPointer("HDPrivate5", "2C 01 ? ? 06 56 5C 00 37 0A").Add(4), {0x2B, 0x55, 0x00, 0x00});
 			}
+			if (!m_VehicleExportPrivatePatch)
+			{
+				m_VehicleExportPrivatePatch = ScriptPatches::AddPatch("freemode"_J, ScriptPointer("HDVehicleExportPrivate", "2C 01 ? ? 06 56 53 00 37 07").Add(4), { 0x2B, 0x55, 0x00, 0x00 });
+			}
 
 			m_RivalPatch->Enable();
 			m_PrivatePatch1->Enable();
@@ -52,6 +57,7 @@ namespace YimMenu::Features
 			m_PrivatePatch3->Enable();
 			m_PrivatePatch4->Enable();
 			m_PrivatePatch5->Enable();
+			m_VehicleExportPrivatePatch->Enable();
 		}
 
 		virtual void OnDisable() override
@@ -73,6 +79,9 @@ namespace YimMenu::Features
 
 			if (m_PrivatePatch5)
 				m_PrivatePatch5->Disable();
+
+			if (m_VehicleExportPrivatePatch)
+				m_VehicleExportPrivatePatch->Disable();
 		}
 	};
 	static HighDemandSell _HighDemandSell{"high_demand_sell", "High Demand Sell", "Enables High Demand bonus in private sessions by forcing 25 rivals and bypassing the private session check"};
