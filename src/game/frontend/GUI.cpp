@@ -7,6 +7,7 @@
 #include "core/renderer/Renderer.hpp"
 #include "core/frontend/Notifications.hpp"
 #include "game/frontend/ChatDisplay.hpp"
+#include "AutoDriveHUD.hpp"
 #include "game/gta/Natives.hpp"
 #include "types/pad/ControllerInputs.hpp"
 
@@ -43,6 +44,11 @@ namespace YimMenu
 			    Overlay::Draw();
 		    },
 		    -6);
+		Renderer::AddRendererCallBack(
+		    [&] {
+			    AutoDriveHUD::Draw();
+		    },
+		    -7);
 
 		Renderer::SetSafeToRender();
 	}
