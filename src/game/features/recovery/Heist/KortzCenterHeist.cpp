@@ -5,7 +5,10 @@
 #include "game/gta/Stats.hpp"
 #include "game/gta/ScriptGlobal.hpp"
 #include "game/gta/ScriptLocal.hpp"
-
+#include "game/gta/Scripts.hpp"
+#include "core/backend/ScriptMgr.hpp"
+#include "game/gta/Natives.hpp"
+#include "game/backend/Self.hpp"
 
 
 namespace YimMenu::Features
@@ -232,6 +235,25 @@ namespace YimMenu::Features
 		}
 	};
 	static KortzCenterCooldowns _kortzCenterCooldowns{"kortz_centercooldowns", "KC Cooldowns", "Sets the Kortz Center Heist cooldowns."};
+
+	class AutoEnterPcAccessCode : public Command
+	{
+		using Command::Command;
+
+		virtual void OnCall() override
+		{
+			if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
+			{
+				for (int i = 0; i <= 2; i++)
+				{
+					*ScriptLocal(thread, 32818).At(1).At(i, 2).At(1).As<int*>() = 0;
+					ScriptMgr::Yield(100ms);
+					PAD::SET_CONTROL_VALUE_NEXT_FRAME(0, 237, 1.0);
+				}
+			}
+		}
+	};
+	static AutoEnterPcAccessCode _KortzCenterAutoEnterPcAccessCode{"kortzcenterheistautoenterpcaccesscode", "Auto-Enter PC Access Code", "Automatically enters the PC access code"};
 
 	class KortzCenterPayouts : public LoopedCommand
 	{
