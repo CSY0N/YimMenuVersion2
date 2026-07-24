@@ -92,7 +92,6 @@ namespace YimMenu::Submenus
 		businessGroup->AddItem(std::make_shared<CommandItem>("resupplybusiness"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("hangerresupply"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("warehouseresupply"_J));
-		businessGroup->AddItem(std::make_shared<CommandItem>("nightclubpopularity"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("salvageyardpopularity"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("moneyfrontheatremove"_J));
 		businessGroup->AddItem(std::make_shared<BoolCommandItem>("removeresupplycooldown"_J));
@@ -101,7 +100,6 @@ namespace YimMenu::Submenus
 		over_lay->AddItem(std::make_shared<BoolCommandItem>("businessoverlay"_J));
 		over_lay->AddItem(std::make_shared<ConditionalItem>("businessoverlay"_J, std::make_shared<BoolCommandItem>("showwarehouse"_J)));
 		over_lay->AddItem(std::make_shared<ConditionalItem>("businessoverlay"_J, std::make_shared<BoolCommandItem>("showhangar"_J)));
-		over_lay->AddItem(std::make_shared<ConditionalItem>("businessoverlay"_J, std::make_shared<BoolCommandItem>("showbusinesses"_J)));
 		over_lay->AddItem(std::make_shared<ConditionalItem>("businessoverlay"_J, std::make_shared<BoolCommandItem>("shownightclub"_J)));
 
 		Bailloffice->AddItem(std::make_shared<ListCommandItem>("bailtarget"_J));
