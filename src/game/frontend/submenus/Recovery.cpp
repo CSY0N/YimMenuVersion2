@@ -16,6 +16,7 @@ namespace YimMenu::Submenus
 		auto casino = std::make_shared<Category>("Casino");
 		auto unlocks = std::make_shared<Category>("Unlocks");
 		auto generalUnlocks = std::make_shared<Group>("General");
+		auto nightclubGroup = std::make_shared<Group>("Nightclub");
 		auto LSCMGroupe = std::make_shared<Group>("LS Car Meet");
 		auto trophies = std::make_shared<Group>("Trophies");
 		auto skip = std::make_shared<Group>("Skipper");
@@ -73,6 +74,10 @@ namespace YimMenu::Submenus
 
 		businessGroup->AddItem(std::make_shared<ListCommandItem>("businesssafe"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("claimsafeearnings"_J));
+
+		nightclubGroup->AddItem(std::make_shared<CommandItem>("maxnightclubpopularity"_J));
+		nightclubGroup->AddItem(std::make_shared<BoolCommandItem>("keepnightclubpopularity"_J));
+		nightclubGroup->AddItem(std::make_shared<IntCommandItem>("nightclubloopinterval"_J));
 
 	    businessGroup->AddItem(std::make_shared<BoolCommandItem>("businessoverlay"_J));
 		businessGroup->AddItem(std::make_shared<ConditionalItem>("businessoverlay"_J, std::make_shared<BoolCommandItem>("showwarehouse"_J)));
@@ -219,6 +224,7 @@ namespace YimMenu::Submenus
 
 
 		businesses->AddItem(businessGroup);
+		businesses->AddItem(nightclubGroup);
 		businesses->AddItem(Bailloffice);
 		businesses->AddItem(Misc_business);
 		businesses->AddItem(over_lay);
