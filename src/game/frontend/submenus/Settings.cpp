@@ -58,6 +58,7 @@ namespace YimMenu::Submenus
 		auto objectEsp = std::make_shared<Group>("Object ESP");
 		auto overlay = std::make_shared<Group>("Overlay");
 		auto chat = std::make_shared<Group>("Chat");
+		auto hud = std::make_shared<Group>("HUD");
 
 		hotkeys->AddItem(std::make_shared<ImGuiItem>(Hotkeys));
 
@@ -77,6 +78,8 @@ namespace YimMenu::Submenus
 
 		playerEsp->AddItem(std::make_shared<ConditionalItem>("espdrawplayers"_J, std::make_shared<BoolCommandItem>("espskeletonplayers"_J, "Player Skeleton")));
 		playerEsp->AddItem(std::make_shared<ConditionalItem>("espdrawplayers"_J, std::make_shared<ColorCommandItem>("skeletoncolorplayers"_J)));
+
+		
 
 		// Peds
 		pedEsp->AddItem(std::make_shared<BoolCommandItem>("espdrawpeds"_J));
@@ -110,6 +113,9 @@ namespace YimMenu::Submenus
 		chat->AddItem(std::make_shared<BoolCommandItem>("clearchat"_J));
 		gui->AddItem(std::make_shared<CommandItem>("unloadmenu"_J));
 
+		hud->AddItem(std::make_shared<BoolCommandItem>("hidehud"_J));
+		hud->AddItem(std::make_shared<BoolCommandItem>("disabletextsounds"_J));
+
 		//Editor
 		theme->AddItem(std::make_shared<ImGuiItem>(theme::theme_editor));
 
@@ -120,6 +126,7 @@ namespace YimMenu::Submenus
 		gui->AddItem(uiStyle);
 		gui->AddItem(overlay);
 		gui->AddItem(chat);
+		gui->AddItem(hud);
 
 		AddCategory(std::move(hotkeys));
 		AddCategory(std::move(gui));
