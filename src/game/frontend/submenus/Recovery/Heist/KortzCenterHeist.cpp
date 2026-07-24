@@ -52,7 +52,7 @@ namespace YimMenu::Submenus
 		misc->AddItem(std::make_shared<CommandItem>("kortz_skipdatacrack"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_cutglass"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("kortz_centerpayouts"_J));
-
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistautoenterpcaccesscode"_J));
 
 		
 		tab->AddItem(target);
