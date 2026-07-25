@@ -45,6 +45,7 @@ namespace YimMenu::Submenus
 
 
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("playallmissionssolo"_J));
+		generalGroup->AddItem(std::make_shared<BoolCommandItem>("casinosolo"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("high_demand_sell"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("unlockgtaplus"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("overriderpmultiplier"_J));
