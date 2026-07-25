@@ -42,6 +42,7 @@ namespace YimMenu::Submenus
 		tools->AddItem(std::make_shared<CommandItem>("callmechanic"_J));
 		tools->AddItem(std::make_shared<CommandItem>("requestpv"_J));
 		tools->AddItem(std::make_shared<CommandItem>("despawnpv"_J));
+		tools->AddItem(std::make_shared<CommandItem>("deletePV"_J));
 		tools->AddItem(std::make_shared<CommandItem>("savepersonalvehicle"_J));
 
 		// Rainbow Paint feature with options
