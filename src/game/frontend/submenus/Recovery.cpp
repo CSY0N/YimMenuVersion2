@@ -75,6 +75,7 @@ namespace YimMenu::Submenus
 
 		businessGroup->AddItem(std::make_shared<ListCommandItem>("businesssafe"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("claimsafeearnings"_J));
+		businessGroup->AddItem(std::make_shared<CommandItem>("claimallsafeearnings"_J));
 
 		nightclubGroup->AddItem(std::make_shared<CommandItem>("maxnightclubpopularity"_J));
 		nightclubGroup->AddItem(std::make_shared<BoolCommandItem>("keepnightclubpopularity"_J));
