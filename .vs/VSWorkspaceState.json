@@ -1,0 +1,15 @@
+{
+  "OutputFoldersPerTargetSystem": {
+    "Local Machine": [
+      "out\\build\\x64-Release-MSVC",
+      "out\\install\\x64-Release-MSVC",
+      "out\\build\\x64-Release-Clang",
+      "out\\install\\x64-Release-Clang"
+    ]
+  },
+  "ExpandedNodes": [
+    ""
+  ],
+  "SelectedNode": "\\.github",
+  "PreviewInSolutionExplorer": false
+}
