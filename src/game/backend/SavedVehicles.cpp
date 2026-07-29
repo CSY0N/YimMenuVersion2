@@ -1,10 +1,11 @@
 #include "SavedVehicles.hpp"
-#include "core/util/Joaat.hpp"
+
 #include "core/backend/ScriptMgr.hpp"
 #include "core/frontend/Notifications.hpp"
 #include "game/gta/VehicleModel.hpp"
 #include "game/backend/Self.hpp"
 #include "game/gta/Natives.hpp"
+#include "core/util/Strings.hpp"
 #include "game/gta/Vehicle.hpp"
 #include "game/gta/data/VehicleValues.hpp"
 
@@ -14,36 +15,24 @@ namespace YimMenu
 	{
 		return FileMgr::GetProjectFolder("./saved_json_vehicles/" + folderName);
 	}
-	Folder SavedVehicles::CheckIniFolder(std::string folderName)
-	{
-		return FileMgr::GetProjectFolder("./saved_ini_vehicles/" + folderName);
-	}
-    void SavedVehicles::RefreshList(std::string folderName,std::vector<std::string>& folders,std::vector<std::string>& files)
+
+	void SavedVehicles::RefreshList(std::string folderName, std::vector<std::string>& folders, std::vector<std::string>& files)
 	{
 		folders.clear();
-		const auto jsonRoot = CheckFolder();
-		if (std::filesystem::exists(jsonRoot.Path()))
-		{
-			for (const auto& entry : std::filesystem::directory_iterator(jsonRoot.Path()))
-			{
-				if (entry.is_directory())
-					folders.push_back(entry.path().filename().generic_string());
-			}
-		}
+
+		const auto file_path = CheckFolder();
+		for (const auto& directory_entry : std::filesystem::directory_iterator(file_path.Path()))
+			if (directory_entry.is_directory())
+				folders.push_back(directory_entry.path().filename().generic_string());
+
 		files.clear();
-		auto scanFiles = [&](const Folder& folder) {
-			if (!std::filesystem::exists(folder.Path()))
-				return;
-			for (const auto& entry : std::filesystem::directory_iterator(folder.Path()))
-			{
-				const auto ext = entry.path().extension();
-				if (ext == ".json" || ext == ".ini")
-					files.push_back(entry.path().filename().generic_string());
-			}
-		};
-		scanFiles(CheckFolder(folderName));    // JSON
-		scanFiles(CheckIniFolder(folderName)); // INI
+
+		const auto file_path2 = CheckFolder(folderName);
+		for (const auto& directory_entry : std::filesystem::directory_iterator(file_path2.Path()))
+			if (directory_entry.path().extension() == ".json")
+				files.push_back(directory_entry.path().filename().generic_string());
 	}
+
 	nlohmann::json SavedVehicles::GetJson(Vehicle veh)
 	{
 		nlohmann::json vehicle_json;
@@ -53,6 +42,7 @@ namespace YimMenu
 		Hash vehicle_hash = veh.GetModel();
 		std::map<int, int> vehicle_extras;
 		auto is_bennys = VehicleModel::IsBennys(vehicle);
+
 		for (int slot = (int)VehicleModType::MOD_SPOILERS; slot <= (int)VehicleModType::MOD_LIGHTBAR; slot++)
 			if (VEHICLE::GET_NUM_VEHICLE_MODS(vehicle, slot) > 0)
 			{
@@ -137,129 +127,14 @@ namespace YimMenu
 
 		return vehicle_json;
 	}
-	static std::unordered_map<std::string, std::string> ParseIni(const std::filesystem::path& path)
-	{
-		std::unordered_map<std::string, std::string> out;
-		std::ifstream file(path);
-		std::string line;
-		std::string section;
-		while (std::getline(file, line))
-		{
-			if (line.empty() || line[0] == ';')
-				continue;
-			if (line.front() == '[' && line.back() == ']')
-			{
-				section = line.substr(1, line.size() - 2);
-				continue;
-			}
-			auto pos = line.find('=');
-			if (pos == std::string::npos)
-				continue;
-			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 1);
-			if (!section.empty())
-				key = section + "." + key;
 
-			out[key] = value;
-		}
-		return out;
-	}
-	std::optional<Vehicle> SpawnFromIni(const std::filesystem::path& path)
-	{
-		auto ini = ParseIni(path);
-		auto getStr = [&](const char* key, const char* section = "Vehicle") -> std::optional<std::string> {
-			const std::string k1 = std::string(section) + "." + key;
-			if (ini.contains(k1))
-				return ini[k1];
-			if (ini.contains(key))
-				return ini[key];
-			return std::nullopt;
-		};
-		auto getInt = [&](const char* key, int def = 0, const char* section = "Vehicle") -> int {
-			if (auto s = getStr(key, section))
-				return std::stoi(*s);
-			return def;
-		};
-		auto modelStr = getStr("Model");
-		if (!modelStr)
-			return std::nullopt;
-		Hash model = Joaat(modelStr->c_str());
-		auto veh = Vehicle::Create(
-		    model,
-		    Vehicle::GetSpawnLocRelToPed(Self::GetPed().GetHandle(), model),
-		    Self::GetPed().GetHeading());
-		if (!veh)
-			return std::nullopt;
-		ScriptMgr::Yield();
-		auto v = veh.GetHandle();
-		VEHICLE::SET_VEHICLE_MOD_KIT(v, 0);
-		VEHICLE::SET_VEHICLE_COLOURS(v, getInt("PrimaryColor"), getInt("SecondaryColor"));
-		VEHICLE::SET_VEHICLE_EXTRA_COLOURS(v, getInt("PearlescentColor"), getInt("WheelColor"));
-		VEHICLE::SET_VEHICLE_WHEEL_TYPE(v, getInt("WheelType"));
-		VEHICLE::SET_VEHICLE_WINDOW_TINT(v, getInt("WindowTint", -1));
-		if (auto plate = getStr("PlateText"))
-			VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(v, plate->c_str());
-		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(v, getInt("PlateIndex", 0));
-		VEHICLE::SET_DRIFT_TYRES(v, getInt("DriftTires", 0));
-		VEHICLE::SET_VEHICLE_NEON_ENABLED(v, 0, getInt("EnabledLeft", 0, "Neon"));
-		VEHICLE::SET_VEHICLE_NEON_ENABLED(v, 1, getInt("EnabledRight", 0, "Neon"));
-		VEHICLE::SET_VEHICLE_NEON_ENABLED(v, 2, getInt("EnabledFront", 0, "Neon"));
-		VEHICLE::SET_VEHICLE_NEON_ENABLED(v, 3, getInt("EnabledBack", 0, "Neon"));
-		VEHICLE::SET_VEHICLE_NEON_COLOUR(v, getInt("ColorR", 0, "Neon"), getInt("ColorG", 0, "Neon"), getInt("ColorB", 0, "Neon"));
-		auto setMod = [&](VehicleModType mod, const char* key) {
-			if (int val = getInt(key, -1, "Mods"); val >= 0)
-				VEHICLE::SET_VEHICLE_MOD(v, (int)mod, val, false);
-		};
-		setMod(VehicleModType::MOD_SPOILERS, "Spoilers");
-		setMod(VehicleModType::MOD_ENGINE, "Engine");
-		setMod(VehicleModType::MOD_BRAKES, "Brakes");
-		setMod(VehicleModType::MOD_TRANSMISSION, "Transmission");
-		setMod(VehicleModType::MOD_SUSPENSION, "Suspension");
-		if (getInt("Turbo", 0, "Mods"))
-			VEHICLE::TOGGLE_VEHICLE_MOD(v, (int)VehicleModType::MOD_TURBO, TRUE);
-		auto getF = [&](const std::string& key, float def = 0.f) -> float {
-			if (ini.contains(key))
-				return std::stof(ini[key]);
-			return def;
-		};
-		for (int i = 0; i < 32; i++)
-		{
-			const std::string base = std::to_string(i);
-			const std::string modelKey = base + ".model";
-			if (!ini.contains(modelKey))
-				continue;
-			Hash propHash = Joaat(ini[modelKey].c_str());
-			STREAMING::REQUEST_MODEL(propHash);
-			int tries = 0;
-			while (!STREAMING::HAS_MODEL_LOADED(propHash))
-			{
-				ScriptMgr::Yield();
-				if (++tries > 200)
-					break;
-			}
-			if (!STREAMING::HAS_MODEL_LOADED(propHash))
-			{
-				STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(propHash);
-				continue;
-			}
-
-			ScriptMgr::Yield();
-			Object obj = OBJECT::CREATE_OBJECT(propHash, 0.f, 0.f, 0.f, true, true, false);
-			float x = getF(base + ".x");
-			float y = getF(base + ".y");
-			float z = getF(base + ".z");
-			float rx = getF(base + ".RotX");
-			float ry = getF(base + ".RotY");
-			float rz = getF(base + ".RotZ");
-			ENTITY::ATTACH_ENTITY_TO_ENTITY(obj, v, 0, x, y, z, rx, ry, rz, false, false, false, false, 2, true, true);
-			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(propHash);
-		}
-		return veh;
-	}
 	void SavedVehicles::Save(std::string folderName, std::string fileName)
 	{
 		if (auto veh = Self::GetVehicle(); veh && veh.IsValid())
 		{
+			ReplaceString(fileName, ".", ""); // filename say "bob.." will throw relative path error from Folder::GetFile
+			fileName += ".json";
+
 			const auto file = SavedVehicles::CheckFolder(folderName).GetFile(fileName);
 			std::ofstream file_stream(file.Path(), std::ios::out | std::ios::trunc);
 			file_stream << SavedVehicles::GetJson(veh).dump(4);
@@ -271,73 +146,43 @@ namespace YimMenu
 
 	void SavedVehicles::Load(std::string folderName, std::string fileName, bool spawnInside)
 	{
-		if (fileName.empty())
+		if (!fileName.empty())
 		{
-			Notifications::Show("Persist Car", "Select a file first", NotificationType::Warning);
-			return;
-		}
+			const auto file = CheckFolder(folderName).GetFile(fileName).Path();
 
-		const auto ext = std::filesystem::path(fileName).extension();
-
-		const auto file =
-		    (ext == ".ini") ? CheckIniFolder(folderName).GetFile(fileName).Path() : CheckFolder(folderName).GetFile(fileName).Path();
-
-		if (!std::filesystem::exists(file))
-		{
-			Notifications::Show("Persist Car", "File does not exist.", NotificationType::Error);
-			return;
-		}
-		try
-		{
-			if (ext == ".json")
+			if (!std::filesystem::exists(file))
 			{
-				std::ifstream file_stream(file);
-				nlohmann::json vehicle_json;
-				file_stream >> vehicle_json;
+				Notifications::Show("Persist Car", "File does not exist.", NotificationType::Error);
+				return;
+			}
 
-				Vehicle veh = SpawnFromJson(vehicle_json);
+			std::ifstream file_stream(file);
+			nlohmann::json vehicle_json;
+
+			try
+			{
+				file_stream >> vehicle_json;
+				auto veh = SpawnFromJson(vehicle_json);
 
 				if (veh)
 				{
 					if (spawnInside)
 						Self::GetPed().SetInVehicle(veh.GetHandle());
-
 					Notifications::Show("Persist Car", std::format("Spawned {}", fileName), NotificationType::Success);
 				}
 				else
-				{
 					Notifications::Show("Persist Car", std::format("Unable to spawn {}", fileName), NotificationType::Error);
-				}
 			}
-			else if (ext == ".ini")
+			catch (std::exception& e)
 			{
-				auto vehOpt = SpawnFromIni(file);
-
-				if (vehOpt)
-				{
-					auto& veh = *vehOpt;
-
-					if (spawnInside)
-						Self::GetPed().SetInVehicle(veh.GetHandle());
-
-				Notifications::Show("Persist Car", std::format("Spawned {}", fileName), NotificationType::Success);
-				}
-				else
-				{
-					Notifications::Show("Persist Car", std::format("Unable to spawn {}", fileName), NotificationType::Error);
-				}
+				LOG(WARNING) << e.what();
 			}
-			else
-			{
-				Notifications::Show("Persist Car", "Unsupported vehicle file type", NotificationType::Error);
-			}
+
+			file_stream.close();
 		}
-		catch (const std::exception& e)
-		{
-			Notifications::Show("Persist Car", "Failed to load vehicle file", NotificationType::Error);
-		}
+		else
+			Notifications::Show("Persist Car", "Select a file first", NotificationType::Warning);
 	}
-
 
 	Vehicle SavedVehicles::SpawnFromJson(nlohmann::json vehicle_json)
 	{
