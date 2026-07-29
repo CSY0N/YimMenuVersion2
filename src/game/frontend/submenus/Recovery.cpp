@@ -148,6 +148,7 @@ namespace YimMenu::Submenus
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("enable_jack_o_latern"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Lester_services"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("mk2_skins"_J));
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("KortzHeistPaintings"_J));
 
 
 		skip->AddItem(std::make_shared<CommandItem>("SkipDrDreeContract"_J));
