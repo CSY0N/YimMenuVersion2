@@ -12,16 +12,7 @@
 namespace YimMenu::Submenus
 {
 	static BoolCommand spawnInsideSavedVehicle{"spawninsidesavedveh", "Spawn Inside", "Spawn inside the vehicle."};
-	static bool StringContains(const std::string& haystack, const std::string& needle)
-	{
-		return needle.empty() || haystack.find(needle) != std::string::npos;
-	}
 
-	static bool EndsWith(const std::string& str, const char* suffix)
-	{
-		const size_t len = std::strlen(suffix);
-		return str.size() >= len && str.compare(str.size() - len, len, suffix) == 0;
-	}
 	std::shared_ptr<Category> BuildSavedVehiclesMenu()
 	{
 		static std::string folder{}, file{};
@@ -40,23 +31,20 @@ namespace YimMenu::Submenus
 
 				if (ImGui::Button("Save"))
 					FiberPool::Push([saveToNewFolder] {
-						std::string fileName = vehicle_file_name_input;
+						std::string fileName = TrimString(vehicle_file_name_input);
 						strcpy(vehicle_file_name_input, "");
 
-						if (!TrimString(fileName).size())
+						if (!fileName.size())
 						{
 							Notifications::Show("Saved Vehicles", "Filename empty!", NotificationType::Warning);
 							return;
 						}
 
-						ReplaceString(fileName, ".", "");
-						fileName += ".json";
-
 						SavedVehicles::Save(saveToNewFolder ? newFolder : folder, fileName);
 
 						if (saveToNewFolder)
 						{
-							folder = newFolder;
+							folder = newFolder; // set current folder to newly created folder
 							strcpy(newFolder, "");
 						}
 
@@ -116,34 +104,19 @@ namespace YimMenu::Submenus
 				for (const auto& pair : files)
 				{
 					std::string pair_lower = pair;
-					std::transform(
-					    pair_lower.begin(),
-					    pair_lower.end(),
-					    pair_lower.begin(),
-					    [](unsigned char c) {
-						    return std::tolower(c);
-					    });
-
-					if (!StringContains(pair_lower, search))
-						continue;
-
-					const bool isIni = EndsWith(pair, ".ini");
-					const bool isJson = EndsWith(pair, ".json");
-
-					std::string display =
-					    isIni  ? "[INI]  " + pair :
-					    isJson ? "[JSON] " + pair :
-					             pair;
-
-					if (ImGui::Selectable(display.c_str(), file == pair, ImGuiSelectableFlags_AllowOverlap))
+					std::transform(pair_lower.begin(), pair_lower.end(), pair_lower.begin(), tolower);
+					if (pair_lower.contains(search))
 					{
-						file = pair;
-						open_modal = true;
+						auto file_name = pair.c_str();
+						if (ImGui::Selectable(file_name, file == pair, ImGuiSelectableFlags_AllowItemOverlap))
+						{
+							file = pair;
+							open_modal = true;
+						}
 					}
 				}
 				ImGui::EndListBox();
 			}
-
 			ImGui::SameLine();
 			ImGui::BeginGroup();
 			{
