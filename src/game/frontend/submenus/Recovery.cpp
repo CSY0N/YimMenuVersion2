@@ -75,6 +75,7 @@ namespace YimMenu::Submenus
 
 		businessGroup->AddItem(std::make_shared<ListCommandItem>("businesssafe"_J));
 		businessGroup->AddItem(std::make_shared<CommandItem>("claimsafeearnings"_J));
+		businessGroup->AddItem(std::make_shared<CommandItem>("claimallsafeearnings"_J));
 
 		nightclubGroup->AddItem(std::make_shared<CommandItem>("maxnightclubpopularity"_J));
 		nightclubGroup->AddItem(std::make_shared<BoolCommandItem>("keepnightclubpopularity"_J));
@@ -147,6 +148,7 @@ namespace YimMenu::Submenus
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("enable_jack_o_latern"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Lester_services"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("mk2_skins"_J));
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("KortzHeistPaintings"_J));
 
 
 		skip->AddItem(std::make_shared<CommandItem>("SkipDrDreeContract"_J));
