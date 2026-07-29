@@ -4,7 +4,6 @@
 #include "game/gta/Stats.hpp"
 #include "game/backend/Self.hpp"
 
-
 namespace YimMenu::Features
 {
 	void unlock_packed_bools(int from, int to)
@@ -204,7 +203,7 @@ namespace YimMenu::Features
 				unlock_packed_bools(42294, 42297); //-- Pavel's Garrison Cap, McKenzie Field Cap, Navy Eberhard Bomber, The Arms Dealer
 				unlock_packed_bools(54615, 54634); //-- Winter Park Ranger w/ Tie, Winter Park Ranger, Summer Park Ranger w/ Tie, Summer Park Ranger, Los Santos Tattoo Tee, Los Santos Tattoo Jeans, LS Panic Varsity Jacket, LS Panic Varsity Cap, Honkers Tie-Dye Hoodie, Honkers Tie-Dye Hat, Blue Two-Tone Denim Jacket (Closed), Worn Blue Denim Jeans, Blue Two-Tone Denim Dress, Blue Two-Tone Denim Cowboy Hat, LD Organics 420 Hockey Jersey, LD Organics 420 Forwards Cap, Strapz Patterned Sweatshirt, Strapz Patterned Jeans, Bigness Sketches Shirt, Bigness Sketches Jeans
 
-				if (Self::GetPed().IsMale())
+				if (Self::GetPed()) //if (Self::GetPed().IsMale())
 				{
 					unlock_packed_bools(3483, 3492);   //--Death Defying T-Shirt (Male), For Hire T-Shirt (Male), Gimme That T-Shirt (Male), Asshole T-Shirt (Male), Can't Touch This T-Shirt (Male), Decorated T-Shirt (Male), Psycho Killer T-Shirt (Male), One Man Army T-Shirt (Male), Shot Caller T-Shirt (Male), Showroom T-Shirt (Male)
 					unlock_packed_bools(6082, 6083);   //--Black Benny's T-Shirt, White Benny's T-Shirt
