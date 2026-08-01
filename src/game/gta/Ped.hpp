@@ -79,5 +79,6 @@ namespace YimMenu
 		void ClearDamage();
 		void SetMaxTimeUnderwater(int time);
 		void SetAsCop();
+		bool IsMale();
 	};
 }
