@@ -13,7 +13,7 @@
 #include "LuaCommandHandle.hpp"
 #include "game/gta/Natives.hpp"
 #include "core/backend/ScriptMgr.hpp"
-#include <Windows.h>
+#include <windows.h>
 #include <shellapi.h>
 #include <cstdint>
 #include <string>
