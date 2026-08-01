@@ -42,6 +42,7 @@ namespace YimMenu::Submenus
 
 		auto free = std::make_shared<Group>("Free");
 		auto exhibitGroup = std::make_shared<Group>("Exhibit Loot");
+		auto stashHouse = std::make_shared<Group>("Stash House");
 
 
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("playallmissionssolo"_J));
@@ -55,6 +56,7 @@ namespace YimMenu::Submenus
 		generalGroup->AddItem(std::make_shared<CommandItem>("applyrp"_J));
 		generalGroup->AddItem(std::make_shared<CommandItem>("Rockstar_dev_tshirt"_J));
 		generalGroup->AddItem(std::make_shared<CommandItem>("Good_Behavior_Bonus"_J));
+
 
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("freechangeappearance"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("nochangeappearancecooldown"_J));
@@ -210,15 +212,27 @@ namespace YimMenu::Submenus
 		instantfinish->AddItem(std::make_shared<CommandItem>("sellandbuyspecialcargo"_J));
 		instantfinish->AddItem(std::make_shared<CommandItem>("instantaircargosell"_J));
 		instantfinish->AddItem(std::make_shared<CommandItem>("mcbusinesssellmissions"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("setfibfilepayouts"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishblackboxprep"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishblackboxfinale"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishfineartprep"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishfineartfinale"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishbreakawayprep"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishbreakawayfinale"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishbruteforceprep"_J));
+		instantfinish->AddItem(std::make_shared<CommandItem>("finishbruteforcefinale"_J));
 
 
 		exhibitGroup->AddItem(std::make_shared<ListCommandItem>("soloexhibittarget"_J, "Target"));
 		exhibitGroup->AddItem(std::make_shared<BoolCommandItem>("soloexhibitloot"_J));
 
 
+		stashHouse->AddItem(std::make_shared<CommandItem>("getstashhousecode"_J));
+
 
 		main->AddItem(generalGroup);
 		main->AddItem(gunvanGroup);
+		main->AddItem(stashHouse);
 		main->AddItem(requestServices);
 		main->AddItem(missions);
 		main->AddItem(achievements);
