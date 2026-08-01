@@ -11,7 +11,6 @@
 #include <cmath>
 #include <limits>
 #include <memory>
-#include <mutex>
 #include <unordered_map>
 
 namespace YimMenu::Features::AutoDriveInternal
@@ -183,31 +182,9 @@ namespace YimMenu::Features::AutoDriveInternal
 			int m_CandidateDirection = 0;
 		};
 
-		template<typename T>
-class AtomicSharedPtr
-{
-public:
-    std::shared_ptr<T> load(std::memory_order = std::memory_order_seq_cst) const
-    {
-        std::lock_guard lock(m_Mutex);
-        return m_Ptr;
-    }
-
-    void store(std::shared_ptr<T> value, std::memory_order = std::memory_order_seq_cst)
-    {
-        std::lock_guard lock(m_Mutex);
-        m_Ptr = std::move(value);
-    }
-
-private:
-    mutable std::mutex m_Mutex;
-    std::shared_ptr<T> m_Ptr;
-};
-
 		class TelemetryService
 		{
-			//std::atomic<std::shared_ptr<const AutoDriveHudSnapshot>> m_Published;
-			AtomicSharedPtr<const AutoDriveHudSnapshot> m_Published;
+			std::atomic<std::shared_ptr<const AutoDriveHudSnapshot>> m_Published;
 			SessionToken m_ActiveToken{};
 			std::vector<WorldEntity> m_Vehicles;
 			std::vector<WorldEntity> m_Peds;
