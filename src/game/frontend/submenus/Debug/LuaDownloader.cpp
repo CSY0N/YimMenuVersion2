@@ -6,6 +6,7 @@
 #include <shellapi.h>
 #include <urlmon.h>
 #include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <string>
 #pragma comment(lib, "urlmon.lib")
