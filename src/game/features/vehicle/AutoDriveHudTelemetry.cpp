@@ -11,6 +11,7 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <shared_mutex>
 #include <unordered_map>
 
 namespace YimMenu::Features::AutoDriveInternal
@@ -184,7 +185,8 @@ namespace YimMenu::Features::AutoDriveInternal
 
 		class TelemetryService
 		{
-			std::atomic<std::shared_ptr<const AutoDriveHudSnapshot>> m_Published;
+			mutable std::shared_mutex m_PublishedMutex;
+			std::shared_ptr<const AutoDriveHudSnapshot> m_Published;
 			SessionToken m_ActiveToken{};
 			std::vector<WorldEntity> m_Vehicles;
 			std::vector<WorldEntity> m_Peds;
@@ -204,6 +206,12 @@ namespace YimMenu::Features::AutoDriveInternal
 			bool m_VehicleScanHealthy = false;
 			bool m_PedScanHealthy = false;
 			bool m_ObjectScanHealthy = false;
+
+			void Publish(std::shared_ptr<const AutoDriveHudSnapshot> newSnapshot)
+			{
+				std::unique_lock lock(m_PublishedMutex);
+				m_Published = std::move(newSnapshot);
+			}
 
 			HudPoint GetFootprint(Hash model, HudEntityKind kind)
 			{
@@ -703,7 +711,7 @@ namespace YimMenu::Features::AutoDriveInternal
 		public:
 			TelemetryService()
 			{
-				m_Published.store(std::make_shared<const AutoDriveHudSnapshot>());
+				Publish(std::make_shared<const AutoDriveHudSnapshot>());
 			}
 
 			void Update(SessionToken token, Ped driver, Vehicle vehicle, const RoadDriveStatus& status)
@@ -778,7 +786,7 @@ namespace YimMenu::Features::AutoDriveInternal
 				snapshot->m_CapturedAt = now;
 
 				m_LastPublish = now;
-				m_Published.store(std::move(snapshot), std::memory_order_release);
+				Publish(std::move(snapshot));
 			}
 
 			void Clear(SessionToken token)
@@ -786,12 +794,13 @@ namespace YimMenu::Features::AutoDriveInternal
 				if (!SameToken(m_ActiveToken, token))
 					return;
 				ResetForToken({});
-				m_Published.store(std::make_shared<const AutoDriveHudSnapshot>(), std::memory_order_release);
+				Publish(std::make_shared<const AutoDriveHudSnapshot>());
 			}
 
 			std::shared_ptr<const AutoDriveHudSnapshot> GetSnapshot() const
 			{
-				return m_Published.load(std::memory_order_acquire);
+				std::shared_lock lock(m_PublishedMutex);
+				return m_Published;
 			}
 		};
 
