@@ -2,7 +2,7 @@
 #include "core/backend/FiberPool.hpp"
 #include "game/frontend/items/Items.hpp"
 #include <windows.h>
-#include <ShlObj.h>
+#include <shlobj.h>
 #include <Shellapi.h>
 #include <urlmon.h>
 #include <filesystem>
