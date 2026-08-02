@@ -44,7 +44,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     dwmapi
     gdi32
     libluajit
-    # Windows networking (fehlte bisher)
+    # Windows networking (previously missing)
     winhttp
     urlmon
 )
