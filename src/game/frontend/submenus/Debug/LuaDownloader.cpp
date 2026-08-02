@@ -3,7 +3,7 @@
 #include "game/frontend/items/Items.hpp"
 #include <windows.h>
 #include <shlobj.h>
-#include <Shellapi.h>
+#include <shellapi.h>
 #include <urlmon.h>
 #include <filesystem>
 #include <mutex>
