@@ -50,7 +50,7 @@ It provides powerful features, stability improvements, and an extensible archite
 
 5. **Launch GTA V**
    - Stay at the **main menu**
-   - Inject **YimMenuV2.dll**
+   - Inject **Yimura.Menu.Enhanced.dll**
 
 
 ## 🎮 Controls
