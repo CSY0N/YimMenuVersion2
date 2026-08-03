@@ -1,6 +1,6 @@
 #include "asi_loader.hpp"
 
-#include <ShlObj.h>
+#include <shlObj.h>
 #include <commdlg.h>
 
 #include <algorithm>
