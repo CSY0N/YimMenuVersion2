@@ -7,6 +7,7 @@
 #include "game/frontend/items/DrawHotkey.hpp"
 #include "game/frontend/submenus/Settings/LuaScripts.hpp"
 #include "game/frontend/submenus/Settings/GUISettings.hpp"
+#include "game/frontend/submenus/Settings/ASILoader.hpp"
 #include "game/features/theme/theme.hpp"
 #include <imgui.h>
 
@@ -134,5 +135,6 @@ namespace YimMenu::Submenus
 		AddCategory(std::move(theme));
 		AddCategory(DrawGUISettingsMenu());
 		AddCategory(BuildLuaScriptsMenu());
+		AddCategory(BuildASILoaderMenu());
 	}
 }
