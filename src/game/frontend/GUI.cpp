@@ -5,6 +5,8 @@
 #include "Overlay.hpp"
 #include "core/backend/ScriptMgr.hpp"
 #include "core/renderer/Renderer.hpp"
+#include "core/scripting/LuaManager.hpp"
+#include "core/scripting/LuaScript.hpp"
 #include "core/frontend/Notifications.hpp"
 #include "game/frontend/ChatDisplay.hpp"
 #include "AutoDriveHUD.hpp"
@@ -49,6 +51,22 @@ namespace YimMenu
 			    AutoDriveHUD::Draw();
 		    },
 		    -7);
+		Renderer::AddRendererCallBack(
+		    [] {
+			    LuaManager::ForAllLoadedScripts([](std::shared_ptr<LuaScript>& script) {
+				    script->GetUserInterface().DrawAlwaysDrawImGuiCallbacks();
+			    });
+		    },
+		    -8);
+		Renderer::AddRendererCallBack(
+		    [] {
+			    if (!GUI::IsOpen())
+				    return;
+			    LuaManager::ForAllLoadedScripts([](std::shared_ptr<LuaScript>& script) {
+				    script->GetUserInterface().DrawImGuiCallbacks();
+			    });
+		    },
+		    -4);
 
 		Renderer::SetSafeToRender();
 	}
