@@ -28,6 +28,7 @@
 #include "core/Update/Updater.hpp"
 #include "game/backend/CustomLabelText.hpp"
 #include "game/features/theme/theme.hpp"
+#include "game/features/Settings/asi_loader.hpp"
 namespace YimMenu
 {
 	static std::filesystem::path InitProjectFolders()
@@ -39,6 +40,7 @@ namespace YimMenu
 		std::filesystem::create_directories(root);
 		std::filesystem::create_directories(root / "Themes");
 		std::filesystem::create_directories(root / "Scripts");
+		std::filesystem::create_directories(root / "asi");
 		std::filesystem::create_directories(root / "Outfits");
 		std::filesystem::create_directories(root / "Images");
 		std::filesystem::create_directories(root / "Music");
@@ -76,7 +78,7 @@ namespace YimMenu
 		Players::Init();
 
 		Hooking::Init();
-
+		asi_loader::initialize();
 		ScriptMgr::Init();
 		LOG(INFO) << "ScriptMgr initialized";
 
@@ -122,6 +124,7 @@ namespace YimMenu
 		FiberPool::Destroy();
 		ScriptMgr::Destroy();
 		Hooking::Destroy();
+		asi_loader::shutdown();
 		CallSiteHook::Destroy();
 
 	EARLY_UNLOAD:
