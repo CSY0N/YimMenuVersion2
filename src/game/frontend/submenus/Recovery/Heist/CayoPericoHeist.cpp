@@ -22,12 +22,7 @@ namespace YimMenu::Submenus
 		/*freemode.c*/
 		/*func_5530*/
 		const int player = PLAYER::PLAYER_ID();
-		auto value = ScriptGlobal(1845347)
-			.At(player, 884)
-			.At(260)
-			.At(489)
-			.As<int*>();
-
+		auto value = ScriptGlobal(1845347).At(player, 884).At(260).At(489).As<int*>();
 		if (!value)
 			return false;
 
@@ -69,16 +64,10 @@ namespace YimMenu::Submenus
 
 		cayo_tp->AddItem(std::make_unique<ImGuiItem>([] {
 			ImGui::SetNextItemWidth(140.f);
-			ImGui::Combo(
-				"Teleport To",
-				&g_SelectedTeleport,
-				g_TeleportItems,
-				IM_ARRAYSIZE(g_TeleportItems)
-			);
+			ImGui::Combo("Teleport To", &g_SelectedTeleport, g_TeleportItems, IM_ARRAYSIZE(g_TeleportItems));
 
 			if (ImGui::Button("Teleport", ImVec2(150, 30)))
 			{
-				// Kosatka selected but player doesn't own one.
 				if (g_SelectedTeleport == 0 && !OwnsKosatka())
 				{
 					Notifications::Show("Cayo Perico Heist", "You must own the Kosatka to use this teleport.", NotificationType::Error);
@@ -124,29 +113,11 @@ namespace YimMenu::Submenus
 				{
 					Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(ped, false);
 
-					ENTITY::SET_ENTITY_COORDS(
-						veh,
-						pos.x,
-						pos.y,
-						pos.z,
-						false,
-						false,
-						false,
-						true
-					);
+					ENTITY::SET_ENTITY_COORDS(veh, pos.x, pos.y, pos.z, false, false, false, true);
 				}
 				else
 				{
-					ENTITY::SET_ENTITY_COORDS(
-						ped,
-						pos.x,
-						pos.y,
-						pos.z,
-						false,
-						false,
-						false,
-						true
-					);
+					ENTITY::SET_ENTITY_COORDS(ped, pos.x, pos.y, pos.z, false, false, false, true);
 				}
 			}
 		}));
