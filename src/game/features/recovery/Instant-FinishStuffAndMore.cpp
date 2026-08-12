@@ -109,13 +109,12 @@ namespace YimMenu::Features
 
 		virtual void OnCall() override
 		{
-			/*Unknow*/
-			/**ScriptGlobal(262145).At(18451).As<int*>() = 1;
+			*ScriptGlobal(262145).At(18451).As<int*>() = 1;
 			*ScriptGlobal(262145).At(18495).As<int*>() = 1;
 			*ScriptGlobal(262145).At(18497).As<int*>() = 0;
 			*ScriptGlobal(262145).At(18499).As<int*>() = 1;
 			*ScriptGlobal(262145).At(18501).As<int*>() = 0;
-			*ScriptGlobal(262145).At(18503).As<int*>() = 1;*/
+			*ScriptGlobal(262145).At(18503).As<int*>() = 1;
 		}
 	};
 	static Instant_MCBusinessSellMissions _Instant_MCBusinessSellMissions{"mcbusinesssellmissions", "MC Business Sell Missions ", "mc business sell missions"};
