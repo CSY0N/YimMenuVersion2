@@ -14,8 +14,8 @@ namespace YimMenu::Features
 		{
 			if (*Pointers.IsSessionStarted)
 			{
-				*ScriptGlobal(262145).At(33939).As<bool*>() = true; // 2022
-				*ScriptGlobal(262145).At(35825).As<bool*>() = true; // 2023
+				*ScriptGlobal(262145).At(33940).As<bool*>() = true; // 2022
+				*ScriptGlobal(262145).At(35826).As<bool*>() = true; // 2023
 			}
 			else
 			{
