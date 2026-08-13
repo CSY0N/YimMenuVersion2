@@ -17,14 +17,14 @@ namespace YimMenu::Features
 		{
 			if (*Pointers.IsSessionStarted)
 			{
-			*ScriptGlobal(262145).At(37820).As<int*>() = 1; // Bomb Squad, Mansion Raid
-			*ScriptGlobal(262145).At(37821).As<int*>() = 1; // Knockdown
-			*ScriptGlobal(262145).At(37822).As<int*>() = 1; // Alpha Mail
-			*ScriptGlobal(262145).At(37823).As<int*>() = 1; // Meteoric, Hot Off The Press
-			*ScriptGlobal(262145).At(37636).As<int*>() = 1; // LS Fire Department
-			*ScriptGlobal(262145).At(37637).As<int*>() = 1; // Forklift Operator
-			*ScriptGlobal(262145).At(37638).As<int*>() = 1; // Paper Route
-			*ScriptGlobal(262145).At(37639).As<int*>() = 1; // Lucky Clover Event
+				*ScriptGlobal(262145).At(37823).As<int*>() = 1; // Bomb Squad, Mansion Raid
+				*ScriptGlobal(262145).At(37824).As<int*>() = 1;  // Knockdown
+				*ScriptGlobal(262145).At(37825).As<int*>() = 1; // Alpha Mail
+				*ScriptGlobal(262145).At(37826).As<int*>() = 1;  // Meteoric, Hot Off The Press
+				*ScriptGlobal(262145).At(37639).As<int*>() = 1; // LS Fire Department
+				*ScriptGlobal(262145).At(37640).As<int*>() = 1;  // Forklift Operator
+				*ScriptGlobal(262145).At(37641).As<int*>() = 1; // Paper Route
+				*ScriptGlobal(262145).At(37642).As<int*>() = 1;  // Lucky Clover Event
 			}
 			else
 			{

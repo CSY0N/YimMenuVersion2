@@ -193,14 +193,12 @@ namespace YimMenu::Features
 		void OnCall() override
 		{
 			FiberPool::Push([] {
-				ScriptGlobal gunVanGlobal(2652582);
 
+				ScriptGlobal gunVanGlobal(2652584);
 				*gunVanGlobal.At(2706).As<int*>() = _GunVanLocation.GetState();
-				*gunVanGlobal.At(2707).As<int*>() = 0;
 			});
 		}
 	};
-
 	static SetGunVanLocationCommand _SetGunVanLocation{
 	    "setgunvanlocation",
 	    "Set Location",

@@ -14,10 +14,10 @@ namespace YimMenu::Features
 		{
 			if (*Pointers.IsSessionStarted)
 			{
-				*ScriptGlobal(262145).At(34421).As<int*>() = 1; // Pumpkins Finished
-				*ScriptGlobal(262145).At(34392).As<int*>() = 20; // All 20 Ghosts
-				*ScriptGlobal(262145).At(35268).As<int*>() = 1; // UFO Event active
-				*ScriptGlobal(262145).At(35269).As<int*>() = 1; // Abduction Finished
+				*ScriptGlobal(262145).At(34422).As<int*>() = 1; // Pumpkins Finished
+				*ScriptGlobal(262145).At(34393).As<int*>() = 20; // All 20 Ghosts
+				*ScriptGlobal(262145).At(35269).As<int*>() = 1; // UFO Event active
+				*ScriptGlobal(262145).At(35270).As<int*>() = 1; // Abduction Finished
 				Stats::SetInt("XM22_FOOLIGAN_JOBS_COMPLETED", 10);
 				Stats::SetBool("XM22_LAB_UNLOCKED", true);
 				Stats::SetInt("RADIO_ANTENNA_COLLECTED", 10);

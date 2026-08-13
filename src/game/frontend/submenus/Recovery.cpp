@@ -37,6 +37,7 @@ namespace YimMenu::Submenus
 
 		auto casinoSlots = std::make_shared<Group>("Slot Machines");
 		auto casinoMisc = std::make_shared<Group>("Misc");
+		auto casinoLuckyWheel = std::make_shared<Group>("Lucky Wheel");
 		//auto casinoBlackJack = std::make_shared<Group>("Blackjack");
 		//auto casinoRoulette = std::make_shared<Group>("Roulette");
 
@@ -130,6 +131,8 @@ namespace YimMenu::Submenus
 
 		casinoMisc->AddItem(std::make_shared<BoolCommandItem>("casino_membership_bonus"_J));
 
+		casinoLuckyWheel->AddItem(std::make_shared<ListCommandItem>("luckywheelprize"_J));
+		casinoLuckyWheel->AddItem(std::make_shared<CommandItem>("setluckywheelprize"_J));
 
 
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("unlockallcareerprogress"_J));
@@ -252,7 +255,7 @@ namespace YimMenu::Submenus
 
 		casino->AddItem(casinoSlots);
 		casino->AddItem(casinoMisc);
-
+		casino->AddItem(casinoLuckyWheel);
 
 
 		unlocks->AddItem(generalUnlocks);
