@@ -145,7 +145,7 @@ virtual void OnDisable() override
 				const auto player = PLAYER::PLAYER_ID();
 				*ScriptGlobal(262145).At(26856).As<bool*>() = true; // Enable Additional Spins
 				*ScriptGlobal(262145).At(37458).As<int*>() = 2; // Max. Spins Per Day w/ GTA+
-				*ScriptLocal(thread, 150).At(player, 5).As<int*>() = _LuckyWheelPrize.GetState(); // Results
+				*ScriptLocal(thread, 150).At(player, 5).As<int*>() = _LuckyWheelPrize.GetState(); // Prize outcome
 			}
 		}
 	};
