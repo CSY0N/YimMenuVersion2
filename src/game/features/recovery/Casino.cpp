@@ -3,10 +3,9 @@
 #include "game/gta/Natives.hpp"
 #include "game/gta/ScriptLocal.hpp"
 #include "game/gta/Stats.hpp"
-#include "core/commands/ListCommand.hpp"
 #include "game/backend/Tunables.hpp"
 #include "core/backend/ScriptMgr.hpp"
-
+#include "core/commands/ListCommand.hpp"
 #include <set>
 
 
@@ -107,32 +106,30 @@ virtual void OnDisable() override
 			*ScriptGlobal(1973325).As<int*>() = 1;
 		}
 	};
-	static ListCommand _LuckyWheelPrize{
-	    "luckywheelprize",
-	    "Lucky Wheel Prize",
-	    "Select the outcome for the Lucky Wheel",
-	    {
-	        {0, "Clothing"},
-	        {1, "2,500 RP"},
-	        {2, "$20,000"},
-	        {3, "10,000 Chips"},
-	        {4, "10% Discount Voucher"},
-	        {5, "5,000 RP"},
-	        {6, "$30,000"},
-	        {7, "15,000 Chips"},
-	        {8, "Clothing"},
-	        {9, "7,500 RP"},
-	        {10, "20,000 Chips"},
-	        {11, "Mystery Prize"},
-	        {12, "Clothing"},
-	        {13, "10,000 RP"},
-	        {14, "$40,000"},
-	        {15, "25,000 Chips"},
-	        {16, "Clothing"},
-	        {17, "15,000 RP"},
-	        {18, "Podium Vehicle"},
-	        {19, "$50,000"},
-	    }};
+
+	static std::vector<std::pair<int, const char*>> g_LuckyWheelPrizes = {
+	    {0, "Clothing"},
+	    {1, "2,500 RP"},
+	    {2, "$20,000"},
+	    {3, "10,000 Chips"},
+	    {4, "10% Discount Voucher"},
+	    {5, "5,000 RP"},
+	    {6, "$30,000"},
+	    {7, "15,000 Chips"},
+	    {8, "Clothing"},
+	    {9, "7,500 RP"},
+	    {10, "20,000 Chips"},
+	    {11, "Mystery Prize"},
+	    {12, "Clothing"},
+	    {13, "10,000 RP"},
+	    {14, "$40,000"},
+	    {15, "25,000 Chips"},
+	    {16, "Clothing"},
+	    {17, "15,000 RP"},
+	    {18, "Podium Vehicle"},
+	    {19, "$50,000"},
+	};
+	static ListCommand _LuckyWheelPrize{"luckywheelprize", "Lucky Wheel Prize", "Select the Lucky Wheel prize", g_LuckyWheelPrizes, 18};
 	class SetLuckyWheelPrize : public Command
 	{
 
