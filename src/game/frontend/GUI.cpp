@@ -15,50 +15,47 @@
 
 namespace YimMenu
 {
-	GUI::GUI() :
-	    m_IsOpen(false)
+	void GUI::InitImpl()
 	{
-		Menu::SetupFonts();
-		Menu::SetupStyle();
 		Menu::Init();
 
 		Renderer::AddWindowProcedureCallback([this](HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 			GUI::WndProc(hwnd, msg, wparam, lparam);
 		});
 
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [&] {
 			    Notifications::Draw();
 		    },
 		    -2);
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [&] {
 			    ESP::Draw();
 		    },
 		    -3);
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [&] {
 			    ChatDisplay::Draw();
 		    },
 		    -5);
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [&] {
 			    Overlay::Draw();
 		    },
 		    -6);
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [&] {
 			    AutoDriveHUD::Draw();
 		    },
 		    -7);
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [] {
 			    LuaManager::ForAllLoadedScripts([](std::shared_ptr<LuaScript>& script) {
 				    script->GetUserInterface().DrawAlwaysDrawImGuiCallbacks();
 			    });
 		    },
 		    -8);
-		Renderer::AddRendererCallBack(
+		Renderer::AddRendererCallback(
 		    [] {
 			    if (!GUI::IsOpen())
 				    return;
@@ -69,10 +66,6 @@ namespace YimMenu
 		    -4);
 
 		Renderer::SetSafeToRender();
-	}
-
-	GUI::~GUI()
-	{
 	}
 
 	void GUI::ToggleMouse()
