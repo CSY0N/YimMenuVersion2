@@ -66,7 +66,6 @@ namespace YimMenu::Submenus
 		// Players
 		uiStyle->AddItem(std::make_shared<ListCommandItem>("styleselector"_J));
 		uiStyle->AddItem(std::make_shared<BoolCommandItem>("menubgsnow"_J));
-		uiStyle->AddItem(std::make_shared<BoolCommandItem>("custommenubg"_J));
 
 
 		playerEsp->AddItem(std::make_shared<BoolCommandItem>("espdrawplayers"_J));
