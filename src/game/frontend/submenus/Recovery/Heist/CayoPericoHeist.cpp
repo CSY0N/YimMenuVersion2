@@ -7,7 +7,6 @@
 namespace YimMenu::Submenus
 {
 	static int g_SelectedTeleport = 0;
-
 	static const char* g_TeleportItems[] = {
 		"Kosatka",
 		"Drainage Pipe",
@@ -25,7 +24,6 @@ namespace YimMenu::Submenus
 		auto value = ScriptGlobal(1845347).At(player, 884).At(260).At(489).As<int*>();
 		if (!value)
 			return false;
-
 		return (*value & (1 << 0)) != 0;
 	}
 
@@ -36,7 +34,9 @@ namespace YimMenu::Submenus
 		auto cuts = std::make_shared<Group>("Heist Cuts", 2);
 		auto setups = std::make_shared<Group>("Heist Setups");
 		auto loots = std::make_shared<Group>("Loots", 2);
-		auto misc = std::make_shared<Group>("Misc", 1);
+		//auto misc = std::make_shared<Group>("Misc", 1);
+		auto misc      = std::make_shared<Group>("Misc", 4);
+		auto modifiers = std::make_shared<Group>("Modifiers", 1);
 		auto cayo_tp = std::make_shared<Group>("Teleport");
 
 		cuts->AddItem(std::make_shared<IntCommandItem>("cayopericoheistcut1"_J));
@@ -61,7 +61,13 @@ namespace YimMenu::Submenus
 		misc->AddItem(std::make_shared<CommandItem>("cayopericoheistcutglass"_J));
 		misc->AddItem(std::make_shared<CommandItem>("cayopericoheisttakeprimarytarget"_J));
 		misc->AddItem(std::make_shared<CommandItem>("cayopericoheistinstantfinish"_J));
+		misc->AddItem(std::make_shared<BoolCommandItem>("infiniteplasmacutterheat"_J));
+		misc->AddItem(std::make_shared<BoolCommandItem>("removefencingfee"_J));
+		misc->AddItem(std::make_shared<BoolCommandItem>("removepavelscut"_J));
 
+		modifiers->AddItem(std::make_shared<IntCommandItem>("bagcapacity"_J));
+		modifiers->AddItem(std::make_shared<BoolCommandItem>("bagcapacitymodifier"_J));
+		
 		cayo_tp->AddItem(std::make_unique<ImGuiItem>([] {
 			ImGui::SetNextItemWidth(140.f);
 			ImGui::Combo("Teleport To", &g_SelectedTeleport, g_TeleportItems, IM_ARRAYSIZE(g_TeleportItems));
@@ -126,6 +132,7 @@ namespace YimMenu::Submenus
 		tab->AddItem(setups);
 		tab->AddItem(loots);
 		tab->AddItem(misc);
+		tab->AddItem(modifiers);
 		tab->AddItem(cayo_tp);
 
 		return tab;
