@@ -75,10 +75,7 @@ namespace YimMenu
 
 	struct PointerData
 	{
-		IDXGISwapChain1** SwapChain;
-		ID3D12CommandQueue** CommandQueue;
 		HWND* Hwnd;
-		PVOID WndProc;
 		std::uint32_t* ScreenResX;
 		std::uint32_t* ScreenResY;
 		const char* GameVersion;
