@@ -1,112 +1,8 @@
 #include "theme.hpp"
 #include "core/frontend/manager/UIManager.hpp"
-#include "game/frontend/Menu.hpp"
-#include "core/renderer/Renderer.hpp"
-
 
 namespace YimMenu::theme
 {
-	static std::filesystem::path GetActiveBackgroundPath()
-{
-    const char* appdata = std::getenv("APPDATA");
-
-    if (!appdata)
-        return {};
-
-    return std::filesystem::path(appdata)
-        / "YimMenuV2"
-        / "Background.png";
-}
-
-static std::filesystem::path GetThemeBackgroundPath(
-    const std::filesystem::path& themeFile)
-{
-    return themeFile.parent_path() / "Background.png";
-}
-
-static void SaveThemeBackground(
-    const std::filesystem::path& themeFile)
-{
-    const auto activeBackground = GetActiveBackgroundPath();
-    const auto savedBackground  = GetThemeBackgroundPath(themeFile);
-
-    if (activeBackground.empty())
-        return;
-
-    std::error_code error;
-
-    if (std::filesystem::exists(activeBackground))
-    {
-        std::filesystem::copy_file(
-            activeBackground,
-            savedBackground,
-            std::filesystem::copy_options::overwrite_existing,
-            error
-        );
-
-        if (error)
-        {
-            LOG(WARNING)
-                << "Failed to save theme background: "
-                << error.message();
-        }
-    }
-    else
-    {
-        // Prevent an old PNG remaining attached to the theme.
-        std::filesystem::remove(savedBackground, error);
-    }
-}
-
-static void LoadThemeBackground(
-    const std::filesystem::path& themeFile)
-{
-    const auto savedBackground  = GetThemeBackgroundPath(themeFile);
-    const auto activeBackground = GetActiveBackgroundPath();
-
-    if (activeBackground.empty())
-        return;
-
-    std::error_code error;
-
-    if (std::filesystem::exists(savedBackground))
-    {
-        std::filesystem::create_directories(
-            activeBackground.parent_path(),
-            error
-        );
-
-        error.clear();
-
-        std::filesystem::copy_file(
-            savedBackground,
-            activeBackground,
-            std::filesystem::copy_options::overwrite_existing,
-            error
-        );
-
-        if (error)
-        {
-            LOG(WARNING)
-                << "Failed to load theme background: "
-                << error.message();
-
-            return;
-        }
-
-        Renderer::DestroyTexture(Menu::g_BackgroundTexture);
-
-        Renderer::LoadTextureFromFile(
-            activeBackground,
-            Menu::g_BackgroundTexture
-        );
-    }
-    else
-    {
-        // Theme has no saved PNG, so use the default background.
-        Renderer::DestroyTexture(Menu::g_BackgroundTexture);
-    }
-}
 	static std::filesystem::path GetThemeConfigPath()
 	{
 		auto path = GetThemesPath().parent_path();
@@ -116,15 +12,8 @@ static void LoadThemeBackground(
 	static void SaveLastTheme(const std::filesystem::path& theme)
 	{
 		std::ofstream out(GetThemeConfigPath(), std::ios::trunc);
-
-		if (!out.is_open())
-			return;
-
-		std::error_code error;
-		const auto relativePath =
-		    std::filesystem::relative(theme, GetThemesPath(), error);
-
-		out << (error ? theme.filename().string() : relativePath.string());
+		if (out.is_open())
+			 out << theme.filename().string();
 	}
 	static std::optional<std::filesystem::path> LoadLastTheme()
 	{
@@ -324,7 +213,7 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 	}
 
 
-	std::filesystem::path GetThemesPath()
+	static std::filesystem::path GetThemesPath()
 	{
 		const char* appdata = std::getenv("APPDATA");
 		if (!appdata)
@@ -347,37 +236,6 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 	{
 		c = {v[i++], v[i++], v[i++], v[i++]};
 	}
-
-	static bool ReadBoolSetting(
-	    const std::string& data,
-	    const std::string& name,
-	    bool fallback)
-	{
-		const std::string key = "\"" + name + "\"";
-		const size_t keyPos = data.find(key);
-
-		if (keyPos == std::string::npos)
-			return fallback;
-
-		const size_t colonPos = data.find(':', keyPos);
-
-		if (colonPos == std::string::npos)
-			return fallback;
-
-		const size_t valuePos = data.find_first_not_of(" \t\r\n", colonPos + 1);
-
-		if (valuePos == std::string::npos)
-			return fallback;
-
-		if (data.compare(valuePos, 4, "true") == 0)
-			return true;
-
-		if (data.compare(valuePos, 5, "false") == 0)
-			return false;
-
-		return fallback;
-	}
-
 	void SaveTheme(const std::filesystem::path& file)
 	{
 		ImGuiStyle& s = ImGui::GetStyle();
@@ -416,14 +274,9 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 		WriteUIColor(out, "IconActive", IconActive);
 		WriteUIColor(out, "IconHovered", IconHovered);
 		WriteUIColor(out, "IconIdle", IconIdle, false);
-		out << "  },\n";
-		out << "  \"custom_background\": "
-		    << (Menu::customMenuBackground.GetState() ? "true" : "false")
-		    << "\n";
-		out << "}\n";
+		out << "  }\n";
 
-		out.close();
-		SaveThemeBackground(file);
+		out << "}\n";
 	}
 	void LoadTheme(const std::filesystem::path& file)
 	{
@@ -431,16 +284,7 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 		std::ifstream in(file);
 		if (!in.is_open())
 			return;
-		std::string data(
-		    (std::istreambuf_iterator<char>(in)),
-		    std::istreambuf_iterator<char>());
-
-		const bool customBackgroundEnabled =
-		    ReadBoolSetting(
-		        data,
-		        "custom_background",
-		        Menu::customMenuBackground.GetState());
-
+		std::string data((std::istreambuf_iterator<char>(in)),std::istreambuf_iterator<char>());
 		std::vector<float> values;
 		values.reserve(256);
 		const char* p = data.c_str();
@@ -492,39 +336,17 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 			ReadUIColor(IconHovered, values, i);
 			ReadUIColor(IconIdle, values, i);
 		}
-
-		Menu::customMenuBackground.SetState(customBackgroundEnabled);
-		LoadThemeBackground(file);
 	}
-	std::vector<std::filesystem::path> GetJsonThemes()
+	static std::vector<std::filesystem::path> GetJsonThemes()
 	{
 		std::vector<std::filesystem::path> out;
-		const auto themesPath = GetThemesPath();
-
-		if (themesPath.empty() || !std::filesystem::exists(themesPath))
-			return out;
-
-		for (const auto& entry : std::filesystem::directory_iterator(themesPath))
+		for (auto& e : std::filesystem::directory_iterator(GetThemesPath()))
 		{
-			if (entry.is_directory())
-			{
-				const auto themeFile = entry.path() / "theme.json";
-
-				if (std::filesystem::exists(themeFile))
-					out.push_back(themeFile);
-			}
-			else if (entry.is_regular_file() &&
-			         entry.path().extension() == ".json")
-			{
-				// Legacy themes saved directly in the Themes folder.
-				out.push_back(entry.path());
-			}
+			if (e.is_regular_file() && e.path().extension() == ".json")
+				out.push_back(e.path());
 		}
-
-		std::sort(out.begin(), out.end());
 		return out;
 	}
-
 	void theme_editor()
 	{
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -599,14 +421,8 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 			ImGui::InputText("Theme Name", theme_name, IM_ARRAYSIZE(theme_name));
 			if (ImGui::Button("Save Theme"))
 			{
-				const auto themeFolder =
-				    GetThemesPath() / std::string(theme_name);
-
-				std::error_code error;
-				std::filesystem::create_directories(themeFolder, error);
-
-				if (!error)
-					SaveTheme(themeFolder / "theme.json");
+				auto path = GetThemesPath() / (std::string(theme_name) + ".json");
+				SaveTheme(path);
 			}
 			ImGui::Separator();
 			ImGui::TextUnformatted("Available Themes:");
@@ -614,13 +430,7 @@ bool DrawColorWheel(const char* id, ImVec4& color, float radius = 90.f)
 			ImGui::BeginChild("##themes", ImVec2(0, 150.f), true);
 			for (int i = 0; i < (int)themes.size(); i++)
 			{
-				const bool folderTheme =
-				    themes[i].filename() == "theme.json";
-
-				const std::string name = folderTheme
-				    ? themes[i].parent_path().filename().string()
-				    : themes[i].stem().string();
-
+				std::string name = themes[i].stem().string();
 				if (ImGui::Selectable(name.c_str(), selected_theme == i))
 					selected_theme = i;
 			}
