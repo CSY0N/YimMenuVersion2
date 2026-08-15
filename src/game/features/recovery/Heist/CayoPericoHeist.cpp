@@ -1,6 +1,7 @@
 #include "core/commands/Command.hpp"
 #include "core/commands/IntCommand.hpp"
 #include "core/commands/ListCommand.hpp"
+#include "core/commands/LoopedCommand.hpp"
 #include "game/backend/Self.hpp"
 #include "game/gta/Natives.hpp"
 #include "game/gta/Stats.hpp"
@@ -293,6 +294,42 @@ namespace YimMenu::Features
 			}
 		};
 
+		class InfinitePlasmaCutterHeat : public LoopedCommand
+		{
+			using LoopedCommand::LoopedCommand;
+
+			virtual void OnTick() override
+			{
+				if (auto thread = Scripts::FindScriptThread("fm_mission_controller_2020"_J))
+				{
+					*ScriptLocal(thread, 32751).At(4).As<float*>() = 0.0f;
+				}
+			}
+		};
+
+		class RemoveFencingFee : public LoopedCommand
+		{
+			using LoopedCommand::LoopedCommand;
+
+			virtual void OnTick() override
+			{
+				ScriptGlobal(262145).At(29594).As<float&>() = 0.0f;
+			}
+		};
+
+	    class RemovePavelsCut : public LoopedCommand
+		{
+			using LoopedCommand::LoopedCommand;
+
+			virtual void OnTick() override
+			{
+				ScriptGlobal(262145).At(29595).As<float&>() = 0.0f;
+			}
+		};
+
+	    static RemoveFencingFee _RemoveFencingFee{"removefencingfee", "Remove The Fencing Fee", "Sets the fencing fee to 0%"};
+	    static RemovePavelsCut _RemovePavelsCut{"removepavelscut", "Remove Pavel's Cut", "Sets Pavel's cut to 0%"};
+	    static InfinitePlasmaCutterHeat _InfinitePlasmaCutterHeat{"infiniteplasmacutterheat", "Infinite Plasma Cutter Heat", "Prevents the plasma cutter from overheating"};
 		static SetCuts _CayoPericoHeistSetCuts{"cayopericoheistsetcuts", "Set Cuts", "Sets heist cut"};
 		static ForceReady _CayoPericoHeistForceReady{"cayopericoheistforceready", "Force Ready", "Forces all players to be ready"};
 		static Setup _CayoPericoHeistSetup{"cayopericoheistsetup", "Setup", "Sets up cayo perico heist"};
