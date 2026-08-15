@@ -326,7 +326,21 @@ namespace YimMenu::Features
 				ScriptGlobal(262145).At(29595).As<float&>() = 0.0f;
 			}
 		};
+	    static IntCommand _BagCapacity{"bagcapacity", "Bag Capacity", "Sets the custom bag capacity value", 0, 10000, 2500};
 
+
+		class BagCapacityModifier : public LoopedCommand
+		{
+			using LoopedCommand::LoopedCommand;
+
+			virtual void OnTick() override
+			{
+				ScriptGlobal(262145).At(29338).As<int&>() = _BagCapacity.GetState();
+			}
+		};
+
+
+	    static BagCapacityModifier _BagCapacityModifier{"bagcapacitymodifier", "Bag Capacity Modifier", "Uses your custom bag capacity value"};
 	    static RemoveFencingFee _RemoveFencingFee{"removefencingfee", "Remove The Fencing Fee", "Sets the fencing fee to 0%"};
 	    static RemovePavelsCut _RemovePavelsCut{"removepavelscut", "Remove Pavel's Cut", "Sets Pavel's cut to 0%"};
 	    static InfinitePlasmaCutterHeat _InfinitePlasmaCutterHeat{"infiniteplasmacutterheat", "Infinite Plasma Cutter Heat", "Prevents the plasma cutter from overheating"};
