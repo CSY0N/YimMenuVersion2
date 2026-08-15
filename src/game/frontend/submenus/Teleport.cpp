@@ -165,8 +165,32 @@ namespace YimMenu::Submenus
 		ImGui::EndGroup();
 	}
 
+	void RenderDirectionalTp()
+	{
+		FloatCommandItem("directionaltpdistance"_J).Draw();
+
+		ImGui::BeginGroup();
+		CommandItem("directionaltpforward"_J).Draw();
+		CommandItem("directionaltpbackward"_J).Draw();
+		ImGui::EndGroup();
+
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		CommandItem("directionaltpright"_J).Draw();
+		CommandItem("directionaltpleft"_J).Draw();
+		ImGui::EndGroup();
+
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		CommandItem("directionaltpup"_J).Draw();
+		CommandItem("directionaltpdown"_J).Draw();
+		ImGui::EndGroup();
+	}
+
 	Teleport::Teleport() :
-		#define ICON_FA_TELEPORT "\xef\x8f\x85"
+#define ICON_FA_TELEPORT "\xef\x8f\x85"
 	    Submenu::Submenu("Teleport", ICON_FA_TELEPORT)
 	{
 		auto main = std::make_shared<Category>("Main");
@@ -178,6 +202,9 @@ namespace YimMenu::Submenus
 		miscGroup->AddItem(std::make_shared<BoolCommandItem>("autotptowaypoint"_J));
 		miscGroup->AddItem(std::make_shared<CommandItem>("tptoobjective"_J));
 		miscGroup->AddItem(std::make_shared<CommandItem>("teleportintopersonalvehicle"_J));
+		miscGroup->AddItem(std::make_shared<ImGuiItem>([] {
+			RenderDirectionalTp();
+		}));
 
 		main->AddItem(miscGroup);
 		teleports->AddItem(teleportsGroup);
@@ -192,7 +219,7 @@ namespace YimMenu::Submenus
 			RenderCustomTeleport();
 		}));
 
-		
+
 		AddCategory(std::move(main));
 		AddCategory(std::move(teleports));
 		AddCategory(std::move(customteleport));
