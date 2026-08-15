@@ -15,8 +15,7 @@
 
 namespace YimMenu
 {
-	GUI::GUI() :
-	    m_IsOpen(false)
+	void GUI::InitImpl()
 	{
 		Menu::Init();
 
