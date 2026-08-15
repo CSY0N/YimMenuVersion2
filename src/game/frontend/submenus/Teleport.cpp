@@ -49,10 +49,10 @@ namespace YimMenu::Submenus
 		InputTextWithHint("Category", "Category", &category).Draw();
 
 		ImGui::PushItemWidth(200);
-		InputTextWithHint("Location Name", "New location", &newLocationName).Draw();
+		InputTextWithHint("Location name", "New location", &newLocationName).Draw();
 		ImGui::PopItemWidth();
 
-		if (ImGui::Button("Save Current Location")) // Button widget still crashes
+		if (ImGui::Button("Save current location")) // Button widget still crashes
 		{
 			FiberPool::Push([=] {
 				if (newLocationName.empty())
@@ -190,20 +190,29 @@ namespace YimMenu::Submenus
 	}
 
 	Teleport::Teleport() :
-		#define ICON_FA_TELEPORT "\xef\x8f\x85"
+#define ICON_FA_TELEPORT "\xef\x8f\x85"
 	    Submenu::Submenu("Teleport", ICON_FA_TELEPORT)
 	{
 		auto main = std::make_shared<Category>("Main");
 		auto miscGroup = std::make_shared<Group>("Misc");
+		auto teleports = std::make_shared<Category>("Teleports");
+		auto teleportsGroup = std::make_shared<Group>("Teleport");
 
 		miscGroup->AddItem(std::make_shared<ConditionalItem>("autotptowaypoint"_J, std::make_shared<CommandItem>("tptowaypoint"_J), true));
 		miscGroup->AddItem(std::make_shared<BoolCommandItem>("autotptowaypoint"_J));
 		miscGroup->AddItem(std::make_shared<CommandItem>("tptoobjective"_J));
+		miscGroup->AddItem(std::make_shared<CommandItem>("teleportintopersonalvehicle"_J));
 		miscGroup->AddItem(std::make_shared<ImGuiItem>([] {
 			RenderDirectionalTp();
 		}));
 
 		main->AddItem(miscGroup);
+		teleports->AddItem(teleportsGroup);
+
+		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpforward"_J));
+		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpup"_J));
+		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpleft"_J));
+		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpright"_J));
 
 		auto customteleport = std::make_shared<Category>("Saved");
 		customteleport->AddItem(std::make_shared<ImGuiItem>([] {
@@ -212,6 +221,7 @@ namespace YimMenu::Submenus
 
 
 		AddCategory(std::move(main));
+		AddCategory(std::move(teleports));
 		AddCategory(std::move(customteleport));
 	}
 }
