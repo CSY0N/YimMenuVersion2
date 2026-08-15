@@ -18,8 +18,6 @@ namespace YimMenu
 	GUI::GUI() :
 	    m_IsOpen(false)
 	{
-		Menu::SetupFonts();
-		Menu::SetupStyle();
 		Menu::Init();
 
 		Renderer::AddWindowProcedureCallback([this](HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
