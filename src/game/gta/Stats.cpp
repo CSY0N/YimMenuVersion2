@@ -1,4 +1,4 @@
-﻿#include "Stats.hpp"
+#include "Stats.hpp"
 #include "game/gta/Natives.hpp"
 
 namespace YimMenu::Stats
@@ -186,6 +186,11 @@ namespace YimMenu::Stats
 		STATS::STAT_GET_MASKED_INT(hash, &part3, 48, 16, playerindex);
 		uint64_t value = (static_cast<uint64_t>(part3) << 48) | (static_cast<uint64_t>(part2) << 32) | (static_cast<uint64_t>(part1) << 16) | part0;
 		return value;
+	}
+
+	void SaveStats()
+	{
+		STATS::STAT_SAVE(0, 0, 3, 0);
 	}
 
 }
