@@ -18,6 +18,7 @@ namespace YimMenu::Stats
 	extern const char* GetString(std::string statName);
 
 	extern void SetPackedBool(int index, bool value);
+	extern void SetPackedBoolRange(int start, int end, bool value);
 	extern void SetPackedInt(int index, int value);
 	extern bool GetPackedBool(int index);
 	extern int GetPackedInt(int index);
