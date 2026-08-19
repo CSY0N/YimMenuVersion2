@@ -15,7 +15,7 @@
 namespace
 {
 	// Human
-	constexpr int headBone = 31086;
+	constexpr int headBone = 37193; //FB_Brow_Centre_000 is a much better bone to use as head
 	constexpr int neckBone = 39317;
 	constexpr int torsoBone = 23553;
 	constexpr int leftHandBone = 18905;
@@ -83,43 +83,13 @@ namespace YimMenu
 	static ImVec4 Blue = ImVec4(0.36f, 0.71f, 0.89f, 1.f);
 	static ImVec4 White = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	static bool WorldToScreenPoint(rage::fvector3 worldCoords, float* screenX, float* screenY)
-	{
-		if (!Pointers.Viewport)
-			return false;
-
-		const rage::matrix44& view = Pointers.Viewport->ViewMatrix;
-		const rage::matrix44& proj = Pointers.Viewport->ProjectionMatrix;
-
-		float viewX = worldCoords.x * view.rows[0].x + worldCoords.y * view.rows[1].x + worldCoords.z * view.rows[2].x + view.rows[3].x;
-		float viewY = worldCoords.x * view.rows[0].y + worldCoords.y * view.rows[1].y + worldCoords.z * view.rows[2].y + view.rows[3].y;
-		float viewZ = worldCoords.x * view.rows[0].z + worldCoords.y * view.rows[1].z + worldCoords.z * view.rows[2].z + view.rows[3].z;
-
-		float clipX = viewX * proj.rows[0].x + viewY * proj.rows[1].x + viewZ * proj.rows[2].x + proj.rows[3].x;
-		float clipY = viewX * proj.rows[0].y + viewY * proj.rows[1].y + viewZ * proj.rows[2].y + proj.rows[3].y;
-		float clipW = viewX * proj.rows[0].w + viewY * proj.rows[1].w + viewZ * proj.rows[2].w + proj.rows[3].w;
-
-		if (clipW > 0)
-		{
-			float ndcX = clipX / clipW;
-			float ndcY = clipY / clipW;
-			*screenX = (ndcX * 0.5f) + 0.5f;
-			*screenY = 0.5f - (ndcY * 0.5f);
-			return true;
-		}
-		else
-		{
-			*screenX = 0.0f;
-			*screenY = 0.0f;
-			return false;
-		}
-	}
-
-	static auto worldToScreen = [](rage::fvector3 coords) {
+	// We want worldToScreen to return a bool since it will write {0.f, 0.f} to the screen vector if the entity is off-screen, messing up our draws
+	static auto worldToScreen = [](rage::fvector3 coords) -> std::optional<ImVec2> {
 		float screen_x{}, screen_y{};
+		if (!GRAPHICS::GET_SCREEN_COORD_FROM_WORLD_COORD(coords.x, coords.y, coords.z, &screen_x, &screen_y))
+			return std::nullopt;
 
-		WorldToScreenPoint(coords, &screen_x, &screen_y);
-
+		// Instead of returning a zero vector if the bool is false, we will return a nullopt
 		return ImVec2{screen_x * (*Pointers.ScreenResX), screen_y * (*Pointers.ScreenResY)};
 	};
 
@@ -128,57 +98,51 @@ namespace YimMenu
 		if (!ped.IsValid())
 			return;
 
-		// Helper lambda for safe bone drawing.
-		// Using auto for bone types to avoid dependency on a specific enum.
-		auto DrawBone = [&](auto bone1, auto bone2) {
-			float x1, y1, x2, y2;
+		// Lambdas are great; use them so we don't have to individually edit parameters for every call to AddLine
+		auto drawBoneLine = [&](int boneA, int boneB) {
+			auto screenA = worldToScreen(ped.GetBonePosition(boneA));
+			auto screenB = worldToScreen(ped.GetBonePosition(boneB));
 
-			// Get the 3D coordinates of both bones
-			rage::fvector3 pos1 = ped.GetBonePosition(bone1);
-			rage::fvector3 pos2 = ped.GetBonePosition(bone2);
+			if (!screenA || !screenB)
+				return;
 
-			// Check that BOTH points are in front of the camera.
-			// Thanks to the && operator, if the first point is behind the camera, the second won't even be calculated.
-			if (WorldToScreenPoint(pos1, &x1, &y1) && WorldToScreenPoint(pos2, &x2, &y2))
-			{
-				// Convert normalized coordinates (0.0 - 1.0) to absolute screen pixels.
-				ImVec2 p1 = ImVec2(x1 * (*Pointers.ScreenResX), y1 * (*Pointers.ScreenResY));
-				ImVec2 p2 = ImVec2(x2 * (*Pointers.ScreenResX), y2 * (*Pointers.ScreenResY));
-
-				drawList->AddLine(p1, p2, color, 1.5f);
-			}
+			drawList->AddLine(*screenA, *screenB, color, 1.0f);
 		};
 
-		// Head and neck
-		DrawBone(headBone, neckBone);
+		// What's the point of drawing a skeleton if we don't draw the most important bone?
+		auto headScreen = worldToScreen(ped.GetBonePosition(headBone));
+		auto neckScreen = worldToScreen(ped.GetBonePosition(neckBone));
 
-		// Left arm
-		DrawBone(neckBone, leftShoulderBone);
-		DrawBone(leftShoulderBone, leftElbowBone);
-		DrawBone(leftElbowBone, leftHandBone);
+		// We don't want the radius of the head circle to be static (too big at long range or too small close up), so let's scale it based on the length of the head to neck vector
+		if (headScreen && neckScreen)
+		{
+			float dx = headScreen->x - neckScreen->x;
+			float dy = headScreen->y - neckScreen->y;
+			float neckToHeadLength = std::sqrt(dx * dx + dy * dy);
+			float radius = neckToHeadLength * 0.25f;
 
-		// Right arm
-		DrawBone(neckBone, rightShoulderBone);
-		DrawBone(rightShoulderBone, rightElbowBone);
-		DrawBone(rightElbowBone, rightHandBone);
+			drawList->AddCircle(*headScreen, radius, color, 12, 1.5f);
+		}
 
-		// Torso
-		DrawBone(neckBone, torsoBone);
-
-		// Left leg
-		DrawBone(torsoBone, leftKneeBone);
-		DrawBone(leftKneeBone, leftFootBone);
-
-		// Right leg
-		DrawBone(torsoBone, rightKneeBone);
-		DrawBone(rightKneeBone, rightFootBone);
+		drawBoneLine(headBone, neckBone);
+		drawBoneLine(neckBone, leftShoulderBone);
+		drawBoneLine(leftShoulderBone, leftElbowBone);
+		drawBoneLine(leftElbowBone, leftHandBone);
+		drawBoneLine(neckBone, rightShoulderBone);
+		drawBoneLine(rightShoulderBone, rightElbowBone);
+		drawBoneLine(rightElbowBone, rightHandBone);
+		drawBoneLine(neckBone, torsoBone);
+		drawBoneLine(torsoBone, leftKneeBone);
+		drawBoneLine(leftKneeBone, leftFootBone);
+		drawBoneLine(torsoBone, rightKneeBone);
+		drawBoneLine(rightKneeBone, rightFootBone);
 	}
 
 	//TODO : Very bare bones currently, expand and possibly refactor
 	static void DrawPlayer(Player plyr, ImDrawList* drawList)
 	{
 		if (!plyr.IsValid() || !plyr.GetPed().IsValid() || plyr == Self::GetPlayer()
-		    || worldToScreen(plyr.GetPed().GetBonePosition(torsoBone)).x == 0
+		    || !worldToScreen(plyr.GetPed().GetBonePosition(torsoBone))
 		    || (plyr.GetPed().IsDead() && !Features::_ESPDrawDeadPlayers.GetState()))
 			return;
 
@@ -195,16 +159,16 @@ namespace YimMenu
 
 		if (Features::_ESPName.GetState())
 		{
-			drawList->AddText(worldToScreen(plyr.GetPed().GetBonePosition(headBone)),
-			    plyr == Players::GetSelected() ? ImGui::ColorConvertFloat4ToU32(Blue) :
-			                                     ImGui::ColorConvertFloat4ToU32(Features::_NameColorPlayers.GetState()),
-			    plyr.GetName());
+			if (auto headScreen = worldToScreen(plyr.GetPed().GetBonePosition(headBone)))
+			{
+				drawList->AddText(*headScreen, plyr == Players::GetSelected() ? ImGui::ColorConvertFloat4ToU32(Blue) : ImGui::ColorConvertFloat4ToU32(Features::_NameColorPlayers.GetState()), plyr.GetName());
+			}
 		}
-
 		if (Features::_ESPDistance.GetState())
 		{
 			std::string distanceStr = std::to_string((int)Self::GetPed().GetPosition().GetDistance(plyr.GetPed().GetBonePosition(torsoBone))) + "m";
-			drawList->AddText({worldToScreen(plyr.GetPed().GetBonePosition(headBone)).x, worldToScreen(plyr.GetPed().GetBonePosition(headBone)).y + 20}, colorBasedOnDistance, distanceStr.c_str());
+			if (auto headScreen = worldToScreen(plyr.GetPed().GetBonePosition(headBone)))
+				drawList->AddText({headScreen->x, headScreen->y + 20}, colorBasedOnDistance, distanceStr.c_str());
 		}
 
 		//TODO Boxes, Distance colors, Friendlies, Tracers, Health bars
@@ -220,7 +184,7 @@ namespace YimMenu
 
 	static void DrawPed(Ped ped, ImDrawList* drawList)
 	{
-		if (!ped.IsValid() || ped.IsPlayer() || ped == Self::GetPlayer().GetPed() || worldToScreen(ped.GetBonePosition(torsoBone)).x == 0 || (ped.IsDead() && !Features::_ESPDrawDeadPeds.GetState()))
+		if (!ped.IsValid() || ped.IsPlayer() || ped == Self::GetPlayer().GetPed() || !worldToScreen(ped.GetBonePosition(torsoBone)) || (ped.IsDead() && !Features::_ESPDrawDeadPeds.GetState()))
 			return;
 
 		float distanceToPed = 0.0f;
@@ -265,15 +229,14 @@ namespace YimMenu
 		}
 
 		if (!info.empty())
-			drawList->AddText(worldToScreen(ped.GetBonePosition(headBone)), ImGui::ColorConvertFloat4ToU32(Features::_HashColorPeds.GetState()), info.c_str());
+			if (auto headScreen = worldToScreen(ped.GetBonePosition(headBone)))
+				drawList->AddText(*headScreen, ImGui::ColorConvertFloat4ToU32(Features::_HashColorPeds.GetState()), info.c_str());
 
 		if (Features::_ESPDistancePeds.GetState())
 		{
 			std::string distanceStr = std::to_string((int)distanceToPed) + "m";
-			drawList->AddText(
-			    {worldToScreen(ped.GetBonePosition(headBone)).x, worldToScreen(ped.GetBonePosition(headBone)).y + 20},
-			    colorBasedOnDistance,
-			    distanceStr.c_str());
+			if (auto headScreen = worldToScreen(ped.GetBonePosition(headBone)))
+				drawList->AddText({headScreen->x, headScreen->y + 20}, colorBasedOnDistance, distanceStr.c_str());
 		}
 
 		//TODO Boxes, Distance colors, Tracers, Health bars
@@ -350,15 +313,14 @@ namespace YimMenu
 			info += " (Mission)";
 		}
 
-		drawList->AddText({worldToScreen(coords).x, worldToScreen(coords).y}, color, info.c_str());
+		if (auto screenPos = worldToScreen(coords))
+			drawList->AddText(*screenPos, color, info.c_str());
 
 		if (Features::_ESPDistanceObjects.GetState())
 		{
 			std::string distanceStr = std::to_string((int)distanceToObject) + "m";
-			drawList->AddText(
-			    {worldToScreen(object.GetPosition()).x, worldToScreen(object.GetPosition()).y + 20},
-			    colorBasedOnDistance,
-			    distanceStr.c_str());
+			if (auto screenPos = worldToScreen(object.GetPosition()))
+				drawList->AddText({screenPos->x, screenPos->y + 20}, colorBasedOnDistance, distanceStr.c_str());
 		}
 	}
 
