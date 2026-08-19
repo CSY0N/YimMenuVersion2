@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "core/util/Joaat.hpp"
 #include "types/script/types.hpp"
 
@@ -32,4 +32,5 @@ namespace YimMenu::Stats
 	extern void SetMaskedAll(Hash hash, uint64_t value);
 	uint64_t GetMaskedAll(Hash hash, int playerindex=-1);
 	uint64_t GetMaskedAll(std::string statName, int playerindex = -1);
+	extern void SaveStats();
 }
