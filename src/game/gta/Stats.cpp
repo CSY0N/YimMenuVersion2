@@ -193,4 +193,12 @@ namespace YimMenu::Stats
 		STATS::STAT_SAVE(0, 0, 3, 0);
 	}
 
+	void SetPackedBoolRange(int start, int end, bool value)
+	{
+		for (int i = start; i <= end; ++i)
+		{
+			SetPackedBool(i, value);
+		}
+	}
+
 }
