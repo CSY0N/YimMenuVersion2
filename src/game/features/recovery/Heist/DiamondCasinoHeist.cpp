@@ -371,7 +371,7 @@ namespace YimMenu::Features
 			}
 		};
 
-			class RemoveCameras : public Command
+		class RemoveCameras : public Command
 		{
 			using Command::Command;
 
@@ -428,6 +428,59 @@ namespace YimMenu::Features
 				YimMenu::DeleteObjectsByHash(tunnerdoorleft);
 			}
 		};
+
+		class RemoveLestersCut : public Command
+		{
+			using Command::Command;
+
+			virtual void OnCall() override
+			{
+				*ScriptGlobal(262145).At(28422).As<int*>() = 0;
+			}
+		};
+
+		class RemoveDriversCut : public Command
+		{
+			using Command::Command;
+
+			virtual void OnCall() override
+			{
+				*ScriptGlobal(262145).At(28448).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28449).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28450).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28451).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28452).As<int*>() = 0;
+			}
+		};
+
+		class RemoveHackersCut : public Command
+		{
+			using Command::Command;
+
+			virtual void OnCall() override
+			{
+				*ScriptGlobal(262145).At(28458).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28459).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28460).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28461).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28462).As<int*>() = 0;
+			}
+		};
+
+		class RemoveGunmansCut : public Command
+		{
+			using Command::Command;
+
+			virtual void OnCall() override
+			{
+				*ScriptGlobal(262145).At(28453).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28454).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28455).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28456).As<int*>() = 0;
+				*ScriptGlobal(262145).At(28457).As<int*>() = 0;
+			}
+		};
+
 		static SetCuts _DiamondCasinoHeistSetCuts{"diamondcasinoheistsetcuts", "Set Cuts", "Sets heist cut"};
 		static ForceReady _DiamondCasinoHeistForceReady{"diamondcasinoheistforceready", "Force Ready", "Forces all players to be ready"};
 		static Setup _DiamondCasinoHeistSetup{"diamondcasinoheistsetup", "Setup", "Sets up diamond casino heist"};
@@ -439,6 +492,9 @@ namespace YimMenu::Features
 		static InstantFinish _DiamondCasinoHeistInstantFinish{"diamondcasinoheistinstantfinish", "Instant Finish", "Instantly passes the heist"};
 		static RemoveCameras _DiamondCasinoHeistRemoveCameras{"diamondcasinoheistremovecameras", "Remove Cam", "Removes all cameras"};
 		static RemoveKeycard _DiamondCasinoHeistKeycard{"diamondcasinoheistkeycard", "Remove Keycard", "Removes keycard"};
-
+		static RemoveLestersCut _RemoveLestersCut{"removelesterscut", "Remove Lester's Cut", "Sets Lester's heist cut to 0%"};
+		static RemoveDriversCut _RemoveDriversCut{"removedriverscut", "Remove Driver's Cut", "Sets all driver's heist cuts to 0%"};
+		static RemoveHackersCut _RemoveHackersCut{"removehackerscut", "Remove Hacker's Cut", "Sets all hacker's heist cuts to 0%"};
+		static RemoveGunmansCut _RemoveGunmansCut{"removegunmanscut", "Remove Gunman's Cut", "Sets all gunman's heist cuts to 0%"};
 	}
 }
