@@ -11,11 +11,12 @@ namespace YimMenu::Features
 	static BOOL bLocal_1813 = 0;
 	inline bool IsXmasWeatherApplied()
 	{
-		return (*ScriptGlobal(2685153).As<uint32_t*>() & (1 << 21)) != 0; // Bit = 21
+		return (*ScriptGlobal(2685155).As<uint32_t*>() & (1 << 21)) != 0; // Bit = 21
 	}
+	
 	void Sync_Weather()
 	{
-		if (*ScriptGlobal(4516914).As<int*>())
+		if (*ScriptGlobal(4516993).As<int*>())
 		{
 			if (MISC::GET_NEXT_WEATHER_TYPE_HASH_NAME() != Joaat("XMAS"))
 			{
