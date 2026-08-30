@@ -35,7 +35,7 @@ namespace YimMenu::Features
 					*ScriptGlobal(262145).At(33993).As<int*>() = 1;
 					*ScriptGlobal(262145).At(33994).As<int*>() = 1;
 					*ScriptGlobal(262145).At(33995).As<int*>() = 1;
-	        *ScriptGlobal(262145).At(33996).As<int*>() = 1;
+	                *ScriptGlobal(262145).At(33996).As<int*>() = 1;
 					*ScriptGlobal(262145).At(33997).As<int*>() = 1;
 					*ScriptGlobal(262145).At(33998).As<int*>() = 1;
 					*ScriptGlobal(262145).At(33999).As<int*>() = 1;
@@ -67,12 +67,12 @@ namespace YimMenu::Features
 					*ScriptGlobal(262145).At(34025).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34026).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34027).As<int*>() = 1;
-		      *ScriptGlobal(262145).At(34028).As<int*>() = 1;
+		            *ScriptGlobal(262145).At(34028).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34029).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34030).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34031).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34032).As<int*>() = 1;
-		      *ScriptGlobal(262145).At(34033).As<int*>() = 1;
+		            *ScriptGlobal(262145).At(34033).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34034).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34035).As<int*>() = 1;
 					*ScriptGlobal(262145).At(34036).As<int*>() = 1;
