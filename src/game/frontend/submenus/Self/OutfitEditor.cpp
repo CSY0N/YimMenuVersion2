@@ -240,7 +240,7 @@ namespace YimMenu
 	{
 		static OutfitEditorMenu editor{};
 		auto category = std::make_shared<Category>("Outfit Editor");
-
+		category->AddItem(std::make_shared<BoolCommandItem>("lockoutfit"_J));
 		category->AddItem(std::make_shared<ImGuiItem>([] {
 			if (ImGui::Button("Refresh Stats"))
 				FiberPool::Push([] {
