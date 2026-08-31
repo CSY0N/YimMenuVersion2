@@ -25,7 +25,8 @@ namespace YimMenu::Submenus
 		auto missions = std::make_shared<Group>("Missions");
 		auto achievements = std::make_shared<Group>("Unlock Achievements");
 		auto cooldown = std::make_shared<Group>("Cooldown");
-		auto Safehouseinhills = std::make_shared<Group>(" Safehouse in the Hills");
+		auto eventUnlocks = std::make_shared<Group>("Event Unlocks");
+		auto mansionUnlocks = std::make_shared<Group>("Mansion Unlocks");
 
 		auto generalGroup = std::make_shared<Group>("General");
 		auto gunvanGroup = std::make_shared<Group>("Gun Van");
@@ -45,7 +46,7 @@ namespace YimMenu::Submenus
 		auto exhibitGroup = std::make_shared<Group>("Exhibit Loot");
 		auto stashHouse = std::make_shared<Group>("Stash House");
 
-
+		generalGroup->AddItem(std::make_shared<BoolCommandItem>("free_shop"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("playallmissionssolo"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("casinosolo"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("high_demand_sell"_J));
@@ -154,7 +155,7 @@ namespace YimMenu::Submenus
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("Lester_services"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("mk2_skins"_J));
 		generalUnlocks->AddItem(std::make_shared<CommandItem>("KortzHeistPaintings"_J));
-
+		generalUnlocks->AddItem(std::make_shared<CommandItem>("enable_hidden_liveries"_J));
 
 		skip->AddItem(std::make_shared<CommandItem>("SkipDrDreeContract"_J));
 		skip->AddItem(std::make_shared<CommandItem>("SkipJenetteTheMutette"_J));
@@ -181,17 +182,21 @@ namespace YimMenu::Submenus
 		Unreleased->AddItem(std::make_shared<ListCommandItem>("luckyclover_location"_J));
 		Unreleased->AddItem(std::make_shared<CommandItem>("teleport_luckyclover"_J));
 
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_hidden_liveries"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_halloween_dlc"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_independence_dlc"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_christmas_dlc"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_new_years_gifts"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_valentines_day"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("enable_limited_items"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("TongvaM_Unlock"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("RichmanM_Unlock"_J));
-		Safehouseinhills->AddItem(std::make_shared<CommandItem>("VinewoodM_Unlock"_J));
-
+	 
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_valentines_day"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_independence_dlc"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_halloween_dlc"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_christmas_dlc"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_new_years_gifts"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_lunar_new_year"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_anniversary_dlc"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_limited_items"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_login_rewards"_J));
+		eventUnlocks->AddItem(std::make_shared<CommandItem>("enable_thanksgiving"_J));
+		
+        mansionUnlocks->AddItem(std::make_shared<CommandItem>("TongvaM_Unlock"_J));
+		mansionUnlocks->AddItem(std::make_shared<CommandItem>("RichmanM_Unlock"_J));
+		mansionUnlocks->AddItem(std::make_shared<CommandItem>("VinewoodM_Unlock"_J));
 		missions->AddItem(std::make_shared<CommandItem>("alien_egg_mission"_J));
 
 		achievements->AddItem(std::make_shared<CommandItem>("unlock_achievements"_J));
@@ -205,9 +210,16 @@ namespace YimMenu::Submenus
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_casino_cd"_J));
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_vehicle_sell_cd"_J));
 		cooldown->AddItem(std::make_shared<CommandItem>("Reset_vehicle_Delivery_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("reset_bunker_vehicle_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("reset_tony_limo_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("reset_terrorbyte_drone_shock_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("reset_auto_shop_robbery_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("reset_security_contract_cd"_J));
+		cooldown->AddItem(std::make_shared<CommandItem>("reset_doomsday_heist_cd"_J));
+		
 
+		
 		free->AddItem(std::make_shared<CommandItem>("FKarin_S95"_J));
-
 
 		instantfinish->AddItem(std::make_shared<CommandItem>("InstantFinishTowTruckServiceMission"_J));
 		instantfinish->AddItem(std::make_shared<CommandItem>("instantfinishvehiclerobberies"_J));
@@ -262,7 +274,8 @@ namespace YimMenu::Submenus
 		unlocks->AddItem(trophies);
 		unlocks->AddItem(skip);
 		unlocks->AddItem(Unreleased);
-		unlocks->AddItem(Safehouseinhills);
+		unlocks->AddItem(eventUnlocks);
+		unlocks->AddItem(mansionUnlocks);
 		unlocks->AddItem(instantfinish);
 
 		AddCategory(std::move(main));
