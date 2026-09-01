@@ -9,7 +9,7 @@ namespace YimMenu::Submenus
 		auto cuts = std::make_shared<Group>("Heist Cuts", 2);
 		auto setups = std::make_shared<Group>("Heist Setups");
 		auto loots = std::make_shared<Group>("Loots", 2);
-		auto misc = std::make_shared<Group>("Misc", 1);
+		auto misc = std::make_shared<Group>("Misc", 4);
 
 		cuts->AddItem(std::make_shared<IntCommandItem>("diamondcasinoheistcut1"_J));
 		cuts->AddItem(std::make_shared<IntCommandItem>("diamondcasinoheistcut3"_J));
@@ -19,6 +19,7 @@ namespace YimMenu::Submenus
 		cuts->AddItem(std::make_shared<CommandItem>("diamondcasinoheistsetcuts"_J));
 
 		auto gunmanAndDriver = std::make_shared<Group>("", 2);
+
 		gunmanAndDriver->AddItem(std::make_shared<ListCommandItem>("diamondcasinoheistgunman"_J));
 		gunmanAndDriver->AddItem(std::make_shared<ListCommandItem>("diamondcasinoheistdriver"_J));
 		gunmanAndDriver->AddItem(std::make_shared<ListCommandItem>("diamondcasinoheistweapon"_J));
@@ -41,8 +42,11 @@ namespace YimMenu::Submenus
 		misc->AddItem(std::make_shared<CommandItem>("diamondcasinoheistinstantfinish"_J));
 		misc->AddItem(std::make_shared<CommandItem>("diamondcasinoheistremovecameras"_J));
 		misc->AddItem(std::make_shared<CommandItem>("diamondcasinoheistkeycard"_J));
+		misc->AddItem(std::make_shared<CommandItem>("removelesterscut"_J));
+		misc->AddItem(std::make_shared<CommandItem>("removedriverscut"_J));
+		misc->AddItem(std::make_shared<CommandItem>("removehackerscut"_J));
+		misc->AddItem(std::make_shared<CommandItem>("removegunmanscut"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("autocollecttargets"_J));
-
 
 		tab->AddItem(cuts);
 		tab->AddItem(setups);
