@@ -32,6 +32,21 @@ namespace YimMenu::Features
 		}
 	};
 
+	class AutoArmor : public LoopedCommand
+	{
+		using LoopedCommand::LoopedCommand;
+
+		virtual void OnTick() override
+		{
+			if (!Self::GetPed())
+				return;
+
+			if (Self::GetPed().GetArmour() < Self::GetPlayer().GetMaxArmour())
+				Self::GetPed().SetArmour(Self::GetPlayer().GetMaxArmour());
+		}
+	};
+
 	static Heal _Heal{"heal", "Heal", "Restores your health and armour."};
 	static AutoHeal _AutoHeal{"autoheal", "Auto Heal", "Automatically restores your health when it decreases."};
+	static AutoArmor _AutoArmor{"autoarmor", "Auto Armor", "Automatically restores your armor when it decreases."};
 }
