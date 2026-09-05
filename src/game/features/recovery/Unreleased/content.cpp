@@ -5,7 +5,7 @@
 #include "core/backend/ScriptMgr.hpp"
 #include "core/backend/FiberPool.hpp"
 #include "core/commands/ListCommand.hpp"
-
+#include "game/gta/Stats.hpp"
 
 namespace YimMenu::Features
 {
@@ -25,6 +25,8 @@ namespace YimMenu::Features
 				*ScriptGlobal(262145).At(37640).As<int*>() = 1;  // Forklift Operator
 				*ScriptGlobal(262145).At(37641).As<int*>() = 1; // Paper Route
 				*ScriptGlobal(262145).At(37642).As<int*>() = 1;  // Lucky Clover Event
+				Stats::SetPackedBool(59980, true); // Burger Shot Tracksuit
+				Stats::SaveStats();
 			}
 			else
 			{
