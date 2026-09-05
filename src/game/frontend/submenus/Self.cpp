@@ -17,8 +17,10 @@ namespace YimMenu::Submenus
 		auto toolsGroup = std::make_shared<Group>("Tools", 2);
 		auto specialAbilityGroup = std::make_shared<Group>("Special Ability");
 		auto wantedGroup = std::make_shared<Group>("Wanted");
+		auto visionGroup = std::make_shared<Group>("Vision & HUD");
 
 		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("godmode"_J));
+		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("antiheadshot"_J));
 		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("invis"_J));
 		globalsGroup->AddItem(std::make_shared<ConditionalItem>("invis"_J, std::make_shared<BoolCommandItem>("localvis"_J)));
 		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("otr"_J));
@@ -29,7 +31,7 @@ namespace YimMenu::Submenus
 		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("mobileradio"_J));
 		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("keepplayerclean"_J));
 		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("disablecriticalhits"_J));
-	//	globalsGroup->AddItem(std::make_shared<BoolCommandItem>("criticalhits"_J));
+		globalsGroup->AddItem(std::make_shared<BoolCommandItem>("autokillenemies"_J));
 
 		toolsGroup->AddItem(std::make_shared<CommandItem>("skipcutscene"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("skipconversation"_J));
@@ -39,6 +41,8 @@ namespace YimMenu::Submenus
 		toolsGroup->AddItem(std::make_shared<CommandItem>("fillinventory"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("openwardrobe"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("claimownbounty"_J));
+		toolsGroup->AddItem(std::make_shared<BoolCommandItem>("autoheal"_J));
+		toolsGroup->AddItem(std::make_shared<BoolCommandItem>("autoarmor"_J));
 
 		auto clearWanted = std::make_shared<Group>("", 1);
 		clearWanted->AddItem(std::make_shared<ConditionalItem>("neverwanted"_J, std::make_shared<CommandItem>("clearwanted"_J), true));
@@ -57,6 +61,7 @@ namespace YimMenu::Submenus
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("superrun"_J, std::make_shared<FloatCommandItem>("moverateoverride"_J, std::nullopt, false)));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("superrun"_J, std::make_shared<FloatCommandItem>("runsprintswimmultiplier"_J, std::nullopt, false)));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("superjump"_J));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("beastjump"_J));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("megajump"_J));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("fastswim"_J));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("fastdive"_J));
@@ -65,6 +70,7 @@ namespace YimMenu::Submenus
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("noclip"_J, std::make_shared<FloatCommandItem>("noclipspeed"_J)));
 		movementGroup->AddItem(std::make_shared<BoolCommandItem>("freecam"_J));
 		movementGroup->AddItem(std::make_shared<ConditionalItem>("freecam"_J, std::make_shared<FloatCommandItem>("freecamspeed"_J)));
+		movementGroup->AddItem(std::make_shared<BoolCommandItem>("superman"_J));
 
 		specialAbilityGroup->AddItem(std::make_shared<BoolCommandItem>("infspecialability"_J));
 		auto specialInMp = std::make_shared<Group>("", 1);
@@ -72,11 +78,17 @@ namespace YimMenu::Submenus
 		specialInMp->AddItem(std::make_shared<ConditionalItem>("mpspecialability"_J, std::make_shared<ListCommandItem>("selspecialability"_J, "##specialselect")));
 		specialAbilityGroup->AddItem(std::move(specialInMp));
 
+		visionGroup->AddItem(std::make_shared<BoolCommandItem>("nightvision"_J));
+		visionGroup->AddItem(std::make_shared<BoolCommandItem>("thermalvision"_J));
+		visionGroup->AddItem(std::make_shared<BoolCommandItem>("hideradar"_J));
+		visionGroup->AddItem(std::make_shared<BoolCommandItem>("hidehud"_J));
+
 		main->AddItem(globalsGroup);
 		main->AddItem(toolsGroup);
 		main->AddItem(specialAbilityGroup);
 		main->AddItem(wantedGroup);
 		main->AddItem(movementGroup);
+		main->AddItem(visionGroup);
 		AddCategory(std::move(main));
 
 		AddCategory(BuildWeaponsMenu());
