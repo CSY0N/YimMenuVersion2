@@ -213,6 +213,8 @@ namespace YimMenu::Submenus
 		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpup"_J));
 		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpleft"_J));
 		teleportsGroup->AddItem(std::make_shared<CommandItem>("tpright"_J));
+		teleportsGroup->AddItem(std::make_shared<CommandItem>("teleportvehicleforward"_J));
+		teleportsGroup->AddItem(std::make_shared<FloatCommandItem>("teleportvehicleforwarddistance"_J));
 
 		auto customteleport = std::make_shared<Category>("Saved");
 		customteleport->AddItem(std::make_shared<ImGuiItem>([] {
