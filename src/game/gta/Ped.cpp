@@ -348,6 +348,30 @@ namespace YimMenu
 		return GetModel() == "mp_m_freemode_01"_J;
 	}
 
+	std::vector<::Ped> Ped::GetNearbyPeds()
+	{
+		ENTITY_ASSERT_VALID();
+
+		std::vector<::Ped> peds;
+
+		int nearbyPeds[32]{};
+		nearbyPeds[0] = 31;
+
+		const int count = PED::GET_PED_NEARBY_PEDS(GetHandle(), nearbyPeds, -1);
+
+		peds.reserve(count);
+
+		for (int i = 0; i < count; i++)
+		{
+			const ::Ped ped = nearbyPeds[i + 1];
+
+			if (ped && ENTITY::DOES_ENTITY_EXIST(ped))
+				peds.push_back(ped);
+		}
+
+		return peds;
+	}
+
 	void Ped::SetMaxAmmoForWeapon(std::uint32_t hash)
 	{
 		ENTITY_ASSERT_VALID();
