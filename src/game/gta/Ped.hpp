@@ -80,5 +80,6 @@ namespace YimMenu
 		void SetMaxTimeUnderwater(int time);
 		void SetAsCop();
 		bool IsMale();
+        std::vector<::Ped> GetNearbyPeds();
 	};
 }
