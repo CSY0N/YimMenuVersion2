@@ -21,6 +21,15 @@ namespace YimMenu::Submenus
 		globals->AddItem(std::make_shared<BoolCommandItem>("vehiclegodmode"_J, "Godmode"));
 		globals->AddItem(std::make_shared<BoolCommandItem>("keepfixed"_J, "Keep Fixed"));
 		globals->AddItem(std::make_shared<BoolCommandItem>("hornboost"_J));
+        globals->AddItem(std::make_shared<ConditionalItem>("hornboost"_J, std::make_shared<FloatCommandItem>("hornboostspeed"_J)));
+        globals->AddItem(std::make_shared<BoolCommandItem>("camerashake"_J));
+		globals->AddItem(std::make_shared<ConditionalItem>("camerashake"_J, std::make_shared<FloatCommandItem>("camerashakeintensity"_J)));
+		globals->AddItem(std::make_shared<BoolCommandItem>("speedblur"_J));
+        globals->AddItem(std::make_shared<ConditionalItem>("speedblur"_J, std::make_shared<FloatCommandItem>("speedblurintensity"_J)));
+		globals->AddItem(std::make_shared<BoolCommandItem>("tornadomode"_J));
+        globals->AddItem(std::make_shared<ConditionalItem>("tornadomode"_J, std::make_shared<FloatCommandItem>("tornadostrength"_J)));
+		globals->AddItem(std::make_shared<BoolCommandItem>("wheeliemode"_J));
+		globals->AddItem(std::make_shared<ConditionalItem>("wheeliemode"_J, std::make_shared<FloatCommandItem>("wheeliestrength"_J)));
 		globals->AddItem(std::make_shared<BoolCommandItem>("modifyboostbehavior"_J));
 		globals->AddItem(std::make_shared<ConditionalItem>("modifyboostbehavior"_J, std::make_shared<ListCommandItem>("boostbehavior"_J)));
 		globals->AddItem(std::make_shared<BoolCommandItem>("autodrive"_J));
