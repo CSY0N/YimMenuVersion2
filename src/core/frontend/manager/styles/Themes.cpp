@@ -109,22 +109,7 @@ namespace YimMenu
 		style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.40f, 0.85f, 0.80f, 0.80f);
 		style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.01f, 0.05f, 0.07f, 0.70f);
 		style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.01f, 0.04f, 0.05f, 0.82f);
-		style.WindowRounding = 8.0f;
-		style.ChildRounding = 8.0f;
-		style.FrameRounding = 6.0f;
-		style.PopupRounding = 7.0f;
-		style.ScrollbarRounding = 8.0f;
-		style.GrabRounding = 6.0f;
-		style.TabRounding = 6.0f;
-		style.WindowBorderSize = 1.0f;
-		style.ChildBorderSize = 1.0f;
-		style.PopupBorderSize = 1.0f;
-		style.FrameBorderSize = 0.0f;
-		style.WindowPadding = ImVec2(10.0f, 10.0f);
-		style.FramePadding = ImVec2(8.0f, 5.0f);
-		style.ItemSpacing = ImVec2(8.0f, 6.0f);
-		style.ScrollbarSize = 11.0f;
-		style.GrabMinSize = 8.0f;
+		style.GrabRounding = style.FrameRounding = style.ChildRounding = style.WindowRounding = 8.0f;
 	}
 
 	void SetupStyle()
