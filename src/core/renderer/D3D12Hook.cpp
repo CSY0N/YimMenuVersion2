@@ -1,42 +1,24 @@
 #include "D3D12Hook.hpp"
 
-#include <windows.h>
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <wrl/client.h>
-
 namespace YimMenu
 {
-    thread_local bool g_InsideD3D12Hook = false;
+    static thread_local bool g_InsideD3d12Hook = false;
 
-    bool D3D12Hook::RawVtablePatch::Install(void** vtable, size_t index, void* replacement)
+    bool D3D12Hook::RawVtablePatch::Install(void** vtable, size_t index, void* newFn)
     {
-        if (!vtable || !replacement) return false;
-
-        if (Installed) return true;
+        if (!vtable)
+            return false;
 
         Slot = &vtable[index];
         OriginalFn = *Slot;
 
-        if (!OriginalFn)
-        {
-            Slot = nullptr;
-            return false;
-        }
-
         DWORD oldProtect{};
-        if (!VirtualProtect(Slot, sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtect))
-        {
-            Slot = nullptr;
-            OriginalFn = nullptr;
+        if (!VirtualProtect(Slot, sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtect)) // we still need this in case the menu is injected very early
             return false;
-        }
 
-        *Slot = replacement;
+        *Slot = newFn;
 
-        DWORD ignored{};
-        VirtualProtect(Slot, sizeof(void*), oldProtect, &ignored);
-        FlushInstructionCache(GetCurrentProcess(), Slot, sizeof(void*));
+        VirtualProtect(Slot, sizeof(void*), oldProtect, &oldProtect);
 
         Installed = true;
         return true;
@@ -44,315 +26,408 @@ namespace YimMenu
 
     void D3D12Hook::RawVtablePatch::Uninstall()
     {
-        if (!Installed || !Slot) return;
+        if (!Installed || !Slot)
+            return;
 
         DWORD oldProtect{};
         if (VirtualProtect(Slot, sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtect))
         {
             *Slot = OriginalFn;
-
-            DWORD ignored{};
-            VirtualProtect(Slot, sizeof(void*), oldProtect, &ignored);
-            FlushInstructionCache(GetCurrentProcess(), Slot, sizeof(void*));
+            VirtualProtect(Slot, sizeof(void*), oldProtect, &oldProtect);
         }
 
+        Installed = false;
         Slot = nullptr;
         OriginalFn = nullptr;
-        Installed = false;
     }
 
     bool D3D12Hook::InitImpl()
     {
-        std::scoped_lock lock{m_HookMutex};
+		std::scoped_lock hookLock{m_HookMutex};
 
-        if (m_Hooked) return true;
+        g_InsideD3d12Hook = true;
+        struct Restore
+        {
+            ~Restore()
+            {
+                g_InsideD3d12Hook = false;
+            }
+        } restore{};
 
-        HMODULE d3d12Module = GetModuleHandleA("d3d12.dll");
-        if (!d3d12Module) d3d12Module = LoadLibraryA("d3d12.dll");
+        // if this is a rehook after a swapchain recreation
+        if (m_CommandQueueOffset != 0 && m_SwapchainVtable && m_FactoryVtable)
+        {
+            LOGF(INFO, "Re-initializing via previously discovered vtables.");
 
+            InstallHooks();
+            return m_Hooked;
+        }
+
+        IDXGISwapChain1* swapChain1 = nullptr;
+        IDXGISwapChain3* swapChain = nullptr;
+        ID3D12Device* device = nullptr;
+
+        const D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc1{};
+        swapChainDesc1.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        swapChainDesc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+        swapChainDesc1.BufferCount = 2;
+        swapChainDesc1.SampleDesc.Count = 1;
+        swapChainDesc1.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
+        swapChainDesc1.Width = 1;
+        swapChainDesc1.Height = 1;
+
+        auto d3d12Module = LoadLibraryA("d3d12.dll");
         if (!d3d12Module)
         {
-            LOGF(FATAL, "D3D12Hook: failed to load d3d12.dll.");
+            LOGF(FATAL, "Failed to load d3d12.dll.");
             return false;
         }
 
-        HMODULE dxgiModule = GetModuleHandleA("dxgi.dll");
-        if (!dxgiModule) dxgiModule = LoadLibraryA("dxgi.dll");
+        auto d3d12CreateDevice = reinterpret_cast<decltype(D3D12CreateDevice)*>(GetProcAddress(d3d12Module, "D3D12CreateDevice"));
+        if (!d3d12CreateDevice)
+        {
+            LOGF(FATAL, "Failed to resolve D3D12CreateDevice.");
+            return false;
+        }
 
+        bool deviceCreated = !FAILED(d3d12CreateDevice(nullptr, featureLevel, IID_PPV_ARGS(&device)));
+        if (!deviceCreated)
+        {
+            LOGF(FATAL, "Failed to create dummy D3D12 device.");
+            return false;
+        }
+
+        auto dxgiModule = LoadLibraryA("dxgi.dll");
         if (!dxgiModule)
         {
-            LOGF(FATAL, "D3D12Hook: failed to load dxgi.dll.");
+            LOGF(FATAL, "Failed to load dxgi.dll.");
+            device->Release();
             return false;
         }
 
-        using D3D12CreateDeviceFn = HRESULT(WINAPI*)(IUnknown*, D3D_FEATURE_LEVEL, REFIID, void**);
-        using CreateDXGIFactory1Fn = HRESULT(WINAPI*)(REFIID, void**);
-
-        auto createDevice = reinterpret_cast<D3D12CreateDeviceFn>(GetProcAddress(d3d12Module, "D3D12CreateDevice"));
-
-        auto createFactory = reinterpret_cast<CreateDXGIFactory1Fn>(GetProcAddress(dxgiModule, "CreateDXGIFactory1"));
-
-        if (!createDevice || !createFactory)
+        auto createDxgiFactory = reinterpret_cast<decltype(CreateDXGIFactory)*>(GetProcAddress(dxgiModule, "CreateDXGIFactory"));
+        if (!createDxgiFactory)
         {
-            LOGF(FATAL, "D3D12Hook: failed to resolve D3D12/DXGI exports.");
+            LOGF(FATAL, "Failed to resolve CreateDXGIFactory.");
+            device->Release();
             return false;
         }
 
-        Microsoft::WRL::ComPtr<ID3D12Device> dummyDevice{};
-        if (FAILED(createDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&dummyDevice))))
+        IDXGIFactory4* factory = nullptr;
+        if (FAILED(createDxgiFactory(IID_PPV_ARGS(&factory))))
         {
-            LOGF(FATAL, "D3D12Hook: failed to create dummy device.");
+            LOGF(FATAL, "Failed to create the dummy DXGI factory.");
+            device->Release();
             return false;
         }
 
         D3D12_COMMAND_QUEUE_DESC queueDesc{};
         queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-        queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-        queueDesc.NodeMask = 0;
 
-        Microsoft::WRL::ComPtr<ID3D12CommandQueue> dummyQueue{};
-        if (FAILED(dummyDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&dummyQueue))))
+        ID3D12CommandQueue* commandQueue = nullptr;
+        if (FAILED(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue))))
         {
-            LOGF(FATAL, "D3D12Hook: failed to create dummy command queue.");
+            LOGF(FATAL, "Failed to create the dummy command queue.");
+            factory->Release();
+            device->Release();
             return false;
         }
 
-        Microsoft::WRL::ComPtr<IDXGIFactory4> factory{};
-        if (FAILED(createFactory(IID_PPV_ARGS(&factory))))
-        {
-            LOGF(FATAL, "D3D12Hook: failed to create DXGI factory.");
-            return false;
-        }
-
-        void** factoryVtable = *reinterpret_cast<void***>(factory.Get());
-        if (!factoryVtable)
-        {
-            LOGF(FATAL, "D3D12Hook: factory vtable is null.");
-            return false;
-        }
-
-        if (!m_CreateSwapChainForHwndPatch.Install(factoryVtable, 15, reinterpret_cast<void*>(&D3D12Hook::CreateSwapChainForHwnd)))
-        {
-            LOGF(FATAL, "D3D12Hook: failed to hook CreateSwapChainForHwnd.");
-            return false;
-        }
-
-        constexpr const char* className = "YimMenuD3D12HookWindow";
-
+        HWND hwnd = nullptr;
         WNDCLASSEXA wc{};
-        wc.cbSize = sizeof(wc);
-        wc.lpfnWndProc = DefWindowProcA;
-        wc.hInstance = GetModuleHandleA(nullptr);
-        wc.lpszClassName = className;
 
-        ATOM atom = RegisterClassExA(&wc);
-        if (!atom && GetLastError() != ERROR_CLASS_ALREADY_EXISTS)
+        auto initDummyWindow = [&]() {
+            wc.cbSize = sizeof(WNDCLASSEXA);
+            wc.style = CS_HREDRAW | CS_VREDRAW;
+            wc.lpfnWndProc = DefWindowProcA;
+            wc.hInstance = GetModuleHandleA(nullptr);
+            wc.lpszClassName = "YimMenuDummyWindow";
+
+            RegisterClassExA(&wc);
+            hwnd = CreateWindowA(wc.lpszClassName, "YimMenu Dummy Window", WS_OVERLAPPEDWINDOW, 0, 0, 100, 100, nullptr, nullptr, wc.hInstance, nullptr);
+
+            swapChainDesc1.BufferCount = 3;
+            swapChainDesc1.Width = 0;
+            swapChainDesc1.Height = 0;
+            swapChainDesc1.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            swapChainDesc1.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+            swapChainDesc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+            swapChainDesc1.SampleDesc.Count = 1;
+            swapChainDesc1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+            swapChainDesc1.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+            swapChainDesc1.Scaling = DXGI_SCALING_STRETCH;
+        };
+
+        const std::vector<std::function<bool()>> swapchainAttempts{
+            [&]() {
+                return !FAILED(factory->CreateSwapChainForComposition(commandQueue, &swapChainDesc1, nullptr, &swapChain1));
+            },
+            [&]() {
+                initDummyWindow();
+                return !FAILED(factory->CreateSwapChainForHwnd(commandQueue, hwnd, &swapChainDesc1, nullptr, nullptr, &swapChain1));
+            },
+            [&]() {
+                return !FAILED(factory->CreateSwapChainForHwnd(commandQueue, GetDesktopWindow(), &swapChainDesc1, nullptr, nullptr, &swapChain1));
+            },
+        };
+
+        bool anySucceeded = false;
+        for (size_t i = 0; i < swapchainAttempts.size(); i++)
         {
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            LOGF(FATAL, "D3D12Hook: failed to register dummy window.");
+            try
+            {
+                if (swapchainAttempts[i]())
+                {
+                    LOGF(INFO, "Created dummy swapchain via attempt {}.", i);
+                    anySucceeded = true;
+                    break;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                LOGF(FATAL, "Dummy swapchain attempt {} threw: {}", i, e.what());
+            }
+            catch (...)
+            {
+                LOGF(FATAL, "Dummy swapchain attempt {} threw an unknown exception.", i);
+            }
+        }
+
+        auto cleanupDummyWindow = [&]() {
+            if (hwnd)
+                DestroyWindow(hwnd);
+            if (wc.lpszClassName)
+                UnregisterClassA(wc.lpszClassName, wc.hInstance);
+        };
+
+        if (!anySucceeded)
+        {
+            LOGF(FATAL, "Failed to create a dummy swapchain via any method.");
+            cleanupDummyWindow();
+            commandQueue->Release();
+            factory->Release();
+            device->Release();
             return false;
         }
 
-        HWND hwnd = CreateWindowExA(0, className, "D3D12 Hook Window", WS_OVERLAPPEDWINDOW, 0, 0, 100, 100, nullptr, nullptr, wc.hInstance, nullptr);
-
-        if (!hwnd)
+        if (FAILED(swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain))))
         {
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            UnregisterClassA(className, wc.hInstance);
-            LOGF(FATAL, "D3D12Hook: failed to create dummy window.");
+            LOGF(FATAL, "Failed to query IDXGISwapChain3 from the dummy swapchain.");
+            cleanupDummyWindow();
+            swapChain1->Release();
+            commandQueue->Release();
+            factory->Release();
+            device->Release();
             return false;
         }
 
-        DXGI_SWAP_CHAIN_DESC1 desc{};
-        desc.Width = 100;
-        desc.Height = 100;
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        desc.SampleDesc.Count = 1;
-        desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        desc.BufferCount = 2;
-        desc.Scaling = DXGI_SCALING_STRETCH;
-        desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-        desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+        m_CommandQueueOffset = 0;
 
-        Microsoft::WRL::ComPtr<IDXGISwapChain1> dummySwapChain1{};
-
-        g_InsideD3D12Hook = true;
-        HRESULT swapResult = factory->CreateSwapChainForHwnd(dummyQueue.Get(), hwnd, &desc, nullptr, nullptr, &dummySwapChain1);
-        g_InsideD3D12Hook = false;
-
-        if (FAILED(swapResult) || !dummySwapChain1)
+        for (uint32_t i = 0; i < 512 * sizeof(void*); i += sizeof(void*))
         {
-            DestroyWindow(hwnd);
-            UnregisterClassA(className, wc.hInstance);
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            LOGF(FATAL, "D3D12Hook: failed to create dummy swapchain.");
+            auto base = reinterpret_cast<uintptr_t>(swapChain1) + i;
+            if (IsBadReadPtr(reinterpret_cast<void*>(base), sizeof(void*)))
+                break;
+
+            if (*reinterpret_cast<ID3D12CommandQueue**>(base) == commandQueue)
+            {
+                m_CommandQueueOffset = i;
+                LOGF(INFO, "Found command queue offset at {:#x}.", i);
+                break;
+            }
+        }
+
+        auto targetSwapchain = swapChain;
+
+        if (m_CommandQueueOffset == 0)
+		{
+			bool shouldBreak = false;
+			for (uint32_t base = 0; base < 512 * sizeof(void*) && !shouldBreak; base += sizeof(void*))
+			{
+				auto preScanBase = reinterpret_cast<uintptr_t>(swapChain1) + base;
+				if (IsBadReadPtr(reinterpret_cast<void*>(preScanBase), sizeof(void*)))
+					break;
+
+				auto scanBase = *reinterpret_cast<uintptr_t*>(preScanBase);
+				if (scanBase == 0 || IsBadReadPtr(reinterpret_cast<void*>(scanBase), sizeof(void*)))
+					continue;
+
+				for (uint32_t i = 0; i < 512 * sizeof(void*); i += sizeof(void*))
+				{
+					auto preData = scanBase + i;
+					if (IsBadReadPtr(reinterpret_cast<void*>(preData), sizeof(void*)))
+						break;
+
+					if (*reinterpret_cast<ID3D12CommandQueue**>(preData) == commandQueue)
+					{
+						targetSwapchain = reinterpret_cast<IDXGISwapChain3*>(scanBase);
+						m_CommandQueueOffset = i;
+						shouldBreak = true;
+
+						LOGF(INFO, "Found nested command queue offset at {:#x}.", i);
+						break;
+					}
+				}
+			}
+		}
+
+        if (m_CommandQueueOffset == 0)
+        {
+            LOGF(FATAL, "Failed to find the command queue offset.");
+            cleanupDummyWindow();
+            swapChain->Release();
+            swapChain1->Release();
+            commandQueue->Release();
+            factory->Release();
+            device->Release();
             return false;
         }
 
-        Microsoft::WRL::ComPtr<IDXGISwapChain3> dummySwapChain3{};
-        if (FAILED(dummySwapChain1.As(&dummySwapChain3)) || !dummySwapChain3)
-        {
-            DestroyWindow(hwnd);
-            UnregisterClassA(className, wc.hInstance);
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            LOGF(FATAL, "D3D12Hook: IDXGISwapChain3 unavailable.");
+        m_SwapchainVtable = *reinterpret_cast<void***>(targetSwapchain);
+        m_FactoryVtable = *reinterpret_cast<void***>(factory);
+        InstallHooks();
+
+        commandQueue->Release();
+        swapChain1->Release();
+        swapChain->Release();
+        device->Release();
+        factory->Release();
+        cleanupDummyWindow();
+
+        if (!m_Hooked)
             return false;
-        }
 
-        void** swapVtable = *reinterpret_cast<void***>(dummySwapChain3.Get());
-        if (!swapVtable)
-        {
-            DestroyWindow(hwnd);
-            UnregisterClassA(className, wc.hInstance);
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            return false;
-        }
-
-        if (!m_PresentPatch.Install(swapVtable, 8, reinterpret_cast<void*>(&D3D12Hook::Present)))
-        {
-            DestroyWindow(hwnd);
-            UnregisterClassA(className, wc.hInstance);
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            LOGF(FATAL, "D3D12Hook: failed to hook Present.");
-            return false;
-        }
-
-        if (!m_ResizeBuffersPatch.Install(swapVtable, 13, reinterpret_cast<void*>(&D3D12Hook::ResizeBuffers)))
-        {
-            m_PresentPatch.Uninstall();
-            m_CreateSwapChainForHwndPatch.Uninstall();
-            DestroyWindow(hwnd);
-            UnregisterClassA(className, wc.hInstance);
-            LOGF(FATAL, "D3D12Hook: failed to hook ResizeBuffers.");
-            return false;
-        }
-
-        dummySwapChain3.Reset();
-        dummySwapChain1.Reset();
-
-        DestroyWindow(hwnd);
-        UnregisterClassA(className, wc.hInstance);
-
-        m_Hooked = true;
         LOGF(INFO, "D3D12 Hook initialized.");
         return true;
     }
 
     bool D3D12Hook::DestroyImpl(bool unloading)
     {
-        std::scoped_lock lock{m_HookMutex};
+        std::scoped_lock hookLock{m_HookMutex};
 
-        (void)unloading;
+        if (!m_Hooked)
+            return true;
 
         m_PresentPatch.Uninstall();
-        m_ResizeBuffersPatch.Uninstall();
-        m_CreateSwapChainForHwndPatch.Uninstall();
+        m_SwapchainVmt.reset();
 
-        m_Device = nullptr;
-        m_CommandQueue = nullptr;
-        m_SwapChain = nullptr;
-        m_Window = nullptr;
+		if (unloading)
+			m_CreateSwapchainPatch.Uninstall();
+
         m_Hooked = false;
+        m_IsPhase1 = true;
 
         return true;
     }
 
-    HRESULT STDMETHODCALLTYPE D3D12Hook::Present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags)
+    void D3D12Hook::InstallHooks()
     {
-        auto& self = GetInstance();
+        m_PresentPatch.Uninstall();
+        m_SwapchainVmt.reset();
 
-        using PresentFn = HRESULT(STDMETHODCALLTYPE*)(IDXGISwapChain3*, UINT, UINT);
-        auto original = self.m_PresentPatch.Original<PresentFn>();
+        m_IsPhase1 = true;
 
-        if (!original) return E_FAIL;
-
-        if (g_InsideD3D12Hook) return original(swapChain, syncInterval, flags);
-
+        if (!m_PresentPatch.Install(m_SwapchainVtable, 8, reinterpret_cast<void*>(&D3D12Hook::Present)))
         {
-            std::scoped_lock lock{self.m_HookMutex};
-
-            self.m_SwapChain = swapChain;
-
-            DXGI_SWAP_CHAIN_DESC desc{};
-            if (SUCCEEDED(swapChain->GetDesc(&desc)))
-                self.m_Window = desc.OutputWindow;
-
-            Microsoft::WRL::ComPtr<ID3D12Device4> device{};
-            if (SUCCEEDED(swapChain->GetDevice(IID_PPV_ARGS(&device))))
-                self.m_Device = device.Get();
+            LOGF(FATAL, "Failed to install the phase 1 Present vtable patch.");
+            m_Hooked = false;
+            return;
         }
 
-        if (self.m_OnPresent) self.m_OnPresent();
+        if (!m_CreateSwapchainPatch.Installed)
+        {
+            if (!m_CreateSwapchainPatch.Install(m_FactoryVtable, 15, reinterpret_cast<void*>(&D3D12Hook::CreateSwapchain)))
+                LOGF(FATAL, "Failed to install the CreateSwapChain patch.");
+        }
 
-        return original(swapChain, syncInterval, flags);
+        m_Hooked = true;
     }
 
-    HRESULT STDMETHODCALLTYPE D3D12Hook::ResizeBuffers(IDXGISwapChain3* swapChain, UINT bufferCount, UINT width, UINT height, DXGI_FORMAT newFormat, UINT swapChainFlags)
+    HRESULT D3D12Hook::Present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags, void* r9)
     {
-        auto& self = GetInstance();
+        std::scoped_lock hookLock{GetInstance().m_HookMutex};
 
-        using ResizeBuffersFn = HRESULT(STDMETHODCALLTYPE*)(IDXGISwapChain3*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
+        auto presentFn = GetInstance().m_IsPhase1 ? GetInstance().m_PresentPatch.Original<decltype(&D3D12Hook::Present)>() : GetInstance().m_SwapchainVmt->Original<decltype(&D3D12Hook::Present)>(8);
 
-        auto original = self.m_ResizeBuffersPatch.Original<ResizeBuffersFn>();
-        if (!original) return E_FAIL;
-
-        if (self.m_OnResizeBuffers) self.m_OnResizeBuffers();
-
+        HWND swapchainWnd = nullptr;
         {
-            std::scoped_lock lock{self.m_HookMutex};
-            self.m_SwapChain = nullptr;
-            self.m_Window = nullptr;
-            self.m_Device = nullptr;
+            DXGI_SWAP_CHAIN_DESC swapchainDesc{};
+            if (SUCCEEDED(swapChain->GetDesc(&swapchainDesc)))
+                swapchainWnd = swapchainDesc.OutputWindow;
         }
 
-        return original(swapChain, bufferCount, width, height, newFormat, swapChainFlags);
+        if (!GetInstance().m_IsPhase1 && swapChain != GetInstance().m_SwapChain)
+            return presentFn(swapChain, syncInterval, flags, r9);
+
+        if (GetInstance().m_IsPhase1) // caught the real present, switch to per instance vmt hook
+        {
+            GetInstance().m_PresentPatch.Uninstall();
+
+            GetInstance().m_SwapchainVmt = std::make_unique<VMTHook>("D3D12SwapChain", swapChain, 64); // should be enough
+			GetInstance().m_SwapchainVmt->Hook(8, reinterpret_cast<void*>(&D3D12Hook::Present));
+			GetInstance().m_SwapchainVmt->Hook(13, reinterpret_cast<void*>(&D3D12Hook::ResizeBuffers));
+			GetInstance().m_SwapchainVmt->Enable();
+
+            GetInstance().m_IsPhase1 = false;
+			presentFn = GetInstance().m_SwapchainVmt->Original<decltype(&D3D12Hook::Present)>(8);
+        }
+
+        GetInstance().m_Window = swapchainWnd;
+        GetInstance().m_SwapChain = swapChain;
+
+        {
+            Microsoft::WRL::ComPtr<ID3D12Device4> tempDevice{};
+            swapChain->GetDevice(IID_PPV_ARGS(&tempDevice));
+            GetInstance().m_Device = tempDevice.Get();
+        }
+
+        GetInstance().m_CommandQueue = *reinterpret_cast<ID3D12CommandQueue**>(reinterpret_cast<uintptr_t>(swapChain) + GetInstance().m_CommandQueueOffset);
+
+        if (GetInstance().m_OnPresent)
+            GetInstance().m_OnPresent();
+
+        return presentFn(swapChain, syncInterval, flags, r9);
     }
 
-    HRESULT STDMETHODCALLTYPE D3D12Hook::CreateSwapChainForHwnd(IDXGIFactory2* factory, IUnknown* device, HWND hwnd, const DXGI_SWAP_CHAIN_DESC1* desc, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fullscreenDesc, IDXGIOutput* restrictToOutput, IDXGISwapChain1** swapChain)
+    HRESULT D3D12Hook::ResizeBuffers(IDXGISwapChain3* swapChain, UINT bufferCount, UINT width, UINT height, DXGI_FORMAT newFormat, UINT swapChainFlags)
     {
-        auto& self = GetInstance();
+        std::scoped_lock hookLock{GetInstance().m_HookMutex};
 
-        using CreateSwapChainForHwndFn = HRESULT(STDMETHODCALLTYPE*)(IDXGIFactory2*, IUnknown*, HWND, const DXGI_SWAP_CHAIN_DESC1*, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC*, IDXGIOutput*, IDXGISwapChain1**);
+        auto resizeBuffersFn = GetInstance().m_SwapchainVmt->Original<decltype(&D3D12Hook::ResizeBuffers)>(13);
 
-        auto original = self.m_CreateSwapChainForHwndPatch.Original<CreateSwapChainForHwndFn>();
-        if (!original) return E_FAIL;
+        if (GetInstance().m_OnResizeBuffers)
+            GetInstance().m_OnResizeBuffers();
 
-        if (g_InsideD3D12Hook) return original(factory, device, hwnd, desc, fullscreenDesc, restrictToOutput, swapChain);
+        return resizeBuffersFn(swapChain, bufferCount, width, height, newFormat, swapChainFlags);
+    }
 
-        Microsoft::WRL::ComPtr<ID3D12CommandQueue> queue{};
-        if (device && SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&queue))) && queue)
+    HRESULT D3D12Hook::CreateSwapchain(IDXGIFactory4* factory, IUnknown* device, HWND hwnd, const DXGI_SWAP_CHAIN_DESC* desc, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc, IDXGIOutput* pRestrictToOutput, IDXGISwapChain** swapChain)
+    {
+        auto createSwapChainFn = GetInstance().m_CreateSwapchainPatch.Original<decltype(&D3D12Hook::CreateSwapchain)>();
+
+        if (g_InsideD3d12Hook)
+            return createSwapChainFn(factory, device, hwnd, desc, pFullscreenDesc, pRestrictToOutput, swapChain);
+
+        LOGF(INFO, "CreateSwapChain called, a new swapchain is being created.");
+
+        std::scoped_lock hookLock{GetInstance().m_HookMutex};
+
+        bool wasHooked = GetInstance().m_Hooked;
+
+        if (wasHooked)
         {
-            const auto queueDesc = queue->GetDesc();
+            if (GetInstance().m_OnDeviceReset)
+                GetInstance().m_OnDeviceReset();
 
-            if (queueDesc.Type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-            {
-                bool firstCapture = false;
-
-                {
-                    std::scoped_lock lock{self.m_HookMutex};
-                    firstCapture = self.m_CommandQueue == nullptr;
-                    self.m_CommandQueue = queue.Get();
-                }
-
-                if (firstCapture) LOGF(INFO, "D3D12Hook: command queue captured.");
-            }
+            GetInstance().Destroy();
         }
 
-        HRESULT result = original(factory, device, hwnd, desc, fullscreenDesc, restrictToOutput, swapChain);
+        if (wasHooked)
+            GetInstance().Init();
 
-        if (SUCCEEDED(result) && swapChain && *swapChain)
-        {
-            Microsoft::WRL::ComPtr<IDXGISwapChain3> swapChain3{};
-
-            if (SUCCEEDED((*swapChain)->QueryInterface(IID_PPV_ARGS(&swapChain3))))
-            {
-                std::scoped_lock lock{self.m_HookMutex};
-                self.m_SwapChain = swapChain3.Get();
-                self.m_Window = hwnd;
-            }
-        }
-
-        return result;
+        return createSwapChainFn(factory, device, hwnd, desc, pFullscreenDesc, pRestrictToOutput, swapChain);
     }
 }

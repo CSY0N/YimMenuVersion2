@@ -285,9 +285,9 @@ namespace YimMenu
 			NetworkSession = ptr.Add(0x17).Add(3).Rip().As<CNetworkSession**>();
 		});
 
-		constexpr auto joinSessionByInfoPtrn = Pattern<"41 57 41 56 56 57 55 53 48 83 EC 68 44 89 CF 45 89 C7 48 89 D5 48 89 CE B1 01">("JoinSessionByInfo");
+		constexpr auto joinSessionByInfoPtrn = Pattern<"E8 ? ? ? ? 0F 10 87 ? ? ? ? 0F 11 86 ? ? ? ? 88 86 ? ? ? ? 84 C0">("JoinSessionByInfo");
 		scanner.Add(joinSessionByInfoPtrn, [this](PointerCalculator ptr) {
-			JoinSessionByInfo = ptr.As<Functions::JoinSessionByInfo>();
+			JoinSessionByInfo = ptr.Add(1).Rip().As<Functions::JoinSessionByInfo>();
 		});
 
 		constexpr auto getSessionByGamerHandle = Pattern<"48 C7 84 24 80 00 00 00 10 00 00 08">("GetSessionByGamerHandle");

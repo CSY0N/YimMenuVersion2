@@ -4,7 +4,9 @@
 #include "core/commands/BoolCommand.hpp"
 namespace YimMenu
 {
-	static BoolCommand menuSnow{"menubgsnow","Menu Snow Background","Toggle snow particles in the menu background"};
+	// static BoolCommand menuSnow{"menubgsnow","Menu Snow Background","Toggle snow particles in the menu background"};
+	static BoolCommand menuHeritage{"menubgheritage","Heritage Day Background","Toggle autumn heritage particles in the menu background"};
+
 	struct SnowParticle
 	{
 		ImVec2 pos;
@@ -31,7 +33,7 @@ namespace YimMenu
 		}
 		g_SnowInit = true;
 	}
-	static void RenderSnowInWindow(ImVec2 winPos, ImVec2 winSize)
+	/*static void RenderSnowInWindow(ImVec2 winPos, ImVec2 winSize)
 	{
 		if (!menuSnow.GetState() || !UIManager::ShowingContentWindow())
 		{
@@ -69,7 +71,80 @@ namespace YimMenu
 			    IM_COL32(255, 255, 255, 120));
 		}
 		draw->PopClipRect();
+	}*/
+
+	static void RenderHeritageInWindow(ImVec2 winPos, ImVec2 winSize)
+	{
+		if (!menuHeritage.GetState() || !UIManager::ShowingContentWindow())
+		{
+			g_Snow.clear();
+			g_SnowInit = false;
+			return;
+		}
+
+		if (winSize.x <= 1.0f || winSize.y <= 1.0f)
+			return;
+
+		ImGuiIO& io = ImGui::GetIO();
+		ImDrawList* draw = ImGui::GetWindowDrawList();
+
+		if (!g_SnowInit)
+			InitSnow(65, winPos, winSize);
+
+		const ImVec2 clipMin = winPos;
+		const ImVec2 clipMax = winPos + winSize;
+		const float time = static_cast<float>(ImGui::GetTime());
+
+		static const ImU32 leafColors[] =
+		    {
+		        IM_COL32(195, 73, 32, 190),
+		        IM_COL32(225, 145, 38, 190),
+		        IM_COL32(45, 155, 148, 180),
+		        IM_COL32(145, 65, 42, 190)};
+
+		draw->PushClipRect(clipMin, clipMax, true);
+
+		int index = 0;
+
+		for (auto& p : g_Snow)
+		{
+			p.pos.y += p.speed * 0.55f * io.DeltaTime;
+
+			if (p.pos.y > clipMax.y + 10.0f)
+			{
+				p.pos.y = clipMin.y - 10.0f;
+				p.pos.x = clipMin.x + static_cast<float>(rand() % static_cast<int>(winSize.x));
+			}
+
+			const float sway = sinf(time * 1.25f + index * 0.75f) * 6.0f;
+			const float rotation = time * 1.4f + index;
+			const float size = p.size + 2.5f;
+			const float cosine = cosf(rotation);
+			const float sine = sinf(rotation);
+			const ImVec2 center(p.pos.x + sway, p.pos.y);
+
+			if (center.x < clipMin.x || center.x > clipMax.x)
+			{
+				++index;
+				continue;
+			}
+
+			const ImVec2 top(center.x - sine * size, center.y + cosine * size);
+			const ImVec2 right(center.x + cosine * size * 0.65f, center.y + sine * size * 0.65f);
+			const ImVec2 bottom(center.x + sine * size, center.y - cosine * size);
+			const ImVec2 left(center.x - cosine * size * 0.65f, center.y - sine * size * 0.65f);
+			const ImU32 leafColor = leafColors[index % IM_ARRAYSIZE(leafColors)];
+
+			draw->AddCircleFilled(center, size + 3.0f, IM_COL32(225, 145, 38, 18));
+			draw->AddQuadFilled(top, right, bottom, left, leafColor);
+			draw->AddLine(top, bottom, IM_COL32(255, 225, 170, 125), 1.0f);
+
+			++index;
+		}
+
+		draw->PopClipRect();
 	}
+
 	static float LerpFloat(float a, float b, float t)
 	{
 		if (t < 0.f)
@@ -104,7 +179,7 @@ namespace YimMenu
 		}
 		ImVec2 winPos = ImGui::GetWindowPos();
 		ImVec2 winSize = ImGui::GetWindowSize();
-		RenderSnowInWindow(winPos, winSize);
+		RenderHeritageInWindow(winPos, winSize);
 		if (ImGui::BeginChild("##submenus",ImVec2(120, ImGui::GetContentRegionAvail().y),true))
 		{
 			const auto& submenus = UIManager::GetSubmenus();
