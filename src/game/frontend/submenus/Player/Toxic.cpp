@@ -11,7 +11,6 @@ namespace YimMenu::Submenus
 		damage->AddItem(std::make_shared<PlayerCommandItem>("killexploit"_J));
 		damage->AddItem(std::make_shared<PlayerCommandItem>("explode"_J));
 
-
 		menu->AddItem(damage);
 
 		return menu;
