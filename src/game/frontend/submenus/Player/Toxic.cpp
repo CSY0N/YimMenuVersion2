@@ -11,11 +11,8 @@ namespace YimMenu::Submenus
 		damage->AddItem(std::make_shared<PlayerCommandItem>("killexploit"_J));
 		damage->AddItem(std::make_shared<PlayerCommandItem>("explode"_J));
 
-		auto griefing = std::make_shared<Group>("Griefing");
-		griefing->AddItem(std::make_shared<PlayerCommandItem>("ceokick"_J));
 
 		menu->AddItem(damage);
-		menu->AddItem(griefing);
 
 		return menu;
 	}
