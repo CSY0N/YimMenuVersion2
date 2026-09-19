@@ -108,7 +108,7 @@ virtual void OnDisable() override
 	};
 
 	static std::vector<std::pair<int, const char*>> g_LuckyWheelPrizes = {
-	    {0, "Clothing"},
+	    {0, "Clothing##0"},
 	    {1, "2,500 RP"},
 	    {2, "$20,000"},
 	    {3, "10,000 Chips"},
@@ -116,37 +116,41 @@ virtual void OnDisable() override
 	    {5, "5,000 RP"},
 	    {6, "$30,000"},
 	    {7, "15,000 Chips"},
-	    {8, "Clothing"},
+	    {8, "Clothing##8"},
 	    {9, "7,500 RP"},
 	    {10, "20,000 Chips"},
 	    {11, "Mystery Prize"},
-	    {12, "Clothing"},
+	    {12, "Clothing##12"},
 	    {13, "10,000 RP"},
 	    {14, "$40,000"},
 	    {15, "25,000 Chips"},
-	    {16, "Clothing"},
+	    {16, "Clothing##16"},
 	    {17, "15,000 RP"},
 	    {18, "Podium Vehicle"},
 	    {19, "$50,000"},
 	};
-	static ListCommand _LuckyWheelPrize{"luckywheelprize", "Lucky Wheel Prize", "Select the Lucky Wheel prize", g_LuckyWheelPrizes, 18};
+
+    static ListCommand _LuckyWheelPrize{
+	    "luckywheelprize",
+	    "Lucky Wheel Prize",
+	    "Select the Lucky Wheel prize",
+	    g_LuckyWheelPrizes,
+	    18};
+
 	class SetLuckyWheelPrize : public Command
-	{
+	  {
+		  using Command::Command;
 
-		using Command::Command;
-
-		virtual void OnCall() override
-		{
-			if (auto thread = Scripts::FindScriptThread("casino_lucky_wheel"_J))
-			{
-				const auto player = PLAYER::PLAYER_ID();
-				*ScriptGlobal(262145).At(26856).As<bool*>() = true; // Enable Additional Spins
-				*ScriptGlobal(262145).At(37458).As<int*>() = 2; // Max. Spins Per Day w/ GTA+
-				*ScriptLocal(thread, 150).At(player, 5).As<int*>() = _LuckyWheelPrize.GetState(); // Prize outcome
-			}
-		}
-	};
-
+		  virtual void OnCall() override
+		  {
+			  if (auto thread = Scripts::FindScriptThread("casino_lucky_wheel"_J))
+			  {
+				  *ScriptGlobal(262145).At(26856).As<bool*>() = true;
+				  *ScriptGlobal(262145).At(37458).As<int*>() = 2;
+				  *ScriptLocal(thread, 150).At(PLAYER::PLAYER_ID(), 5).As<int*>() = _LuckyWheelPrize.GetState();
+			  }
+		  }
+	  };
 
 	static SetLuckyWheelPrize _SetLuckyWheelPrize{"setluckywheelprize", "Set Lucky Wheel Prize", "Sets the Lucky Wheel outcome"};
 	static CasinoMembershipBonus _CasinoMembershipBonus{"casino_membership_bonus", "Casino Membership Bonus", "Triggers the Casino Membership Bonus."};
