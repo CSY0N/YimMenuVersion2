@@ -18,6 +18,7 @@ namespace YimMenu::Submenus
 		auto generalUnlocks = std::make_shared<Group>("General");
 		auto nightclubGroup = std::make_shared<Group>("Nightclub");
 		auto LSCMGroupe = std::make_shared<Group>("LS Car Meet");
+		auto ArenaWarGroup = std::make_shared<Group>("Arena War");
 		auto trophies = std::make_shared<Group>("Trophies");
 		auto skip = std::make_shared<Group>("Skipper");
 		auto Unreleased = std::make_shared<Group>("Unreleased");
@@ -205,6 +206,8 @@ namespace YimMenu::Submenus
 		LSCMGroupe->AddItem(std::make_shared<CommandItem>("Complete_Challenge"_J));
 		LSCMGroupe->AddItem(std::make_shared<CommandItem>("tp_lscm"_J));
 
+		ArenaWarGroup->AddItem(std::make_shared<IntCommandItem>("arenawarrank"_J, "Arena War Rank"));
+		ArenaWarGroup->AddItem(std::make_shared<CommandItem>("applyarenawarrank"_J));
 
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_casino_cd"_J));
 		cooldown->AddItem(std::make_shared<CommandItem>("reset_vehicle_sell_cd"_J));
@@ -251,6 +254,7 @@ namespace YimMenu::Submenus
 		main->AddItem(missions);
 		main->AddItem(achievements);
 		main->AddItem(LSCMGroupe);
+		main->AddItem(ArenaWarGroup);
 		main->AddItem(cooldown);
 		main->AddItem(free);
 		main->AddItem(exhibitGroup);
