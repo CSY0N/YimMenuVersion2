@@ -165,6 +165,7 @@ static_assert(sizeof(SCRIPT_EVENT_KICK_FROM_CEO) == 3 * 8);
 struct SCRIPT_EVENT_START_ACTIVITY : public SCRIPT_EVENT
 {
     REGISTER_SCRIPT_EVENT(SCRIPT_EVENT_START_ACTIVITY, StartActivity);
+
     SCR_INT Activity;
     SCR_INT Param;
 };
@@ -173,6 +174,7 @@ static_assert(sizeof(SCRIPT_EVENT_START_ACTIVITY) == 5 * 8);
 struct SCRIPT_EVENT_NOTIFICATION : public SCRIPT_EVENT
 {
     REGISTER_SCRIPT_EVENT(SCRIPT_EVENT_NOTIFICATION, Notification);
+
     SCR_INT NotificationType;
     SCR_INT Unknown4;
     SCR_INT Unknown5;
@@ -187,6 +189,14 @@ struct SCRIPT_EVENT_NOTIFICATION : public SCRIPT_EVENT
 	SCR_INT Unknown14;
 };
 static_assert(sizeof(SCRIPT_EVENT_NOTIFICATION) == 15 * 8);
+
+struct SCRIPT_EVENT_FORCE_MISSION : public SCRIPT_EVENT
+{
+    REGISTER_SCRIPT_EVENT(SCRIPT_EVENT_FORCE_MISSION, ForceMission);
+
+    SCR_INT Mission;
+};
+static_assert(sizeof(SCRIPT_EVENT_FORCE_MISSION) == 4 * 8);
 
 struct SCRIPT_EVENT_SEND_TO_INTERIOR : public SCRIPT_EVENT
 {
