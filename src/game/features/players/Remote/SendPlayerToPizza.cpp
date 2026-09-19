@@ -1,5 +1,5 @@
 #include "game/commands/PlayerCommand.hpp"
-#include "game/gta/Scripts.hpp"
+#include "types/script/ScriptEvent.hpp"
 
 namespace YimMenu::Features
 {
@@ -12,11 +12,11 @@ namespace YimMenu::Features
             if (!player.IsValid())
                 return;
 
-            const int id = player.GetId();
-            if (id < 0 || id >= 32)
-                return;
-
-            Scripts::TriggerScriptEvent(1, std::uint32_t{1} << id, {1450115979LL, -1, -1, 340});
+            SCRIPT_EVENT_START_ACTIVITY message;
+            message.Activity = 340;
+            message.Param = 0;
+            message.SetPlayer(player.GetId());
+            message.Send();
         }
     };
 
