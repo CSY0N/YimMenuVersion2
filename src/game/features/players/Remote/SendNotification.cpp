@@ -1,7 +1,7 @@
 #include "core/commands/ListCommand.hpp"
 #include "game/commands/PlayerCommand.hpp"
-#include "game/gta/Scripts.hpp"
-#include <cstdint>
+#include "types/script/ScriptEvent.hpp"
+
 #include <vector>
 
 namespace YimMenu::Features
@@ -17,7 +17,13 @@ namespace YimMenu::Features
         {-1853142904, "Revealed All Players"}
     };
 
-    static ListCommand _NotificationType{"notificationtype", "Notification Type", "Select the notification to send", g_Notifications, 1964206081};
+    static ListCommand _NotificationType{
+        "notificationtype",
+        "Notification Type",
+        "Select the notification to send",
+        g_Notifications,
+        1964206081
+    };
 
     class SendNotification : public PlayerCommand
     {
@@ -28,14 +34,11 @@ namespace YimMenu::Features
             if (!player.IsValid())
                 return;
 
-            const int id = player.GetId();
-            if (id < 0 || id >= 32)
-                return;
+            SCRIPT_EVENT_NOTIFICATION message;
 
-            std::vector<std::int64_t> args(15, 0);
-            args[0] = -642704387LL;
-            args[3] = _NotificationType.GetState();
-            Scripts::TriggerScriptEvent(1, std::uint32_t{1} << id, args);
+            message.NotificationType = _NotificationType.GetState();
+            message.SetPlayer(player.GetId());
+            message.Send();
         }
     };
 
