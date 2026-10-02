@@ -11,14 +11,6 @@ namespace YimMenu::Features
 		virtual void OnTick() override
 		{
 			MISC::SET_SUPER_JUMP_THIS_FRAME(Self::GetPlayer().GetId());
-			Ped ped = Self::GetPed();
-			int handle = ped.GetHandle();
-			if (!ENTITY::DOES_ENTITY_EXIST(handle)) 
-				return;
-			if (WEAPON::HAS_PED_GOT_WEAPON(handle, Joaat("GADGET_PARACHUTE"), false))
-			{
-				WEAPON::REMOVE_WEAPON_FROM_PED(handle, Joaat("GADGET_PARACHUTE"));
-			}		
 		}
 	};
 
