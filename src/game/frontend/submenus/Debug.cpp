@@ -6,6 +6,7 @@
 #include "game/frontend/items/Items.hpp"
 #include "Debug/ScriptStarter.hpp"
 #include "Debug/CutscenesStarter.hpp"
+#include "Debug/LuaDownloader.hpp"
 #include "Debug/AudioScenesStarter.hpp"
 
 namespace YimMenu::Submenus
@@ -27,6 +28,7 @@ namespace YimMenu::Submenus
 		AddCategory(BuildScriptsMenu());
 		AddCategory(BuildScriptStarterMenu());
 		AddCategory(BuildCutscenesStarterMenu());
+		AddCategory(BuildLuaDownloaderMenu());
 		AddCategory(BuildAudioScenesMenu());
 	}
 }
