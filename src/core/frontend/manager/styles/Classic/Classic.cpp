@@ -5,7 +5,7 @@
 namespace YimMenu
 {
 	// static BoolCommand menuSnow{"menubgsnow","Menu Snow Background","Toggle snow particles in the menu background"};
-	static BoolCommand menuHeritage{"menubgheritage","Heritage Day Background","Toggle autumn heritage particles in the menu background"};
+	static BoolCommand menuPumpkins{"menubgpumpkins", "Menu Pumpkin Background", "Toggle falling pumpkins in the menu background"};
 
 	struct SnowParticle
 	{
@@ -72,43 +72,32 @@ namespace YimMenu
 		}
 		draw->PopClipRect();
 	}*/
-
-	static void RenderHeritageInWindow(ImVec2 winPos, ImVec2 winSize)
+	static void RenderPumpkin(ImVec2 winPos, ImVec2 winSize)
 	{
-		if (!menuHeritage.GetState() || !UIManager::ShowingContentWindow())
+		if (!menuPumpkins.GetState() || !UIManager::ShowingContentWindow())
 		{
 			g_Snow.clear();
 			g_SnowInit = false;
 			return;
 		}
 
-		if (winSize.x <= 1.0f || winSize.y <= 1.0f)
-			return;
-
 		ImGuiIO& io = ImGui::GetIO();
 		ImDrawList* draw = ImGui::GetWindowDrawList();
 
 		if (!g_SnowInit)
-			InitSnow(65, winPos, winSize);
+			InitSnow(45, winPos, winSize);
 
-		const ImVec2 clipMin = winPos;
-		const ImVec2 clipMax = winPos + winSize;
-		const float time = static_cast<float>(ImGui::GetTime());
-
-		static const ImU32 leafColors[] =
-		    {
-		        IM_COL32(195, 73, 32, 190),
-		        IM_COL32(225, 145, 38, 190),
-		        IM_COL32(45, 155, 148, 180),
-		        IM_COL32(145, 65, 42, 190)};
+		ImVec2 clipMin = winPos;
+		ImVec2 clipMax = winPos + winSize;
 
 		draw->PushClipRect(clipMin, clipMax, true);
 
-		int index = 0;
-
 		for (auto& p : g_Snow)
 		{
-			p.pos.y += p.speed * 0.55f * io.DeltaTime;
+			p.pos.y += p.speed * 0.65f * io.DeltaTime;
+			p.pos.x += sinf(
+			               (float)ImGui::GetTime() * 1.5f + p.pos.y * 0.01f)
+			    * 8.0f * io.DeltaTime;
 
 			if (p.pos.y > clipMax.y + 10.0f)
 			{
@@ -116,32 +105,67 @@ namespace YimMenu
 				p.pos.x = clipMin.x + static_cast<float>(rand() % static_cast<int>(winSize.x));
 			}
 
-			const float sway = sinf(time * 1.25f + index * 0.75f) * 6.0f;
-			const float rotation = time * 1.4f + index;
-			const float size = p.size + 2.5f;
-			const float cosine = cosf(rotation);
-			const float sine = sinf(rotation);
-			const ImVec2 center(p.pos.x + sway, p.pos.y);
-
-			if (center.x < clipMin.x || center.x > clipMax.x)
-			{
-				++index;
+			if (p.pos.x < clipMin.x || p.pos.x > clipMax.x)
 				continue;
-			}
 
-			const ImVec2 top(center.x - sine * size, center.y + cosine * size);
-			const ImVec2 right(center.x + cosine * size * 0.65f, center.y + sine * size * 0.65f);
-			const ImVec2 bottom(center.x + sine * size, center.y - cosine * size);
-			const ImVec2 left(center.x - cosine * size * 0.65f, center.y - sine * size * 0.65f);
-			const ImU32 leafColor = leafColors[index % IM_ARRAYSIZE(leafColors)];
+			const float size = p.size * 2.3f;
 
-			draw->AddCircleFilled(center, size + 3.0f, IM_COL32(225, 145, 38, 18));
-			draw->AddQuadFilled(top, right, bottom, left, leafColor);
-			draw->AddLine(top, bottom, IM_COL32(255, 225, 170, 125), 1.0f);
+			// Pumpkin glow
+			draw->AddCircleFilled(
+			    p.pos,
+			    size + 3.0f,
+			    IM_COL32(255, 100, 0, 25));
 
-			++index;
+			// Pumpkin body
+			draw->AddEllipseFilled(
+			    p.pos,
+			    ImVec2(size, size * 0.78f),
+			    IM_COL32(235, 90, 15, 210));
+
+			// Pumpkin sections
+			draw->AddEllipse(
+			    p.pos,
+			    ImVec2(size * 0.50f, size * 0.78f),
+			    IM_COL32(255, 145, 25, 180),
+			    0.0f,
+			    0,
+			    1.0f);
+
+			// Stem
+			draw->AddRectFilled(
+			    ImVec2(p.pos.x - 1.5f, p.pos.y - size * 0.95f),
+			    ImVec2(p.pos.x + 1.5f, p.pos.y - size * 0.60f),
+			    IM_COL32(75, 110, 45, 230),
+			    1.0f);
+
+			// Eyes
+			const float eyeY = p.pos.y - size * 0.15f;
+
+			draw->AddTriangleFilled(
+			    ImVec2(p.pos.x - size * 0.50f, eyeY),
+			    ImVec2(p.pos.x - size * 0.15f, eyeY),
+			    ImVec2(p.pos.x - size * 0.32f, eyeY + size * 0.30f),
+			    IM_COL32(35, 20, 10, 230));
+
+			draw->AddTriangleFilled(
+			    ImVec2(p.pos.x + size * 0.15f, eyeY),
+			    ImVec2(p.pos.x + size * 0.50f, eyeY),
+			    ImVec2(p.pos.x + size * 0.32f, eyeY + size * 0.30f),
+			    IM_COL32(35, 20, 10, 230));
+
+			// Jack-o'-lantern mouth
+			draw->AddLine(
+			    ImVec2(p.pos.x - size * 0.45f, p.pos.y + size * 0.28f),
+			    ImVec2(p.pos.x, p.pos.y + size * 0.48f),
+			    IM_COL32(35, 20, 10, 230),
+			    1.5f);
+
+			draw->AddLine(
+			    ImVec2(p.pos.x, p.pos.y + size * 0.48f),
+			    ImVec2(p.pos.x + size * 0.45f, p.pos.y + size * 0.28f),
+			    IM_COL32(35, 20, 10, 230),
+			    1.5f);
 		}
-
 		draw->PopClipRect();
 	}
 
@@ -179,7 +203,7 @@ namespace YimMenu
 		}
 		ImVec2 winPos = ImGui::GetWindowPos();
 		ImVec2 winSize = ImGui::GetWindowSize();
-		RenderHeritageInWindow(winPos, winSize);
+		RenderPumpkin(winPos, winSize);
 		if (ImGui::BeginChild("##submenus",ImVec2(120, ImGui::GetContentRegionAvail().y),true))
 		{
 			const auto& submenus = UIManager::GetSubmenus();
