@@ -7,6 +7,8 @@
 #include "Debug/ScriptStarter.hpp"
 #include "Debug/CutscenesStarter.hpp"
 #include "Debug/LuaDownloader.hpp"
+#include "Debug/AudioScenesStarter.hpp"
+
 namespace YimMenu::Submenus
 {
 	Debug::Debug() :
@@ -27,5 +29,6 @@ namespace YimMenu::Submenus
 		AddCategory(BuildScriptStarterMenu());
 		AddCategory(BuildCutscenesStarterMenu());
 		AddCategory(BuildLuaDownloaderMenu());
+		AddCategory(BuildAudioScenesMenu());
 	}
 }
