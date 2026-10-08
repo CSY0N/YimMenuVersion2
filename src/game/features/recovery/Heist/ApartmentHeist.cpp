@@ -1,4 +1,5 @@
 #include "core/commands/IntCommand.hpp"
+#include "core/commands/BoolCommand.hpp"
 #include "core/commands/Command.hpp"
 #include "game/gta/Stats.hpp"
 #include "game/backend/Players.hpp"
@@ -149,6 +150,35 @@ namespace YimMenu::Features
 			}
 		};
 
+		class ApartmentBonus : public BoolCommand
+		{
+			using BoolCommand::BoolCommand;
+
+			void ApplyBonus(bool enabled)
+			{
+				const int progress = enabled ? 268435455 : 134217727;
+
+				Stats::SetInt("MPPLY_HEISTFLOWORDERPROGRESS", progress);
+				Stats::SetBool("MPPLY_AWD_HST_ORDER", !enabled);
+				Stats::SetInt("MPPLY_HEISTTEAMPROGRESSBITSET", progress);
+				Stats::SetBool("MPPLY_AWD_HST_SAME_TEAM", !enabled);
+				Stats::SetInt("MPPLY_HEISTNODEATHPROGREITSET", progress);
+				Stats::SetBool("MPPLY_AWD_HST_ULT_CHAL", !enabled);
+			}
+
+			virtual void OnEnable() override
+			{
+				ApplyBonus(true);
+			}
+
+			virtual void OnDisable() override
+			{
+				ApplyBonus(false);
+			}
+		};
+
+
+		static ApartmentBonus _ApartmentBonus{"apartmentbonus", "12mil Bonus", "Applies apartment heist challenge bonus progress. Enable before starting the heist."};
 		static SetCuts _ApartmentHeistSetCuts{"apartmentheistsetcuts", "Set Cuts", "Sets heist cut"};
 		static ForceReady _ApartmentHeistForceReady{"apartmentheistforceready", "Force Ready", "Forces all players to be ready"};
 		static Setup _ApartmentHeistSetup{"apartmentheistsetup", "Setup", "Sets up current apartment heist"};
