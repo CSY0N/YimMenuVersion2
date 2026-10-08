@@ -178,7 +178,6 @@ namespace YimMenu::Submenus
             Notifications::Show("Cayo Perico Heist", "Teleport completed.", NotificationType::Success);
         }));
 
-        // Register Groups
         tab->AddItem(cuts);
         tab->AddItem(setups);
         tab->AddItem(loots);
