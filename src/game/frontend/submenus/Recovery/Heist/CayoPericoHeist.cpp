@@ -1,10 +1,8 @@
-
 #include "CayoPericoHeist.hpp"
 #include "game/gta/Natives.hpp"
 #include "game/gta/ScriptGlobal.hpp"
 #include "core/util/utils.hpp"
 #include "core/frontend/Notifications.hpp"
-#include <cstdint>
 
 namespace YimMenu::Submenus
 {
@@ -55,7 +53,6 @@ namespace YimMenu::Submenus
         auto modifiers = std::make_shared<Group>("Modifiers", 1);
         auto cayo_tp = std::make_shared<Group>("Teleport");
 
-        // Heist Cuts
         cuts->AddItem(std::make_shared<IntCommandItem>("cayopericoheistcut1"_J));
         cuts->AddItem(std::make_shared<IntCommandItem>("cayopericoheistcut3"_J));
         cuts->AddItem(std::make_shared<IntCommandItem>("cayopericoheistcut2"_J));
@@ -63,19 +60,16 @@ namespace YimMenu::Submenus
         cuts->AddItem(std::make_shared<CommandItem>("cayopericoheistforceready"_J));
         cuts->AddItem(std::make_shared<CommandItem>("cayopericoheistsetcuts"_J));
 
-        // Heist Setups
         setups->AddItem(std::make_shared<ListCommandItem>("cayopericoheistdifficulty"_J));
         setups->AddItem(std::make_shared<ListCommandItem>("cayopericoheistprimarytarget"_J));
         setups->AddItem(std::make_shared<ListCommandItem>("cayopericoheistweapon"_J));
         setups->AddItem(std::make_shared<CommandItem>("cayopericoheistsetup"_J));
 
-        // Loots
         loots->AddItem(std::make_shared<IntCommandItem>("cayopericoheistprimarytargetvalue"_J));
         loots->AddItem(std::make_shared<IntCommandItem>("cayopericoheistsecondarytakevalue"_J));
         loots->AddItem(std::make_shared<CommandItem>("cayopericoheistsetprimarytargetvalue"_J, "Set##primarytargetvalue"));
         loots->AddItem(std::make_shared<CommandItem>("cayopericoheistsetsecondarytakevalue"_J, "Set##secondarytakevalue"));
 
-        // Misc
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistskiphacking"_J));
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistcutsewer"_J));
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistcutglass"_J));
@@ -86,11 +80,9 @@ namespace YimMenu::Submenus
         misc->AddItem(std::make_shared<BoolCommandItem>("removefencingfee"_J));
         misc->AddItem(std::make_shared<BoolCommandItem>("removepavelscut"_J));
 
-        // Modifiers
         modifiers->AddItem(std::make_shared<IntCommandItem>("bagcapacity"_J));
         modifiers->AddItem(std::make_shared<BoolCommandItem>("bagcapacitymodifier"_J));
 
-        // Teleport
         cayo_tp->AddItem(std::make_unique<ImGuiItem>([] {
             ImGui::SetNextItemWidth(140.f);
             ImGui::Combo("Teleport To", &g_SelectedTeleport, g_TeleportItems, IM_ARRAYSIZE(g_TeleportItems));
@@ -157,15 +149,13 @@ namespace YimMenu::Submenus
                 return;
             }
 
-            const Ped ped = PLAYER::PLAYER_PED_ID();
-
-            if (!ENTITY::DOES_ENTITY_EXIST(ped))
+            if (!ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()))
                 return;
 
-            Entity entity = ped;
+            Entity entity = PLAYER::PLAYER_PED_ID();
 
-            if (PED::IS_PED_IN_ANY_VEHICLE(ped, false))
-                entity = PED::GET_VEHICLE_PED_IS_IN(ped, false);
+            if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), false))
+                entity = PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), false);
 
             if (!ENTITY::DOES_ENTITY_EXIST(entity))
                 return;
@@ -174,8 +164,6 @@ namespace YimMenu::Submenus
 
             if (setHeading)
                 Utils::SetHeading(heading);
-
-            Notifications::Show("Cayo Perico Heist", "Teleport completed.", NotificationType::Success);
         }));
 
         tab->AddItem(cuts);
