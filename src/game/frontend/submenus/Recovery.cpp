@@ -47,6 +47,7 @@ namespace YimMenu::Submenus
 		auto exhibitGroup = std::make_shared<Group>("Exhibit Loot");
 		auto stashHouse = std::make_shared<Group>("Stash House");
 
+		generalGroup->AddItem(std::make_shared<BoolCommandItem>("freeshopping"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("playallmissionssolo"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("casinosolo"_J));
 		generalGroup->AddItem(std::make_shared<BoolCommandItem>("high_demand_sell"_J));

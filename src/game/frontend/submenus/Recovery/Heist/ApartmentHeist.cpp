@@ -25,11 +25,15 @@ namespace YimMenu::Submenus
 		misc->AddItem(std::make_shared<CommandItem>("apartmentheistinstantfinish"_J));
 		misc->AddItem(std::make_shared<CommandItem>("apartmentheistinstantfinishpacific"_J));
 
+		auto bonus = std::make_shared<Group>("Bonuses");
+
+		bonus->AddItem(std::make_shared<BoolCommandItem>("apartmentbonus"_J));
+
 
 		tab->AddItem(cuts);
 		tab->AddItem(setups);
 		tab->AddItem(misc);
-
+		tab->AddItem(bonus);
 
 		return tab;
 	}
