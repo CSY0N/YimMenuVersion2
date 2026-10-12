@@ -4,7 +4,6 @@
 #include "types/netshop/CatalogCacheListener.hpp"
 
 
-
 namespace YimMenu::Features
 {
 	struct BASKET_ITEM_DATA
