@@ -1,5 +1,13 @@
 #pragma once
 
+// The editor parser lacks the detailed source_location intrinsic on some VS versions.
+// Use the STL's basic function-name mode for IntelliSense; compiled logging is unchanged.
+#if defined(__INTELLISENSE__) && defined(_MSC_VER)
+#ifndef _USE_DETAILED_FUNCTION_NAME_IN_SOURCE_LOCATION
+#define _USE_DETAILED_FUNCTION_NAME_IN_SOURCE_LOCATION 0
+#endif
+#endif
+
 #include <AsyncLogger/Logger.hpp>
 #include <MinHook.h>
 #include <windows.h>

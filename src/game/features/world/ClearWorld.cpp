@@ -16,7 +16,8 @@ namespace YimMenu::Features
     };
 
     static ClearWorld _ClearWorld{
-        "clearworld",
+        // Keep the one-shot action separate from TinkerScripts' reversible toggle.
+        "clearworldall",
         "Clear World",
         "Clear World (Remove Ped, Vehicles & Objects)"
     };
