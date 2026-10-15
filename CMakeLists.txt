@@ -13,6 +13,8 @@ file(GLOB_RECURSE SRC_FILES
     "${SRC_DIR}/**.hpp"
     "${SRC_DIR}/**.cpp"    
 )
+# The native checks have their own main function and must not enter the menu DLL.
+list(REMOVE_ITEM SRC_FILES "${SRC_DIR}/core/scripting/TinkerScriptssTests.cpp")
 add_library(${PROJECT_NAME} MODULE ${SRC_FILES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 target_precompile_headers(${PROJECT_NAME} PUBLIC "${SRC_DIR}/common.hpp")
@@ -47,9 +49,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     # Windows networking (previously missing)
     winhttp
     urlmon
+    # The native cloud-save helper uses COM, ShellExecute and the AppData known folder.
+    ole32
+    oleaut32
+    shell32
 )
 target_compile_options(${PROJECT_NAME} PRIVATE
     # Do not warn about non-reproducible code
     $<$<COMPILE_LANG_AND_ID:C,Clang>:-Wno-date-time>
     $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-date-time>
 )
+# Optional native feature, settings and UI checks.
+include(cmake/tinker-scripts.cmake)
