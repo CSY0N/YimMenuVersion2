@@ -13,6 +13,8 @@
 #include "core/renderer/Renderer.hpp"
 #include "core/util/Wine.hpp"
 #include "core/scripting/LuaManager.hpp"
+// Register the native TinkerScripts features on the same scheduler as the menu.
+#include "core/scripting/TinkerScript.hpp"
 #include "game/backend/AnticheatBypass.hpp"
 #include "game/backend/Players.hpp"
 #include "game/backend/SavedLocations.hpp"
@@ -97,6 +99,8 @@ namespace YimMenu
 		ScriptMgr::AddScript(std::make_unique<Script>(&Self::RunScript));
 		ScriptMgr::AddScript(std::make_unique<Script>(&GUI::RunScript));
 		FiberPool::Init(16);
+		// Native features are ready before any older TinkerScripts Lua copy can load.
+		ScriptMgr::AddScript(std::make_unique<Script>(&TinkerScript::Run));
 		ScriptMgr::AddScript(std::make_unique<Script>(&LuaManager::RunScript));
 		ScriptMgr::AddScript(std::make_unique<Script>(&HotkeySystem::RunScript));
 		ScriptMgr::AddScript(std::make_unique<Script>(&Commands::RunScript));
@@ -122,6 +126,8 @@ namespace YimMenu
 		}
 
 		LOG(INFO) << "Unloading";
+		// Remove the native submenu and release its commands before destroying fibers.
+		TinkerScript::Shutdown();
 		ScriptMgr::Destroy();
 
 		NativeHooks::Destroy();
@@ -153,6 +159,11 @@ BOOL WINAPI DllMain(HINSTANCE dllInstance, DWORD reason, void*)
 	if (reason == DLL_PROCESS_ATTACH)
 	{
 		g_DllInstance = dllInstance;
+		// The elevated firewall helper loads this DLL without starting the game menu.
+		wchar_t processPath[MAX_PATH]{};
+		GetModuleFileNameW(nullptr,processPath,MAX_PATH);
+		if(_wcsicmp(std::filesystem::path(processPath).filename().c_str(),L"rundll32.exe")==0)
+			return true;
 
 		g_MainThread = CreateThread(nullptr, 0, Main, nullptr, 0, &g_MainThreadId);
 	}

@@ -7,6 +7,11 @@
 
 namespace YimMenu
 {
+	// Native TinkerScripts owns these commands; older Lua copies would duplicate them.
+	static bool IsTinkerScript(const std::filesystem::path& path)
+	{
+		return _wcsicmp(path.filename().c_str(),L"TinkerScripts.lua")==0;
+	}
 	void LuaManager::AddUnloadedScript(std::string_view name, std::string_view path)
 	{
 		if (IsIncludeScript(std::filesystem::path(path)))
@@ -43,6 +48,11 @@ namespace YimMenu
 
 	void LuaManager::LoadScriptImpl(std::string path)
 	{
+		if(IsTinkerScript(path))
+		{
+			Notifications::Show("TinkerScripts","Use the native TinkerScripts submenu; no Lua entry needs loading.",NotificationType::Info);
+			return;
+		}
 		if (std::filesystem::path(path).extension() != ".lua" || IsIncludeScript(std::filesystem::path(path)))
 			return;
 		std::lock_guard lock(m_LoadMutex);
@@ -62,7 +72,8 @@ namespace YimMenu
 
 		auto scripts_dir = FileMgr::GetProjectFolder("./scripts");
 		for (const auto& script : DiscoverScripts(scripts_dir.Path(), false))
-			m_ScriptsToLoad.push({script.string(), false});
+			if(!IsTinkerScript(script))
+				m_ScriptsToLoad.push({script.string(), false});
 
 		while (g_Running)
 		{

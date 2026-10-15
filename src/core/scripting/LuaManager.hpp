@@ -64,7 +64,8 @@ namespace YimMenu
 	public:
 		static bool IsIncludeScript(const std::filesystem::path& path)
 		{
-			return path.parent_path().filename().string().contains("include");
+			// Nested modules belong to their parent script and must not load independently.
+			return std::ranges::any_of(path.parent_path(),[](const auto& part){return part.string().contains("include");});
 		}
 
 		static std::filesystem::path MoveScriptFile(const std::filesystem::path& path, const std::filesystem::path& scripts_folder, bool enable)
