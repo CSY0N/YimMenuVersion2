@@ -3,6 +3,7 @@
 #include "Menu.hpp"
 #include "ESP.hpp"
 #include "Overlay.hpp"
+#include "AutoDriveHUD.hpp"
 #include "core/backend/ScriptMgr.hpp"
 #include "core/renderer/Renderer.hpp"
 #include "core/scripting/LuaManager.hpp"
@@ -11,6 +12,7 @@
 #include "game/frontend/ChatDisplay.hpp"
 #include "game/gta/Natives.hpp"
 #include "types/pad/ControllerInputs.hpp"
+
 
 namespace YimMenu
 {
@@ -55,12 +57,17 @@ namespace YimMenu
 		    },
 		    -6);
 		Renderer::AddRendererCallback(
+		    [&] {
+			    AutoDriveHUD::Draw();
+		    },
+		    -7);
+		Renderer::AddRendererCallback(
 		    [] {
 			    LuaManager::ForAllLoadedScripts([](std::shared_ptr<LuaScript>& script) {
 				    script->GetUserInterface().DrawAlwaysDrawImGuiCallbacks();
 			    });
 		    },
-		    -7);
+		    -8);
 		Renderer::AddRendererCallback(
 		    [] {
 			    if (!GUI::IsOpen())
