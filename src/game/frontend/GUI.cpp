@@ -9,7 +9,6 @@
 #include "core/scripting/LuaScript.hpp"
 #include "core/frontend/Notifications.hpp"
 #include "game/frontend/ChatDisplay.hpp"
-#include "AutoDriveHUD.hpp"
 #include "game/gta/Natives.hpp"
 #include "types/pad/ControllerInputs.hpp"
 
@@ -21,6 +20,18 @@ namespace YimMenu
 
 		Renderer::AddWindowProcedureCallback([this](HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 			GUI::WndProc(hwnd, msg, wparam, lparam);
+		});
+
+		Renderer::AddWindowProcedureCallback([this](HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+			LuaManager::DispatchEvent(MenuEvent::WndProc, [hwnd, msg, wparam, lparam](lua_State* state)
+			{
+				lua_pushinteger(state, reinterpret_cast<uintptr_t>(hwnd));
+				lua_pushinteger(state, msg);
+				lua_pushinteger(state, wparam);
+				lua_pushinteger(state, lparam);
+
+				return 4;
+			});
 		});
 
 		Renderer::AddRendererCallback(
@@ -44,17 +55,12 @@ namespace YimMenu
 		    },
 		    -6);
 		Renderer::AddRendererCallback(
-		    [&] {
-			    AutoDriveHUD::Draw();
-		    },
-		    -7);
-		Renderer::AddRendererCallback(
 		    [] {
 			    LuaManager::ForAllLoadedScripts([](std::shared_ptr<LuaScript>& script) {
 				    script->GetUserInterface().DrawAlwaysDrawImGuiCallbacks();
 			    });
 		    },
-		    -8);
+		    -7);
 		Renderer::AddRendererCallback(
 		    [] {
 			    if (!GUI::IsOpen())
@@ -64,17 +70,21 @@ namespace YimMenu
 			    });
 		    },
 		    -4);
-
+		
 		Renderer::SetSafeToRender();
 	}
 
 	void GUI::ToggleMouse()
 	{
+		if (!ImGui::GetCurrentContext())
+			return;
 		auto& io = ImGui::GetIO();
-		io.MouseDrawCursor = GUI::IsOpen() || GUI::IsOnboarding();
-		GUI::IsOpen() || GUI::IsOnboarding() 
-			? io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse :
-			  io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+		const bool enabled = IsOpen() || IsOnboarding() || IsMouseOverridden();
+		io.MouseDrawCursor = enabled;
+		if (enabled)
+			io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+		else
+			io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
 	}
 
 	void GUI::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -108,9 +118,9 @@ namespace YimMenu
 	{
 		while (g_Running)
 		{
-			if (GUI::IsOpen())
+			if (Renderer::IsInitialized() && (GUI::IsOpen() || GUI::IsMouseOverridden()))
 			{
-				if (UIManager::ShowingContentWindow())
+				if (UIManager::ShowingContentWindow() || GUI::IsMouseOverridden())
 				{
 					if (GUI::IsUsingKeyboard() && PAD::IS_USING_KEYBOARD_AND_MOUSE(0))
 					{
@@ -118,7 +128,7 @@ namespace YimMenu
 					}
 					else
 					{
-						static constexpr ControllerInputs controls[] = {ControllerInputs::INPUT_LOOK_LR, ControllerInputs::INPUT_LOOK_UD, ControllerInputs::INPUT_ATTACK, ControllerInputs::INPUT_AIM, ControllerInputs::INPUT_DUCK, ControllerInputs::INPUT_SELECT_WEAPON, ControllerInputs::INPUT_VEH_AIM, ControllerInputs::INPUT_VEH_ATTACK, ControllerInputs::INPUT_VEH_ATTACK2, ControllerInputs::INPUT_VEH_NEXT_RADIO, ControllerInputs::INPUT_VEH_PASSENGER_AIM, ControllerInputs::INPUT_VEH_PASSENGER_ATTACK, ControllerInputs::INPUT_VEH_SELECT_NEXT_WEAPON, ControllerInputs::INPUT_VEH_SELECT_PREV_WEAPON, ControllerInputs::INPUT_VEH_MOUSE_CONTROL_OVERRIDE, ControllerInputs::INPUT_MELEE_ATTACK_ALTERNATE, ControllerInputs::INPUT_FRONTEND_Y, ControllerInputs::INPUT_ATTACK2, ControllerInputs::INPUT_PREV_WEAPON, ControllerInputs::INPUT_NEXT_WEAPON, ControllerInputs::INPUT_VEH_DRIVE_LOOK, ControllerInputs::INPUT_VEH_DRIVE_LOOK2};
+						static constexpr auto controls = std::to_array<ControllerInputs>({ControllerInputs::INPUT_LOOK_LR, ControllerInputs::INPUT_LOOK_UD, ControllerInputs::INPUT_ATTACK, ControllerInputs::INPUT_AIM, ControllerInputs::INPUT_DUCK, ControllerInputs::INPUT_SELECT_WEAPON, ControllerInputs::INPUT_VEH_AIM, ControllerInputs::INPUT_VEH_ATTACK, ControllerInputs::INPUT_VEH_ATTACK2, ControllerInputs::INPUT_VEH_NEXT_RADIO, ControllerInputs::INPUT_VEH_PASSENGER_AIM, ControllerInputs::INPUT_VEH_PASSENGER_ATTACK, ControllerInputs::INPUT_VEH_SELECT_NEXT_WEAPON, ControllerInputs::INPUT_VEH_SELECT_PREV_WEAPON, ControllerInputs::INPUT_VEH_MOUSE_CONTROL_OVERRIDE, ControllerInputs::INPUT_MELEE_ATTACK_ALTERNATE, ControllerInputs::INPUT_FRONTEND_Y, ControllerInputs::INPUT_ATTACK2, ControllerInputs::INPUT_PREV_WEAPON, ControllerInputs::INPUT_NEXT_WEAPON, ControllerInputs::INPUT_VEH_DRIVE_LOOK, ControllerInputs::INPUT_VEH_DRIVE_LOOK2});
 
 						for (const auto& control : controls)
 							PAD::DISABLE_CONTROL_ACTION(0, static_cast<int>(control), true);
