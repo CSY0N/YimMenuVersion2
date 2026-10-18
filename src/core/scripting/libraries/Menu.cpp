@@ -209,6 +209,18 @@ namespace YimMenu::Lua
 		return 0;
 	}
 
+	static int SetMouseOverride(lua_State* state)
+	{
+		LuaScript::GetScript(state).GetUserInterface().SetMouseOverride(CheckBooleanSafe(state, 1));
+		return 0;
+	}
+
+	static int IsMouseOverridden(lua_State* state)
+	{
+		lua_pushboolean(state, GUI::IsMouseOverridden());
+		return 1;
+	}
+
 	static int MenuAddImGui(lua_State* state)
 	{
 		auto& iface = LuaScript::GetScript(state).GetUserInterface();
@@ -651,7 +663,7 @@ namespace YimMenu::Lua
 			Metatable<Handle>::Register(state);
 		}
 
-			static int MenuOpenUrl(lua_State* state)
+		static int MenuOpenUrl(lua_State* state)
 		{
 			const std::string url{CheckStringSafe(state, 1)};
 
@@ -720,9 +732,10 @@ namespace YimMenu::Lua
 			SetFunction(state, MenuGetSubmenu, "get_submenu");
 			SetFunction(state, MenuFindSubmenu, "find_submenu");
 			SetFunction(state, MenuCreateGroup, "create_group");
-			SetFunction(state, MenuOpenUrl, "open_url");
 			SetFunction(state, IsOpen, "is_open");
 			SetFunction(state, Toggle, "toggle");
+			SetFunction(state, SetMouseOverride, "set_mouse_override");
+			SetFunction(state, IsMouseOverridden, "is_mouse_overridden");
 			SetFunction(state, MenuAddImGui, "add_imgui");
 			SetFunction(state, MenuAddAlwaysDrawImGui, "add_always_draw_imgui");
 			lua_setglobal(state, "menu");
