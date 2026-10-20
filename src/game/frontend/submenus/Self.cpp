@@ -39,6 +39,7 @@ namespace YimMenu::Submenus
 		toolsGroup->AddItem(std::make_shared<CommandItem>("heal"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("cleardamage"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("fillinventory"_J));
+		toolsGroup->AddItem(std::make_shared<CommandItem>("fixallvehicles"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("openwardrobe"_J));
 		toolsGroup->AddItem(std::make_shared<CommandItem>("claimownbounty"_J));
 		toolsGroup->AddItem(std::make_shared<BoolCommandItem>("autoheal"_J));

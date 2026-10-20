@@ -73,8 +73,6 @@ namespace YimMenu
 
 		AnticheatBypass::RunOnStartup();
 
-		Players::Init();
-
 		Hooking::Init();
 		asi_loader::initialize();
 		ScriptMgr::Init();
