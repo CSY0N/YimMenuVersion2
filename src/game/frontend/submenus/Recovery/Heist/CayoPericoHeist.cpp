@@ -71,9 +71,11 @@ namespace YimMenu::Submenus
         loots->AddItem(std::make_shared<CommandItem>("cayopericoheistsetsecondarytakevalue"_J, "Set##secondarytakevalue"));
 
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistskiphacking"_J));
+		misc->AddItem(std::make_shared<CommandItem>("cayopericoheistsolomantrap"_J));
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistcutsewer"_J));
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistcutglass"_J));
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheisttakeprimarytarget"_J));
+		misc->AddItem(std::make_shared<CommandItem>("cayopericoheisttakesecondarytarget"_J));
         misc->AddItem(std::make_shared<CommandItem>("cayopericoheistinstantfinish"_J));
         misc->AddItem(std::make_shared<BoolCommandItem>("infiniteplasmacutterheat"_J));
         misc->AddItem(std::make_shared<CommandItem>("Reset_Cayo_Perico_cd"_J));
