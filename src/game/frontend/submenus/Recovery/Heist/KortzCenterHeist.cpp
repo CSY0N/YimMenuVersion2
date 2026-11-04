@@ -40,7 +40,7 @@ namespace YimMenu::Submenus
 		scoping->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistscopesecondary"_J));
 		scoping->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistscopepoi"_J));
 
-		scoping->AddItem(std::make_shared<CommandItem>("kortzcenterheistsetup"_J, "Setup##kortz"));
+		scoping->AddItem(std::make_shared<CommandItem>("kortzcenterheistsetup"_J));
 
 
 		misc->AddItem(std::make_shared<CommandItem>("kortz_skip_fingerprint_hack"_J));
@@ -49,6 +49,7 @@ namespace YimMenu::Submenus
 		misc->AddItem(std::make_shared<CommandItem>("kortz_centercooldowns"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_take_secondary"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_disablelasergrid"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistdisablecameras"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_skipdatacrack"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_cutglass"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("kortz_centerpayouts"_J));
