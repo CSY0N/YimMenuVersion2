@@ -15,6 +15,7 @@ namespace YimMenu::Submenus
 
 		target->AddItem(std::make_shared<ListCommandItem>("kortzcenterheistprimarytarget"_J));
 
+		general->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheisthardmode"_J));
 		general->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistguardroutes"_J));
 		general->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistglasscutter"_J));
 		general->AddItem(std::make_shared<BoolCommandItem>("kortzcenterheistpowerdrills"_J));
@@ -43,15 +44,15 @@ namespace YimMenu::Submenus
 		scoping->AddItem(std::make_shared<CommandItem>("kortzcenterheistsetup"_J));
 
 
-		misc->AddItem(std::make_shared<CommandItem>("kortz_skip_fingerprint_hack"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_skip_Signal_Nodes_hack"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_take_primary"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistskipfingerprint"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistskipsignalnodes"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheisttakeprimary"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortz_centercooldowns"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_take_secondary"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_disablelasergrid"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheisttakesecondary"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistdisablelaser"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistdisablecameras"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_skipdatacrack"_J));
-		misc->AddItem(std::make_shared<CommandItem>("kortz_cutglass"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistskipdatacrack"_J));
+		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistcutglass"_J));
 		misc->AddItem(std::make_shared<BoolCommandItem>("kortz_centerpayouts"_J));
 		misc->AddItem(std::make_shared<CommandItem>("kortzcenterheistautoenterpcaccesscode"_J));
 
