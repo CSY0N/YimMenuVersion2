@@ -1,6 +1,7 @@
 #include "core/commands/Command.hpp"
 #include "core/commands/BoolCommand.hpp"
 #include "core/commands/ListCommand.hpp"
+#include "core/commands/LoopedCommand.hpp"
 #include "game/gta/Stats.hpp"
 #include "game/gta/ScriptGlobal.hpp"
 #include "game/gta/ScriptLocal.hpp"
@@ -62,6 +63,7 @@ namespace YimMenu::Features
 		static BoolCommand _KortzCenterCaracara{"kortzcenterheistcaracara", "Armored Caracara", "Armored Caracara", true};
 		static BoolCommand _KortzCenterAnnihilator{"kortzcenterheistannihilator", "Annihilator Stealth", "Annihilator stealth", true};
 		static BoolCommand _KortzCenterManchez{"kortzcenterheistmanchez", "Manchez", "Manchez", true};
+		static BoolCommand _KortzCenterPrepEMP{"kortzcenterheistprepemp", "EMP Charges (Prep)", "EMP charges prep", true};
 		static BoolCommand _KortzCenterGuardShipments{"kortzcenterheistguardshipments", "Guard Shipments", "Guard shipments", true};
 		static BoolCommand _KortzCenterGuardRoutesPrep{"kortzcenterheistguardroutesprep", "Guard Routes (Prep)", "Guard routes prep", true};
 		static BoolCommand _KortzCenterGlassCutterPrep{"kortzcenterheistglasscutterprep", "Glass Cutter (Prep)", "Glass cutter prep", true};
@@ -119,6 +121,17 @@ namespace YimMenu::Features
 					for (int i = 0; i <= 4; i++)
 						*ScriptLocal(thread, 32855).At(i, 13).At(3).As<float*>() = 100.0f;
 				}
+			}
+		};
+
+		class KortzCenterCooldowns : public Command
+		{
+			using Command::Command;
+
+			virtual void OnCall() override
+			{
+				*ScriptGlobal(262145).At(38102).As<int*>() = 600;
+				*ScriptGlobal(262145).At(38103).As<int*>() = 2880;
 			}
 		};
 
@@ -187,6 +200,54 @@ namespace YimMenu::Features
 			{
 				if (auto thread = Scripts::FindScriptThread("fm_mission_controller_v3"_J))
 					*ScriptLocal(thread, 70176).At(0, 295).At(237).At(0, 1).As<int*>() = *ScriptLocal(thread, 70176).At(0, 295).At(237).At(0, 1).As<int*>() | (1 << 21);
+			}
+		};
+
+		class KortzCenterPayouts : public LoopedCommand
+		{
+			using LoopedCommand::LoopedCommand;
+
+			virtual void OnTick() override
+			{
+				static constexpr int payouts[] = {
+				    481250, // 1  - La Dernière Débauche
+				    304500, // 2  - Hare Oneself Think
+				    305000, // 3  - The Downfall of Rome
+				    305500, // 4  - Brother Brother
+				    306000, // 5  - A Cast of Characters
+				    306500, // 6  - Gone To Seed
+				    307000, // 7  - True Love
+				    307500, // 8  - Breathless
+				    308000, // 9  - Consumato
+				    308500, // 10 - I Hear Voices
+				    309000, // 11 - Winter, Nowhere in Particular
+				    309500, // 12 - The Girl With the Pearl Necklace
+				    310000, // 13 - Chat on Fruit
+				    310500, // 14 - Pumpkin
+				    311000, // 15 - Twindifference
+				    311500, // 16 - Stacks Study V
+				    312000, // 17 - I, Fruit
+				    312500, // 18 - To Beat About the Bush
+				    313000, // 19 - In Excess of Success
+				    313500, // 20 - Juiced
+				    314000, // 21 - A Winding Road Home
+				    314500, // 22 - Teckels
+				    315000, // 23 - Trust
+				    315500, // 24 - Until Death
+				    316000, // 25 - What Are Melons?
+				    365000, // 26 - The Outcome of Endeavour
+				    317000  // 27 - Mi O Melee
+				};
+
+				for (std::size_t i = 0; i < std::size(payouts); ++i)
+				{
+					if (auto payoutGlobal = ScriptGlobal(262145).At(38004).At(static_cast<std::ptrdiff_t>(i + 1)).As<int*>())
+					{
+						*payoutGlobal = payouts[i];
+					}
+				}
+				if (auto multiplier = ScriptGlobal(262145).At(38199).As<float*>())
+					*multiplier = 4.0f;
 			}
 		};
 
@@ -276,11 +337,13 @@ namespace YimMenu::Features
 		static SkipSignalNodes _KortzCenterSkipSignalNodes{"kortzcenterheistskipsignalnodes", "Skip Signal Nodes", "Skips signal nodes hacking at vault keypad"};
 		static SkipDataCrack _KortzCenterSkipDataCrack{"kortzcenterheistskipdatacrack", "Skip Data Crack", "Skips data crack minigame"};
 		static CutGlass _KortzCenterCutGlass{"kortzcenterheistcutglass", "Cut Glass", "Cuts display case glass instantly"};
+		static KortzCenterCooldowns _kortzCenterCooldowns{"kortz_centercooldowns", "KC Cooldowns", "Sets the Kortz Center Heist cooldowns."};
 		static DisableLaserGrid _KortzCenterDisableLaser{"kortzcenterheistdisablelaser", "Disable Laser Grid", "Disables laser security grid"};
 		static TakePrimaryTarget _KortzCenterTakePrimary{"kortzcenterheisttakeprimary", "Take Primary Target", "Takes primary target painting (stand near it)"};
 		static TakeSecondaryTarget _KortzCenterTakeSecondary{"kortzcenterheisttakesecondary", "Take Secondary Target", "Takes secondary loot (stand near it)"};
 		static Setup _KortzCenterSetup{"kortzcenterheistsetup", "Setup", "Sets up Kortz Center heist"};
 		static AutoEnterPcAccessCode _KortzCenterAutoEnterPcAccessCode{"kortzcenterheistautoenterpcaccesscode", "Auto-Enter PC Access Code", "Automatically enters the PC access code"};
 		static DisableCameras _KortzCenterDisableCameras{"kortzcenterheistdisablecameras", "Disable Cameras", "Disables interior cameras"};
+		static KortzCenterPayouts _KortzCenterPayouts{"kortz_centerpayouts", "Kortz Center Payouts", "Changes all Kortz Center primary target payouts and sets the first sale multiplier to 4x."};
 	}
 }
